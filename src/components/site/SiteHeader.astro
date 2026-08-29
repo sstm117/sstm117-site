@@ -1,0 +1,208 @@
+---
+const navigation = [
+    { href: '/', label: 'INDEX' },
+    { href: '/work', label: 'WORK' },
+    { href: '/lab', label: 'LAB' },
+    { href: '/notes', label: 'NOTES' },
+    { href: '/about', label: 'ABOUT' },
+] as const;
+
+const pathname = Astro.url.pathname;
+
+const isActive = (href: string) => {
+    if (href === '/') return pathname === '/';
+    return pathname === href || pathname.startsWith(`${href}/`);
+};
+
+const current = navigation.find(({ href }) => isActive(href))?.label;
+const mobileLabel = current ?? 'MENU';
+---
+
+<header class="site-header">
+    <div
+        class="site-header__observer-reserve"
+        aria-hidden="true"
+        data-observer-reserve
+    ></div>
+
+    <a class="site-header__brand" href="/" aria-label="sstm117 — Index">
+        sstm117
+    </a>
+
+    <nav class="site-header__nav" aria-label="Primary">
+        {
+            navigation.map(({ href, label }) => (
+                <a
+                    href={href}
+                    class:list={[
+                        'site-header__nav-link',
+                        { 'is-active': isActive(href) },
+                    ]}
+                    aria-current={isActive(href) ? 'page' : undefined}
+                >
+                    {label}
+                </a>
+            ))
+        }
+    </nav>
+
+    <details class="site-header__mobile-nav">
+        <summary
+            class="site-header__mobile-summary"
+            aria-label={`${mobileLabel} — navigation menu`}
+        >
+            <span>{mobileLabel}</span>
+            <span aria-hidden="true">▾</span>
+        </summary>
+
+        <nav
+            class="site-header__mobile-menu"
+            aria-label="Mobile primary"
+        >
+            {
+                navigation.map(({ href, label }) => (
+                    <a
+                        href={href}
+                        class:list={[
+                            'site-header__mobile-link',
+                            { 'is-active': isActive(href) },
+                        ]}
+                        aria-current={isActive(href) ? 'page' : undefined}
+                    >
+                        {label}
+                    </a>
+                ))
+            }
+        </nav>
+    </details>
+</header>
+
+<style>
+    .site-header {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        height: var(--header-height-desktop);
+        padding-inline: var(--page-gutter-desktop);
+        border-bottom: 1px solid var(--color-line);
+        font-family: var(--font-mono);
+    }
+
+    .site-header__observer-reserve {
+        width: 22px;
+        height: 22px;
+        flex: 0 0 22px;
+    }
+
+    .site-header__brand {
+        flex: none;
+        font-size: 12.5px;
+        line-height: 1;
+        letter-spacing: 0.06em;
+    }
+
+    .site-header__nav {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        margin-left: 40px;
+        font-size: 10.5px;
+        line-height: 1;
+        letter-spacing: 0.13em;
+    }
+
+    .site-header__nav-link {
+        color: var(--color-text-dim);
+        padding-block: 4px;
+        border-bottom: 1px solid transparent;
+    }
+
+    .site-header__nav-link:hover,
+    .site-header__nav-link:focus-visible {
+        color: var(--color-text);
+    }
+
+    .site-header__nav-link.is-active {
+        color: var(--color-text);
+        border-bottom-color: var(--color-signal);
+    }
+
+    .site-header__mobile-nav {
+        display: none;
+    }
+
+    @media (max-width: 720px) {
+        .site-header {
+            height: auto;
+            gap: 11px;
+            padding: 14px var(--page-gutter-mobile);
+        }
+
+        .site-header__observer-reserve {
+            width: 20px;
+            height: 20px;
+            flex-basis: 20px;
+        }
+
+        .site-header__brand {
+            font-size: 12px;
+        }
+
+        .site-header__nav {
+            display: none;
+        }
+
+        .site-header__mobile-nav {
+            position: relative;
+            display: block;
+            margin-left: auto;
+        }
+
+        .site-header__mobile-summary {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin: -18px -12px;
+            padding: 18px 12px;
+            list-style: none;
+            cursor: pointer;
+            color: var(--color-text-dim);
+            font-size: 9.5px;
+            line-height: 1;
+            letter-spacing: 0.12em;
+        }
+
+        .site-header__mobile-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .site-header__mobile-menu {
+            position: absolute;
+            top: calc(100% + 14px);
+            right: 0;
+            z-index: 100;
+            min-width: 132px;
+            border: 1px solid var(--color-line);
+            background: var(--color-surface);
+        }
+
+        .site-header__mobile-link {
+            display: block;
+            padding: 11px 13px;
+            border-bottom: 1px solid var(--color-line);
+            color: var(--color-text-dim);
+            font-size: 10px;
+            line-height: 1;
+            letter-spacing: 0.12em;
+        }
+
+        .site-header__mobile-link:last-child {
+            border-bottom: 0;
+        }
+
+        .site-header__mobile-link.is-active {
+            color: var(--color-text);
+        }
+    }
+</style>
