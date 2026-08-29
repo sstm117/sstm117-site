@@ -2,4 +2,164 @@
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
-<SiteLayout />
+<SiteLayout
+    description="Supply chain engineer building software and AI tools."
+>
+    <div class="index-surface">
+        <section
+            class="index-field-stage"
+            aria-labelledby="index-identity"
+        >
+            <div class="index-identity">
+                <div class="index-identity__caption">
+                    PRACTICE · 000—117
+                </div>
+
+                <h1
+                    id="index-identity"
+                    class="index-identity__name"
+                >
+                    Simon Sainte<br />Mareville
+                </h1>
+
+                <p class="index-identity__lead">
+                    Supply chain engineer building software and AI tools.
+                </p>
+
+                <p class="index-identity__tail">
+                    The work started in physical operations. The question it left behind —
+                    <span>how does this system actually behave</span>
+                    — is the one now put to software and to AI. What you are looking at is
+                    that practice, drawn.
+                </p>
+            </div>
+
+            <div
+                class="index-field-stage__drawing-reserve"
+                aria-hidden="true"
+            >
+                <div
+                    class="index-field-stage__drawing-surface"
+                ></div>
+            </div>
+        </section>
+    </div>
+</SiteLayout>
+
+<style>
+    .index-surface {
+        width: 100%;
+    }
+
+    .index-field-stage {
+        position: relative;
+        width: 100%;
+        max-width: 1480px;
+        margin-inline: auto;
+    }
+
+    .index-identity {
+        position: absolute;
+        top: 46px;
+        left: 34px;
+        z-index: 4;
+        width: 40%;
+        max-width: 470px;
+        pointer-events: none;
+    }
+
+    .index-identity__caption {
+        margin-bottom: 22px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .index-identity__name {
+        margin: 0 0 20px;
+        color: var(--color-text);
+        font-size: clamp(38px, 4.2vw, 64px);
+        font-weight: 600;
+        line-height: 0.94;
+        letter-spacing: -0.04em;
+    }
+
+    .index-identity__lead {
+        max-width: 24ch;
+        margin: 0 0 18px;
+        color: var(--color-text);
+        font-size: 20px;
+        line-height: 1.35;
+        letter-spacing: -0.012em;
+    }
+
+    .index-identity__tail {
+        max-width: 46ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 15px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .index-identity__tail span {
+        color: oklch(0.88 0.006 200);
+    }
+
+    .index-field-stage__drawing-reserve {
+        padding: 0 32px 8px;
+    }
+
+    .index-field-stage__drawing-surface {
+        width: 100%;
+        aspect-ratio: 1000 / 620;
+    }
+
+    @media (max-width: 1319px) {
+        .index-identity {
+            position: static;
+            width: auto;
+            max-width: 660px;
+            padding: 44px 34px 10px;
+            pointer-events: auto;
+        }
+    }
+
+    @media (max-width: 859px) {
+        .index-field-stage {
+            max-width: none;
+        }
+
+        .index-identity {
+            max-width: none;
+            padding: 28px var(--page-gutter-mobile) 22px;
+        }
+
+        .index-identity__caption {
+            margin-bottom: 16px;
+            font-size: 9.5px;
+        }
+
+        .index-identity__name {
+            margin-bottom: 16px;
+            font-size: 36px;
+            line-height: 0.96;
+            letter-spacing: -0.035em;
+        }
+
+        .index-identity__lead {
+            max-width: none;
+            margin: 0;
+            font-size: 17px;
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+        }
+
+        .index-identity__tail,
+        .index-field-stage__drawing-reserve {
+            display: none;
+        }
+    }
+</style>
