@@ -95,6 +95,18 @@ const rows = FIELD.plotted.map((id) => {
         </span>
     </header>
 
+    <div
+        class="relation-index__column-headings"
+        aria-hidden="true"
+    >
+        <span class="relation-index__column-heading relation-index__column-heading--primary">
+            PRIMARY
+        </span>
+        <span class="relation-index__column-heading relation-index__column-heading--present">
+            PRESENT
+        </span>
+    </div>
+
     <div class="relation-index__rows">
         {
             rows.map((row) => (
@@ -187,7 +199,7 @@ const rows = FIELD.plotted.map((id) => {
         display: flex;
         align-items: baseline;
         gap: 16px;
-        margin-bottom: 16px;
+        margin-bottom: 4px;
         flex-wrap: wrap;
     }
 
@@ -211,6 +223,33 @@ const rows = FIELD.plotted.map((id) => {
         color: oklch(0.60 0.008 200);
         font-size: 13px;
         line-height: 1.4;
+    }
+
+    .relation-index__column-headings {
+        display: grid;
+        grid-template-columns:
+            44px
+            minmax(0, 1fr)
+            minmax(0, 1.15fr)
+            minmax(0, 1fr);
+        gap: 18px;
+        margin-bottom: 3px;
+    }
+
+    .relation-index__column-heading {
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1;
+        letter-spacing: 0.12em;
+    }
+
+    .relation-index__column-heading--primary {
+        grid-column: 3;
+    }
+
+    .relation-index__column-heading--present {
+        grid-column: 4;
     }
 
     .relation-index__rows {
@@ -293,6 +332,7 @@ const rows = FIELD.plotted.map((id) => {
         }
 
         .relation-index__desktop-title,
+        .relation-index__column-headings,
         .relation-index__subtitle {
             display: none;
         }
