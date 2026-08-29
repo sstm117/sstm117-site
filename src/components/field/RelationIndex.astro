@@ -1,5 +1,6 @@
 ---
 import { concerns } from '../../data/concerns';
+import { FIELD } from '../../data/field-composition';
 import { relations } from '../../data/relations';
 import { systems } from '../../data/systems';
 
@@ -12,7 +13,18 @@ const concernById = new Map<ConcernId, (typeof concerns)[number]>(
     concerns.map((concern) => [concern.id, concern]),
 );
 
-const rows = systems.map((system) => {
+const systemById = new Map(
+    systems.map((system) => [system.id, system] as const),
+);
+
+const rows = FIELD.plotted.map((id) => {
+    const system = systemById.get(id);
+
+    if (!system) {
+        throw new Error(
+            `Unknown plotted system in relation index: ${id}`,
+        );
+    }
     const systemRelations = relations.filter(
         (relation) => relation.system === system.id,
     );
