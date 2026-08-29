@@ -1,4 +1,5 @@
 ---
+import RelationIndex from '../components/field/RelationIndex.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 ---
 
@@ -42,6 +43,10 @@ import SiteLayout from '../layouts/SiteLayout.astro';
                     class="index-field-stage__drawing-surface"
                 ></div>
             </div>
+        </section>
+
+        <section class="index-relation-row">
+            <RelationIndex />
         </section>
     </div>
 </SiteLayout>
@@ -117,6 +122,11 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         aspect-ratio: 1000 / 620;
     }
 
+    .index-relation-row {
+        padding: 30px 32px 34px;
+        border-top: 1px solid var(--color-line);
+    }
+
     @media (max-width: 1319px) {
         .index-identity {
             position: static;
@@ -130,6 +140,10 @@ import SiteLayout from '../layouts/SiteLayout.astro';
     @media (max-width: 859px) {
         .index-field-stage {
             max-width: none;
+        }
+
+        .index-relation-row {
+            padding: 16px var(--page-gutter-mobile) 22px;
         }
 
         .index-identity {

@@ -1,0 +1,344 @@
+---
+import { concerns } from '../../data/concerns';
+import { relations } from '../../data/relations';
+import { systems } from '../../data/systems';
+
+import type {
+    ConcernId,
+    SystemId,
+} from '../../data/types';
+
+const concernById = new Map<ConcernId, (typeof concerns)[number]>(
+    concerns.map((concern) => [concern.id, concern]),
+);
+
+const rows = systems.map((system) => {
+    const systemRelations = relations.filter(
+        (relation) => relation.system === system.id,
+    );
+
+    const resolveConcern = (id: ConcernId) => {
+        const concern = concernById.get(id);
+
+        if (!concern) {
+            throw new Error(
+                `Unknown concern in relation index: ${id}`,
+            );
+        }
+
+        return concern;
+    };
+
+    return {
+        id: system.id as SystemId,
+        index: system.index,
+        name: system.name,
+        primary: systemRelations
+            .filter(
+                ({ strength }) =>
+                    strength === 'PRIMARY',
+            )
+            .map(({ concern }) =>
+                resolveConcern(concern),
+            ),
+        present: systemRelations
+            .filter(
+                ({ strength }) =>
+                    strength === 'PRESENT',
+            )
+            .map(({ concern }) =>
+                resolveConcern(concern),
+            ),
+    };
+});
+---
+
+<section
+    class="relation-index"
+    aria-labelledby="relation-index-heading"
+>
+    <header class="relation-index__header">
+        <h2
+            id="relation-index-heading"
+            class="relation-index__heading"
+        >
+            <span class="relation-index__desktop-title">
+                RELATION INDEX
+            </span>
+            <span class="relation-index__mobile-title">
+                THE FIELD
+            </span>
+        </h2>
+
+        <p class="relation-index__subtitle">
+            the field in words — the diagram is never the only route
+        </p>
+
+        <span class="relation-index__mobile-count">
+            {rows.length} SYSTEMS
+        </span>
+    </header>
+
+    <div class="relation-index__rows">
+        {
+            rows.map((row) => (
+                <div
+                    class="relation-index__row"
+                    data-relation-row
+                >
+                    <span class="relation-index__number">
+                        {row.index}
+                    </span>
+
+                    <span class="relation-index__name">
+                        {row.name}
+                    </span>
+
+                    <span class="relation-index__concerns relation-index__concerns--primary">
+                        <span class="relation-index__sr-only">
+                            Primary concerns:
+                        </span>
+                        <span
+                            class="relation-index__qualifier"
+                            aria-hidden="true"
+                        >
+                            PRIMARY ·{' '}
+                        </span>
+                        {
+                            row.primary.length > 0
+                                ? row.primary.map(
+                                      (concern, index) => (
+                                          <>
+                                              {index > 0 && (
+                                                  <span aria-hidden="true">
+                                                      {' · '}
+                                                  </span>
+                                              )}
+                                              <span data-relation-strength="PRIMARY">
+                                                  {concern.label}
+                                              </span>
+                                          </>
+                                      ),
+                                  )
+                                : '—'
+                        }
+                    </span>
+
+                    <span class="relation-index__concerns relation-index__concerns--present">
+                        <span class="relation-index__sr-only">
+                            Present concerns:
+                        </span>
+                        <span
+                            class="relation-index__qualifier"
+                            aria-hidden="true"
+                        >
+                            PRESENT ·{' '}
+                        </span>
+                        {
+                            row.present.length > 0
+                                ? row.present.map(
+                                      (concern, index) => (
+                                          <>
+                                              {index > 0 && (
+                                                  <span aria-hidden="true">
+                                                      {' · '}
+                                                  </span>
+                                              )}
+                                              <span data-relation-strength="PRESENT">
+                                                  {concern.label}
+                                              </span>
+                                          </>
+                                      ),
+                                  )
+                                : '—'
+                        }
+                    </span>
+                </div>
+            ))
+        }
+    </div>
+
+    <p class="relation-index__note">
+        RELATION SET · OWNER-DECLARED — EACH EDGE IS A STATEMENT ABOUT THE PRACTICE,
+        NOT A COMPUTED SIMILARITY.<br />
+        NO EDGE MEANS NO DECLARED RESPONSIBILITY, NOT A GAP. NODE POSITIONS REMAIN
+        A DESIGN DECISION.
+    </p>
+</section>
+
+<style>
+    .relation-index__header {
+        display: flex;
+        align-items: baseline;
+        gap: 16px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+
+    .relation-index__heading {
+        margin: 0;
+        color: var(--color-text);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .relation-index__mobile-title,
+    .relation-index__mobile-count {
+        display: none;
+    }
+
+    .relation-index__subtitle {
+        margin: 0;
+        color: oklch(0.60 0.008 200);
+        font-size: 13px;
+        line-height: 1.4;
+    }
+
+    .relation-index__rows {
+        display: grid;
+        gap: 0;
+    }
+
+    .relation-index__row {
+        display: grid;
+        grid-template-columns:
+            44px
+            minmax(0, 1fr)
+            minmax(0, 1.15fr)
+            minmax(0, 1fr);
+        gap: 18px;
+        align-items: baseline;
+        padding: 11px 0;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .relation-index__number {
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+    }
+
+    .relation-index__name {
+        color: oklch(0.88 0.006 200);
+        font-size: 14.5px;
+        line-height: 1.4;
+        letter-spacing: -0.01em;
+    }
+
+    .relation-index__concerns {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.7;
+        letter-spacing: 0.08em;
+    }
+
+    .relation-index__concerns--primary {
+        color: oklch(0.66 0.008 200);
+    }
+
+    .relation-index__concerns--present {
+        color: oklch(0.60 0.008 200);
+    }
+
+    .relation-index__qualifier {
+        display: none;
+    }
+
+    .relation-index__note {
+        margin: 14px 0 0;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.8;
+        letter-spacing: 0.06em;
+    }
+
+    .relation-index__sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    @media (max-width: 859px) {
+        .relation-index__header {
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 4px;
+        }
+
+        .relation-index__desktop-title,
+        .relation-index__subtitle {
+            display: none;
+        }
+
+        .relation-index__mobile-title,
+        .relation-index__mobile-count {
+            display: inline;
+        }
+
+        .relation-index__heading {
+            color: oklch(0.60 0.008 200);
+            font-size: 9.5px;
+        }
+
+        .relation-index__mobile-count {
+            color: oklch(0.60 0.008 200);
+            font-family: var(--font-mono);
+            font-size: 9px;
+            letter-spacing: 0.1em;
+        }
+
+        .relation-index__row {
+            grid-template-columns: 44px minmax(0, 1fr);
+            gap: 0 11px;
+            min-height: 72px;
+            padding: 15px 0 16px 13px;
+            border-bottom-color: oklch(0.22 0.008 200);
+        }
+
+        .relation-index__number {
+            grid-column: 1;
+            grid-row: 1 / span 3;
+            padding-top: 2px;
+            font-size: 9.5px;
+            letter-spacing: 0.12em;
+        }
+
+        .relation-index__name {
+            grid-column: 2;
+            font-size: 17px;
+            line-height: 1.2;
+            letter-spacing: -0.015em;
+        }
+
+        .relation-index__concerns {
+            grid-column: 2;
+            margin-top: 7px;
+            font-size: 9.5px;
+            line-height: 1.6;
+        }
+
+        .relation-index__concerns--present {
+            margin-top: 2px;
+        }
+
+        .relation-index__qualifier {
+            display: inline;
+        }
+
+        .relation-index__note {
+            margin-top: 14px;
+            font-size: 9.5px;
+        }
+    }
+</style>
