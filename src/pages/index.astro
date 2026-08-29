@@ -1,6 +1,10 @@
 ---
+import FieldFigure from '../components/field/FieldFigure.astro';
 import RelationIndex from '../components/field/RelationIndex.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { fieldCounts } from '../lib/field-geometry';
+
+const counts = fieldCounts();
 ---
 
 <SiteLayout
@@ -35,13 +39,22 @@ import SiteLayout from '../layouts/SiteLayout.astro';
                 </p>
             </div>
 
-            <div
-                class="index-field-stage__drawing-reserve"
-                aria-hidden="true"
-            >
-                <div
-                    class="index-field-stage__drawing-surface"
-                ></div>
+            <FieldFigure />
+
+            <div class="index-field-caption">
+                <h2 class="index-field-caption__heading">
+                    THE FIELD
+                </h2>
+
+                <span class="index-field-caption__counts">
+                    {counts.plotted} PLOTTED
+                    {' · '}
+                    {counts.relations} RELATIONS
+                    {' · '}
+                    {counts.primary} PRIMARY
+                    {' · '}
+                    {counts.present} PRESENT
+                </span>
             </div>
         </section>
 
@@ -113,13 +126,28 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         color: oklch(0.88 0.006 200);
     }
 
-    .index-field-stage__drawing-reserve {
-        padding: 0 32px 8px;
+    .index-field-caption {
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        padding: 0 32px 20px;
+        flex-wrap: wrap;
     }
 
-    .index-field-stage__drawing-surface {
-        width: 100%;
-        aspect-ratio: 1000 / 620;
+    .index-field-caption__heading {
+        margin: 0;
+        color: var(--color-text);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .index-field-caption__counts {
+        color: var(--color-text-dim);
+        font-size: 13.5px;
+        line-height: 1.4;
     }
 
     .index-relation-row {
@@ -172,7 +200,7 @@ import SiteLayout from '../layouts/SiteLayout.astro';
         }
 
         .index-identity__tail,
-        .index-field-stage__drawing-reserve {
+        .index-field-caption {
             display: none;
         }
     }
