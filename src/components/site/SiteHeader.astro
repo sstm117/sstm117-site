@@ -49,7 +49,7 @@ const mobileLabel = current ?? 'MENU';
     <details class="site-header__mobile-nav">
         <summary
             class="site-header__mobile-summary"
-            aria-label={`${mobileLabel} — open navigation menu`}
+            aria-label={`${mobileLabel} — navigation menu`}
         >
             <span>{mobileLabel}</span>
             <span aria-hidden="true">▾</span>
@@ -163,6 +163,8 @@ const mobileLabel = current ?? 'MENU';
             display: flex;
             align-items: center;
             gap: 5px;
+            margin: -18px -12px;
+            padding: 18px 12px;
             list-style: none;
             cursor: pointer;
             color: var(--color-text-dim);
