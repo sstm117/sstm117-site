@@ -1,5 +1,476 @@
 ---
+import FieldFigure from '../components/field/FieldFigure.astro';
+import RelationIndex from '../components/field/RelationIndex.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { fieldCounts } from '../lib/field-geometry';
+
+const counts = fieldCounts();
 ---
 
-<SiteLayout />
+<SiteLayout
+    description="Supply chain engineer building software and AI tools."
+>
+    <div class="index-surface">
+        <section
+            class="index-field-stage"
+            aria-labelledby="index-identity"
+        >
+            <div class="index-identity">
+                <div class="index-identity__caption">
+                    PRACTICE · 000—117
+                </div>
+
+                <h1
+                    id="index-identity"
+                    class="index-identity__name"
+                >
+                    Simon Sainte<br />Mareville
+                </h1>
+
+                <p class="index-identity__lead">
+                    Supply chain engineer building software and AI tools.
+                </p>
+
+                <p class="index-identity__tail">
+                    The work started in physical operations. The question it left behind —
+                    <span>how does this system actually behave</span>
+                    — is the one now put to software and to AI. What you are looking at is
+                    that practice, drawn.
+                </p>
+            </div>
+
+            <FieldFigure />
+
+            <div class="index-field-caption">
+                <h2 class="index-field-caption__heading">
+                    THE FIELD
+                </h2>
+
+                <span class="index-field-caption__counts">
+                    {counts.plotted} PLOTTED
+                    {' · '}
+                    {counts.relations} RELATIONS
+                    {' · '}
+                    {counts.primary} PRIMARY
+                    {' · '}
+                    {counts.present} PRESENT
+                </span>
+            </div>
+        </section>
+
+        <section class="index-relation-row">
+            <RelationIndex />
+
+            <section
+                class="index-now"
+                aria-labelledby="index-now-heading"
+            >
+                <header class="index-now__header">
+                    <h2
+                        id="index-now-heading"
+                        class="index-now__heading"
+                    >
+                        NOW
+                    </h2>
+
+                    <span class="index-now__ledger">
+                        LEDGER
+                    </span>
+                </header>
+
+                <div class="index-now__slot" data-now-slot="ACTIVE">
+                    <h3 class="index-now__slot-heading">
+                        ACTIVE
+                    </h3>
+
+                    <div class="index-now__item">
+                        <span
+                            class="index-now__mark"
+                            aria-hidden="true"
+                        >
+                            ·
+                        </span>
+                        <span>awaiting declaration</span>
+                    </div>
+                </div>
+
+                <div class="index-now__slot" data-now-slot="EXPLORING">
+                    <h3 class="index-now__slot-heading">
+                        EXPLORING
+                    </h3>
+
+                    <div class="index-now__item">
+                        <span
+                            class="index-now__mark"
+                            aria-hidden="true"
+                        >
+                            ·
+                        </span>
+                        <span>awaiting declaration</span>
+                    </div>
+                </div>
+
+                <div class="index-now__slot" data-now-slot="HELD">
+                    <h3 class="index-now__slot-heading">
+                        HELD
+                    </h3>
+
+                    <div class="index-now__item">
+                        <span
+                            class="index-now__mark"
+                            aria-hidden="true"
+                        >
+                            ·
+                        </span>
+                        <span>awaiting declaration</span>
+                    </div>
+                </div>
+
+                <p class="index-now__note">
+                    OWNER-DECLARED. SLOTS RENDER<br />
+                    EMPTY UNTIL DECLARED — A<br />
+                    REPOSITORY PHASE IS NOT A<br />
+                    POSITION HERE.
+                </p>
+            </section>
+        </section>
+
+        <section
+            class="index-invariants"
+            aria-labelledby="index-invariants-heading"
+        >
+            <h2
+                id="index-invariants-heading"
+                class="index-invariants__heading"
+            >
+                PRACTICE<br /> INVARIANTS
+            </h2>
+
+            <div class="index-invariants__items">
+                <span data-practice-invariant>
+                    EVIDENCE BEFORE ASSERTION
+                </span>
+                <span data-practice-invariant>
+                    UNKNOWN IS A VALID STATE
+                </span>
+                <span data-practice-invariant>
+                    AUTOMATION DOES NOT CREATE AUTHORITY
+                </span>
+                <span data-practice-invariant>
+                    CONSTRAINTS ARE PART OF CORRECTNESS
+                </span>
+            </div>
+        </section>
+
+        <div class="index-closing-row">
+            <span class="index-closing-row__prompt">
+                &gt;_
+            </span>
+
+            <span>github.com/sstm117</span>
+
+            <span class="index-closing-row__mark">
+                000—117
+            </span>
+        </div>
+    </div>
+</SiteLayout>
+
+<style>
+    .index-surface {
+        width: 100%;
+    }
+
+    .index-field-stage {
+        position: relative;
+        width: 100%;
+        max-width: 1480px;
+        margin-inline: auto;
+    }
+
+    .index-identity {
+        position: absolute;
+        top: 46px;
+        left: 34px;
+        z-index: 4;
+        width: 40%;
+        max-width: 470px;
+        pointer-events: none;
+    }
+
+    .index-identity__caption {
+        margin-bottom: 22px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .index-identity__name {
+        margin: 0 0 20px;
+        color: var(--color-text);
+        font-size: clamp(38px, 4.2vw, 64px);
+        font-weight: 600;
+        line-height: 0.94;
+        letter-spacing: -0.04em;
+    }
+
+    .index-identity__lead {
+        max-width: 24ch;
+        margin: 0 0 18px;
+        color: var(--color-text);
+        font-size: 20px;
+        line-height: 1.35;
+        letter-spacing: -0.012em;
+    }
+
+    .index-identity__tail {
+        max-width: 46ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 15px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .index-identity__tail span {
+        color: oklch(0.88 0.006 200);
+    }
+
+    .index-field-caption {
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        padding: 0 32px 20px;
+        flex-wrap: wrap;
+    }
+
+    .index-field-caption__heading {
+        margin: 0;
+        color: var(--color-text);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .index-field-caption__counts {
+        color: var(--color-text-dim);
+        font-size: 13.5px;
+        line-height: 1.4;
+    }
+
+    .index-relation-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.5fr) 306px;
+        gap: 56px;
+        padding: 30px 32px 34px;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .index-now {
+        padding-left: 26px;
+        border-left: 1px solid var(--color-line);
+    }
+
+    .index-now__header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 18px;
+    }
+
+    .index-now__heading {
+        margin: 0;
+        color: var(--color-text);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.16em;
+    }
+
+    .index-now__ledger {
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1;
+        letter-spacing: 0.1em;
+    }
+
+    .index-now__slot {
+        margin-bottom: 16px;
+    }
+
+    .index-now__slot-heading {
+        margin: 0 0 7px;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .index-now__item {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        padding: 2px 0;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        line-height: 1.4;
+        letter-spacing: 0.06em;
+    }
+
+    .index-now__mark {
+        width: 10px;
+        flex: none;
+        font-size: 10px;
+    }
+
+    .index-now__note {
+        margin: 0;
+        padding-top: 13px;
+        border-top: 1px solid var(--color-line);
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.7;
+    }
+
+    .index-invariants {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 26px;
+        align-items: start;
+        padding: 20px 32px 22px;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .index-invariants__heading {
+        margin: 0;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1.7;
+        letter-spacing: 0.14em;
+    }
+
+    .index-invariants__items {
+        display: grid;
+        grid-template-columns:
+            repeat(auto-fit, minmax(215px, 1fr));
+        gap: 9px 26px;
+        color: oklch(0.78 0.006 200);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.5;
+        letter-spacing: 0.1em;
+    }
+
+    .index-closing-row {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 22px 32px;
+        border-top: 1px solid var(--color-line);
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        line-height: 1;
+        flex-wrap: wrap;
+    }
+
+    .index-closing-row__prompt {
+        color: var(--color-signal);
+    }
+
+    .index-closing-row__mark {
+        margin-left: auto;
+    }
+
+    @media (max-width: 1319px) {
+        .index-identity {
+            position: static;
+            width: auto;
+            max-width: 660px;
+            padding: 44px 34px 10px;
+            pointer-events: auto;
+        }
+    }
+
+    @media (max-width: 859px) {
+        .index-field-stage {
+            max-width: none;
+        }
+
+        .index-relation-row {
+            display: block;
+            padding: 16px var(--page-gutter-mobile) 10px;
+        }
+
+        .index-now,
+        .index-closing-row {
+            display: none;
+        }
+
+        .index-invariants {
+            display: block;
+            padding: 14px var(--page-gutter-mobile) 16px;
+        }
+
+        .index-invariants__heading {
+            margin-bottom: 9px;
+            font-size: 9px;
+            line-height: 1;
+        }
+
+        .index-invariants__heading br {
+            display: none;
+        }
+
+        .index-invariants__items {
+            grid-template-columns: 1fr;
+            gap: 5px;
+            color: oklch(0.76 0.008 200);
+            font-size: 9.5px;
+            line-height: 1.4;
+            letter-spacing: 0.08em;
+        }
+
+        .index-identity {
+            max-width: none;
+            padding: 28px var(--page-gutter-mobile) 22px;
+        }
+
+        .index-identity__caption {
+            margin-bottom: 16px;
+            font-size: 9.5px;
+        }
+
+        .index-identity__name {
+            margin-bottom: 16px;
+            font-size: 36px;
+            line-height: 0.96;
+            letter-spacing: -0.035em;
+        }
+
+        .index-identity__lead {
+            max-width: none;
+            margin: 0;
+            font-size: 17px;
+            line-height: 1.35;
+            letter-spacing: -0.01em;
+        }
+
+        .index-identity__tail,
+        .index-field-caption {
+            display: none;
+        }
+    }
+</style>

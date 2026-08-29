@@ -1,0 +1,356 @@
+---
+import { concerns } from '../../data/concerns';
+import { FIELD } from '../../data/field-composition';
+import { systems } from '../../data/systems';
+import {
+    assertFieldIntegrity,
+    resolveTraces,
+} from '../../lib/field-geometry';
+
+import type { LabelPlacement } from '../../data/field-composition';
+
+assertFieldIntegrity();
+
+const traces = resolveTraces();
+
+const systemById = new Map(
+    systems.map((system) => [system.id, system] as const),
+);
+
+const concernById = new Map(
+    concerns.map((concern) => [concern.id, concern] as const),
+);
+
+const plottedSystems = FIELD.plotted.map((id) => {
+    const system = systemById.get(id);
+
+    if (!system) {
+        throw new Error(`Unknown plotted system: ${id}`);
+    }
+
+    return {
+        record: system,
+        node: FIELD.nodes[id],
+        label: FIELD.labels[id],
+    };
+});
+
+const fieldConcerns = FIELD.concerns.map((id) => {
+    const concern = concernById.get(id);
+
+    if (!concern) {
+        throw new Error(`Unknown field concern: ${id}`);
+    }
+
+    return {
+        record: concern,
+        node: FIELD.nodes[id],
+        label: FIELD.labels[id],
+    };
+});
+
+function labelPositionStyle(
+    placement: LabelPlacement,
+): string {
+    const left =
+        (
+            (placement.x / FIELD.viewBox.width) *
+            100
+        ).toFixed(2);
+
+    const top =
+        (
+            (placement.y / FIELD.viewBox.height) *
+            100
+        ).toFixed(2);
+
+    return `left:${left}%;top:${top}%;`;
+}
+---
+
+<div class="field-figure">
+    <svg
+        class="field-figure__svg"
+        viewBox={`0 0 ${FIELD.viewBox.width} ${FIELD.viewBox.height}`}
+        role="img"
+        aria-label={FIELD.ariaLabel}
+        focusable="false"
+    >
+        <g
+            class="field__traces"
+            data-field-layer="traces"
+        >
+            {
+                traces.map((trace) => (
+                    <path
+                        class="field__trace"
+                        data-field-trace
+                        data-system={trace.system}
+                        data-concern={trace.concern}
+                        data-strength={trace.strength}
+                        d={trace.d}
+                        stroke-dasharray={
+                            trace.strength === 'PRESENT'
+                                ? '3 4'
+                                : undefined
+                        }
+                    />
+                ))
+            }
+        </g>
+
+        <g
+            class="field__concerns"
+            data-field-layer="concerns"
+        >
+            {
+                fieldConcerns.map(
+                    ({ record, node }) => (
+                        <g
+                            class="node node--concern"
+                            data-concern={record.id}
+                        >
+                            <rect
+                                class="node__square"
+                                x={node.x - 5.5}
+                                y={node.y - 5.5}
+                                width="11"
+                                height="11"
+                            />
+
+                            <rect
+                                class="node__hit"
+                                x={node.x - 12}
+                                y={node.y - 12}
+                                width="24"
+                                height="24"
+                            />
+                        </g>
+                    ),
+                )
+            }
+        </g>
+
+        <g
+            class="field__systems"
+            data-field-layer="systems"
+        >
+            {
+                plottedSystems.map(
+                    ({ record, node }) => (
+                        <g
+                            class="node node--system"
+                            data-system={record.id}
+                        >
+                            <circle
+                                class="node__ring"
+                                cx={node.x}
+                                cy={node.y}
+                                r="10"
+                                stroke-dasharray={
+                                    record.evidence ===
+                                    'SOURCE-VERIFIED'
+                                        ? undefined
+                                        : '1.5 2.5'
+                                }
+                            />
+
+                            <circle
+                                class="node__core"
+                                cx={node.x}
+                                cy={node.y}
+                                r="3"
+                            />
+
+                            <circle
+                                class="node__hit"
+                                cx={node.x}
+                                cy={node.y}
+                                r="28"
+                            />
+                        </g>
+                    ),
+                )
+            }
+        </g>
+    </svg>
+
+    <div
+        class="field__labels"
+        data-field-layer="labels"
+        aria-hidden="true"
+    >
+        {
+            fieldConcerns.map(
+                ({ record, label }) => (
+                    <div
+                        class:list={[
+                            'field__label',
+                            'field__label--concern',
+                            `field__label--anchor-${label.anchor}`,
+                        ]}
+                        data-field-label
+                        data-concern-label={record.id}
+                        style={labelPositionStyle(label)}
+                    >
+                        <span class="field__label-concern">
+                            {record.label}
+                        </span>
+                    </div>
+                ),
+            )
+        }
+
+        {
+            plottedSystems.map(
+                ({ record, label }) => (
+                    <div
+                        class:list={[
+                            'field__label',
+                            'field__label--system',
+                            `field__label--anchor-${label.anchor}`,
+                        ]}
+                        data-field-label
+                        data-system-label={record.id}
+                        style={labelPositionStyle(label)}
+                    >
+                        <span class="field__label-system-name">
+                            {record.name}
+                        </span>
+
+                        <span class="field__label-system-meta">
+                            {record.index}
+                            {' · '}
+                            {
+                                record.phase?.compact ??
+                                    'UNDECLARED'
+                            }
+                        </span>
+                    </div>
+                ),
+            )
+        }
+    </div>
+</div>
+
+<style>
+    .field-figure {
+        position: relative;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 0 32px 8px;
+    }
+
+    .field-figure :global(.field-figure__svg) {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .field-figure :global(.field__trace) {
+        fill: none;
+        stroke: oklch(0.36 0.008 200);
+        stroke-width: 1px;
+    }
+
+    .field-figure :global(.node__ring) {
+        fill: var(--color-bg);
+        stroke: oklch(0.66 0.008 200);
+        stroke-width: 1.2px;
+    }
+
+    .field-figure :global(.node__core) {
+        fill: oklch(0.66 0.008 200);
+    }
+
+    .field-figure
+        :global(.node--concern .node__square) {
+        fill: transparent;
+        stroke: oklch(0.66 0.008 200);
+        stroke-width: 1px;
+    }
+
+    .field-figure :global(.node__hit) {
+        fill: transparent;
+        stroke: none;
+    }
+
+    .field-figure :global(.field__labels) {
+        position: absolute;
+        inset: 0 32px 8px;
+        pointer-events: none;
+    }
+
+    .field-figure :global(.field__label) {
+        position: absolute;
+        display: grid;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    .field-figure
+        :global(.field__label--anchor-l) {
+        transform: translate(0, -50%);
+        justify-items: start;
+        text-align: left;
+    }
+
+    .field-figure
+        :global(.field__label--anchor-c) {
+        transform: translate(-50%, -50%);
+        justify-items: center;
+        text-align: center;
+    }
+
+    .field-figure
+        :global(.field__label--anchor-r) {
+        transform: translate(-100%, -50%);
+        justify-items: end;
+        text-align: right;
+    }
+
+    .field-figure
+        :global(.field__label-system-name) {
+        margin: -3px -8px;
+        padding: 3px 8px;
+        background: var(--color-bg);
+        color: oklch(0.84 0.006 200);
+        font-family: var(--font-sans);
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.1;
+        letter-spacing: -0.012em;
+    }
+
+    .field-figure
+        :global(.field__label-system-meta) {
+        margin: -2px -8px;
+        padding: 2px 8px;
+        background: var(--color-bg);
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.12em;
+    }
+
+    .field-figure
+        :global(.field__label-concern) {
+        margin: -2px -7px;
+        padding: 2px 7px;
+        background: var(--color-bg);
+        color: oklch(0.66 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: 0.11em;
+    }
+
+    @media (max-width: 859px) {
+        .field-figure {
+            display: none;
+        }
+    }
+</style>
