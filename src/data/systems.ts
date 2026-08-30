@@ -1,3 +1,5 @@
+import { assertProvenanceIntegrity } from './provenance-integrity';
+import { provenance } from './provenance';
 import type { SystemRecord } from './types';
 
 export const systems = [
@@ -55,3 +57,5 @@ export const systems = [
         now: null,
     },
 ] as const satisfies readonly SystemRecord[];
+
+assertProvenanceIntegrity(systems, provenance);
