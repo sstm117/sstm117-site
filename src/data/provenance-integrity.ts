@@ -8,6 +8,17 @@ const SOURCE_AVAILABILITIES = new Set([
     "NONE",
 ]);
 
+const SYSTEM_EVIDENCE = new Set([
+    "SOURCE-VERIFIED",
+    "OWNER-DECLARED",
+    "NO SOURCE",
+]);
+
+const SYSTEM_REQUIRED_KEYS = [
+    "id",
+    "evidence",
+] as const;
+
 const SOURCE_KINDS = new Set([
     "REPOSITORY",
     "SPECIFICATION",
@@ -206,15 +217,16 @@ function fail(message: string): never {
     throw new Error("[provenance-integrity] " + message);
 }
 
-function hasOwn(record: object, key: PropertyKey): boolean {
-    return Object.prototype.hasOwnProperty.call(record, key);
-}
 
 function assertCleanArrayPrototype(
     context: string,
     entity: string,
 ): void {
-    for (const key of Reflect.ownKeys(Array.prototype)) {
+    const keys = Reflect.ownKeys(Array.prototype);
+
+    for (let index = 0; index < keys.length; index += 1) {
+        const key = keys[index];
+
         if (!ARRAY_PROTOTYPE_ALLOWED_KEYS.has(key)) {
             fail(
                 context +
@@ -231,7 +243,11 @@ function assertCleanObjectPrototype(
     context: string,
     entity: string,
 ): void {
-    for (const key of Reflect.ownKeys(Object.prototype)) {
+    const keys = Reflect.ownKeys(Object.prototype);
+
+    for (let index = 0; index < keys.length; index += 1) {
+        const key = keys[index];
+
         if (!OBJECT_PROTOTYPE_ALLOWED_KEYS.has(key)) {
             fail(
                 context +
@@ -262,12 +278,12 @@ function assertPlainDataPrototype(
     assertCleanObjectPrototype(context, entity);
 }
 
-function assertDataProperty(
+function getDataPropertyDescriptor(
     value: object,
     key: PropertyKey,
     context: string,
     entity: string,
-): void {
+): PropertyDescriptor & { value: unknown } {
     const descriptor = Object.getOwnPropertyDescriptor(value, key);
 
     if (!descriptor || !("value" in descriptor)) {
@@ -279,6 +295,8 @@ function assertDataProperty(
             entity,
         );
     }
+
+    return descriptor as PropertyDescriptor & { value: unknown };
 }
 
 function isArrayIndex(key: string, length: number): boolean {
@@ -295,11 +313,11 @@ function isArrayIndex(key: string, length: number): boolean {
     );
 }
 
-function assertPlainArray(
+function snapshotPlainArray(
     value: unknown,
     context: string,
     entity: string,
-): asserts value is unknown[] {
+): unknown[] {
     if (!Array.isArray(value)) {
         fail(context + " is not an array for " + entity);
     }
@@ -310,11 +328,33 @@ function assertPlainArray(
 
     assertCleanObjectPrototype(context, entity);
     assertCleanArrayPrototype(context, entity);
-    assertDataProperty(value, "length", context, entity);
 
-    const length = value.length;
+    const lengthDescriptor = getDataPropertyDescriptor(
+        value,
+        "length",
+        context,
+        entity,
+    );
 
-    for (const key of Reflect.ownKeys(value)) {
+    const length = lengthDescriptor.value;
+
+    if (
+        typeof length !== "number" ||
+        !Number.isInteger(length) ||
+        length < 0
+    ) {
+        fail(context + " has invalid length for " + entity);
+    }
+
+    const ownKeys = Reflect.ownKeys(value);
+
+    for (
+        let keyIndex = 0;
+        keyIndex < ownKeys.length;
+        keyIndex += 1
+    ) {
+        const key = ownKeys[keyIndex];
+
         if (
             key !== "length" &&
             (
@@ -331,13 +371,24 @@ function assertPlainArray(
             );
         }
 
-        assertDataProperty(value, key, context, entity);
+        getDataPropertyDescriptor(
+            value,
+            key,
+            context,
+            entity,
+        );
     }
+
+    const snapshot: unknown[] = [];
 
     for (let index = 0; index < length; index += 1) {
         const key = String(index);
+        const descriptor = Object.getOwnPropertyDescriptor(
+            value,
+            key,
+        );
 
-        if (!hasOwn(value, key)) {
+        if (!descriptor) {
             fail(
                 context +
                 " has sparse index " +
@@ -347,17 +398,29 @@ function assertPlainArray(
             );
         }
 
-        assertDataProperty(value, key, context, entity);
+        if (!("value" in descriptor)) {
+            fail(
+                context +
+                " uses accessor key " +
+                key +
+                " for " +
+                entity,
+            );
+        }
+
+        snapshot[index] = descriptor.value;
     }
+
+    return snapshot;
 }
 
-function assertExactShape(
+function snapshotExactShape(
     value: unknown,
     allowedKeys: ReadonlySet<string>,
     requiredKeys: readonly string[],
     context: string,
     entity: string,
-): asserts value is UnknownRecord {
+): UnknownRecord {
     if (
         typeof value !== "object" ||
         value === null ||
@@ -368,7 +431,16 @@ function assertExactShape(
 
     assertPlainDataPrototype(value, context, entity);
 
-    for (const key of Reflect.ownKeys(value)) {
+    const snapshot = Object.create(null) as UnknownRecord;
+    const ownKeys = Reflect.ownKeys(value);
+
+    for (
+        let keyIndex = 0;
+        keyIndex < ownKeys.length;
+        keyIndex += 1
+    ) {
+        const key = ownKeys[keyIndex];
+
         if (typeof key !== "string" || !allowedKeys.has(key)) {
             fail(
                 context +
@@ -379,11 +451,25 @@ function assertExactShape(
             );
         }
 
-        assertDataProperty(value, key, context, entity);
+        snapshot[key] = getDataPropertyDescriptor(
+            value,
+            key,
+            context,
+            entity,
+        ).value;
     }
 
-    for (const key of requiredKeys) {
-        if (!hasOwn(value, key)) {
+    for (
+        let keyIndex = 0;
+        keyIndex < requiredKeys.length;
+        keyIndex += 1
+    ) {
+        const key = requiredKeys[keyIndex];
+
+        if (
+            Object.getOwnPropertyDescriptor(snapshot, key) ===
+            undefined
+        ) {
             fail(
                 context +
                 " lacks required key " +
@@ -393,6 +479,44 @@ function assertExactShape(
             );
         }
     }
+
+    return snapshot;
+}
+
+function snapshotRequiredDataProperties(
+    value: unknown,
+    requiredKeys: readonly string[],
+    context: string,
+    entity: string,
+): UnknownRecord {
+    if (
+        typeof value !== "object" ||
+        value === null ||
+        Array.isArray(value)
+    ) {
+        fail(context + " is not an object for " + entity);
+    }
+
+    assertPlainDataPrototype(value, context, entity);
+
+    const snapshot = Object.create(null) as UnknownRecord;
+
+    for (
+        let keyIndex = 0;
+        keyIndex < requiredKeys.length;
+        keyIndex += 1
+    ) {
+        const key = requiredKeys[keyIndex];
+
+        snapshot[key] = getDataPropertyDescriptor(
+            value,
+            key,
+            context,
+            entity,
+        ).value;
+    }
+
+    return snapshot;
 }
 
 function assertEnumValue(
@@ -436,8 +560,8 @@ function assertSourceStatus(
     value: unknown,
     availability: "PUBLIC" | "RESTRICTED",
     entity: string,
-): void {
-    assertExactShape(
+): string {
+    const status = snapshotExactShape(
         value,
         SOURCE_STATUS_ALLOWED_KEYS,
         SOURCE_STATUS_REQUIRED_KEYS,
@@ -445,49 +569,51 @@ function assertSourceStatus(
         entity,
     );
 
+    const authority = status.authority;
+
     assertEnumValue(
-        value.authority,
+        authority,
         SOURCE_AUTHORITIES,
         "source authority",
         entity,
     );
 
-    const roles = value.roles;
-
-    assertPlainArray(
-        roles,
+    const roles = snapshotPlainArray(
+        status.roles,
         "source roles",
         entity,
     );
 
     for (let index = 0; index < roles.length; index += 1) {
-        const role = roles[index];
-
         assertEnumValue(
-            role,
+            roles[index],
             SOURCE_ROLES,
             "source role",
             entity,
         );
     }
+
+    return authority;
 }
 
 function assertSourceCoverage(
     value: unknown,
     availability: "PUBLIC" | "RESTRICTED",
     entity: string,
-): void {
-    assertPlainArray(
+): number {
+    const qualifications = snapshotPlainArray(
         value,
         availability + " coverage",
         entity,
     );
 
-    for (let index = 0; index < value.length; index += 1) {
-        const qualification = value[index];
-
-        assertExactShape(
-            qualification,
+    for (
+        let index = 0;
+        index < qualifications.length;
+        index += 1
+    ) {
+        const qualification = snapshotExactShape(
+            qualifications[index],
             SOURCE_COVERAGE_ALLOWED_KEYS,
             SOURCE_COVERAGE_REQUIRED_KEYS,
             availability + " coverage",
@@ -508,54 +634,115 @@ function assertSourceCoverage(
             entity,
         );
     }
+
+    return qualifications.length;
 }
 
 export function assertProvenanceIntegrity(
     systems: readonly SystemRecord[],
     provenance: readonly ProvenanceRecord[],
 ): void {
-    assertPlainArray(
+    const systemValues = snapshotPlainArray(
         systems,
         "systems corpus",
         "integrity input",
     );
 
-    assertPlainArray(
+    const provenanceValues = snapshotPlainArray(
         provenance,
         "provenance corpus",
         "integrity input",
     );
 
-    const systemIds = new Set<string>(systems.map(({ id }) => id));
+    const systemSnapshots: Array<{
+        id: string;
+        evidence: string;
+    }> = [];
 
-    if (systemIds.size !== systems.length) {
-        fail("duplicate system identity");
+    for (
+        let systemIndex = 0;
+        systemIndex < systemValues.length;
+        systemIndex += 1
+    ) {
+        const system = snapshotRequiredDataProperties(
+            systemValues[systemIndex],
+            SYSTEM_REQUIRED_KEYS,
+            "system record",
+            "integrity input",
+        );
+
+        const id = system.id;
+
+        if (typeof id !== "string") {
+            fail("invalid system identity");
+        }
+
+        const evidence = system.evidence;
+
+        assertEnumValue(
+            evidence,
+            SYSTEM_EVIDENCE,
+            "system evidence",
+            id,
+        );
+
+        for (
+            let priorIndex = 0;
+            priorIndex < systemSnapshots.length;
+            priorIndex += 1
+        ) {
+            if (systemSnapshots[priorIndex].id === id) {
+                fail("duplicate system identity");
+            }
+        }
+
+        systemSnapshots[systemIndex] = {
+            id,
+            evidence,
+        };
     }
+
+    const validatedRecords: Array<{
+        entity: string;
+        availability: string;
+        coverageLength: number;
+        authority: string | null;
+    }> = [];
 
     for (
         let recordIndex = 0;
-        recordIndex < provenance.length;
+        recordIndex < provenanceValues.length;
         recordIndex += 1
     ) {
-        const record = provenance[recordIndex];
-
-        assertExactShape(
-            record,
+        const candidate = snapshotExactShape(
+            provenanceValues[recordIndex],
             PROVENANCE_ALLOWED_KEYS,
             PROVENANCE_REQUIRED_KEYS,
             "provenance record",
             "unresolved entity",
         );
 
-        const candidate = record as UnknownRecord;
+        const entityValue = candidate.entity;
 
-        if (typeof candidate.entity !== "string") {
+        if (typeof entityValue !== "string") {
             fail("invalid provenance entity");
         }
 
-        const entity = candidate.entity;
+        const entity = entityValue;
+        let knownSystem = false;
 
-        if (!systemIds.has(entity)) {
+        for (
+            let systemIndex = 0;
+            systemIndex < systemSnapshots.length;
+            systemIndex += 1
+        ) {
+            if (systemSnapshots[systemIndex].id === entity) {
+                knownSystem = true;
+                break;
+            }
+        }
+
+        if (!knownSystem) {
             fail("orphan provenance entity: " + entity);
         }
 
@@ -563,15 +750,17 @@ export function assertProvenanceIntegrity(
             fail("invalid checkedAt for " + entity);
         }
 
+        const availability = candidate.availability;
+
         assertEnumValue(
-            candidate.availability,
+            availability,
             SOURCE_AVAILABILITIES,
             "source availability",
             entity,
         );
 
-        if (candidate.availability === "PUBLIC") {
-            assertExactShape(
+        if (availability === "PUBLIC") {
+            const source = snapshotExactShape(
                 candidate,
                 PUBLIC_ALLOWED_KEYS,
                 PUBLIC_REQUIRED_KEYS,
@@ -580,43 +769,58 @@ export function assertProvenanceIntegrity(
             );
 
             assertEnumValue(
-                candidate.kind,
+                source.kind,
                 SOURCE_KINDS,
                 "source kind",
                 entity,
             );
 
+            const labelDescriptor =
+                Object.getOwnPropertyDescriptor(
+                    source,
+                    "label",
+                );
+
             if (
-                hasOwn(candidate, "label") &&
-                typeof candidate.label !== "string"
+                labelDescriptor &&
+                typeof labelDescriptor.value !== "string"
             ) {
                 fail("invalid PUBLIC label for " + entity);
             }
 
+            const locator = source.locator;
+
             if (
-                typeof candidate.locator !== "string" ||
-                !candidate.locator.trim()
+                typeof locator !== "string" ||
+                !locator.trim()
             ) {
                 fail("PUBLIC source lacks locator for " + entity);
             }
 
-            assertSourceStatus(
-                candidate.status,
+            const authority = assertSourceStatus(
+                source.status,
                 "PUBLIC",
                 entity,
             );
 
-            assertSourceCoverage(
-                candidate.coverage,
+            const coverageLength = assertSourceCoverage(
+                source.coverage,
                 "PUBLIC",
                 entity,
             );
+
+            validatedRecords[recordIndex] = {
+                entity,
+                availability,
+                coverageLength,
+                authority,
+            };
 
             continue;
         }
 
-        if (candidate.availability === "RESTRICTED") {
-            assertExactShape(
+        if (availability === "RESTRICTED") {
+            const source = snapshotExactShape(
                 candidate,
                 RESTRICTED_ALLOWED_KEYS,
                 RESTRICTED_REQUIRED_KEYS,
@@ -625,28 +829,35 @@ export function assertProvenanceIntegrity(
             );
 
             assertEnumValue(
-                candidate.kind,
+                source.kind,
                 SOURCE_KINDS,
                 "source kind",
                 entity,
             );
 
-            assertSourceStatus(
-                candidate.status,
+            const authority = assertSourceStatus(
+                source.status,
                 "RESTRICTED",
                 entity,
             );
 
-            assertSourceCoverage(
-                candidate.coverage,
+            const coverageLength = assertSourceCoverage(
+                source.coverage,
                 "RESTRICTED",
                 entity,
             );
+
+            validatedRecords[recordIndex] = {
+                entity,
+                availability,
+                coverageLength,
+                authority,
+            };
 
             continue;
         }
 
-        assertExactShape(
+        const source = snapshotExactShape(
             candidate,
             NONE_ALLOWED_KEYS,
             NONE_REQUIRED_KEYS,
@@ -654,50 +865,90 @@ export function assertProvenanceIntegrity(
             entity,
         );
 
-        assertPlainArray(
-            candidate.coverage,
+        const coverage = snapshotPlainArray(
+            source.coverage,
             "NONE coverage",
             entity,
         );
 
-        if (candidate.coverage.length !== 0) {
+        if (coverage.length !== 0) {
             fail("NONE source has coverage for " + entity);
         }
+
+        validatedRecords[recordIndex] = {
+            entity,
+            availability,
+            coverageLength: 0,
+            authority: null,
+        };
     }
 
-    for (const system of systems) {
-        const records = provenance.filter(
-            ({ entity }) => entity === system.id,
-        );
+    for (
+        let systemIndex = 0;
+        systemIndex < systemSnapshots.length;
+        systemIndex += 1
+    ) {
+        const system = systemSnapshots[systemIndex];
+        let recordCount = 0;
+        let noneCount = 0;
+        let hasQualifiedSource = false;
+        let hasCurrentAuthority = false;
 
-        const noneRecords = records.filter(
-            ({ availability }) => availability === "NONE",
-        );
+        for (
+            let recordIndex = 0;
+            recordIndex < validatedRecords.length;
+            recordIndex += 1
+        ) {
+            const record = validatedRecords[recordIndex];
 
-        if (noneRecords.length > 0 && records.length !== 1) {
-            fail("NONE source is not exclusive for " + system.id);
+            if (record.entity !== system.id) {
+                continue;
+            }
+
+            recordCount += 1;
+
+            if (record.availability === "NONE") {
+                noneCount += 1;
+                continue;
+            }
+
+            if (record.coverageLength > 0) {
+                hasQualifiedSource = true;
+
+                if (
+                    record.authority === "CANONICAL" ||
+                    record.authority === "PROVISIONAL"
+                ) {
+                    hasCurrentAuthority = true;
+                }
+            }
+        }
+
+        if (noneCount > 0 && recordCount !== 1) {
+            fail(
+                "NONE source is not exclusive for " +
+                system.id,
+            );
         }
 
         if (system.evidence === "NO SOURCE") {
-            if (
-                records.length !== 1 ||
-                records[0]?.availability !== "NONE"
-            ) {
-                fail("NO SOURCE contract violated for " + system.id);
+            if (recordCount !== 1 || noneCount !== 1) {
+                fail(
+                    "NO SOURCE contract violated for " +
+                    system.id,
+                );
             }
 
             continue;
         }
 
-        if (system.evidence !== "SOURCE-VERIFIED") {
+        if (system.evidence === "OWNER-DECLARED") {
             continue;
         }
 
-        const hasQualifiedSource = records.some(
-            (record) =>
-                record.availability !== "NONE" &&
-                record.coverage.length > 0,
-        );
+        if (system.evidence !== "SOURCE-VERIFIED") {
+            fail("invalid system evidence for " + system.id);
+        }
 
         if (!hasQualifiedSource) {
             fail(
@@ -705,16 +956,6 @@ export function assertProvenanceIntegrity(
                 system.id,
             );
         }
-
-        const hasCurrentAuthority = records.some(
-            (record) =>
-                record.availability !== "NONE" &&
-                record.coverage.length > 0 &&
-                (
-                    record.status.authority === "CANONICAL" ||
-                    record.status.authority === "PROVISIONAL"
-                ),
-        );
 
         if (!hasCurrentAuthority) {
             fail(
