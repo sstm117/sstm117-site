@@ -11,12 +11,25 @@ const RESTRICTED_ALLOWED_KEYS = new Set([
     "coverage",
 ]);
 
+const RESTRICTED_STATUS_ALLOWED_KEYS = new Set([
+    "authority",
+    "roles",
+]);
+
+const RESTRICTED_COVERAGE_ALLOWED_KEYS = new Set([
+    "area",
+    "support",
+]);
+
+const NONE_ALLOWED_KEYS = new Set([
+    "entity",
+    "availability",
+    "checkedAt",
+    "coverage",
+]);
+
 function fail(message: string): never {
     throw new Error("[provenance-integrity] " + message);
-}
-
-function hasOwn(record: object, key: string): boolean {
-    return Object.prototype.hasOwnProperty.call(record, key);
 }
 
 function isValidIsoDate(value: string): boolean {
@@ -77,6 +90,30 @@ export function assertProvenanceIntegrity(
                 }
             }
 
+            for (const key of Object.keys(record.status)) {
+                if (!RESTRICTED_STATUS_ALLOWED_KEYS.has(key)) {
+                    fail(
+                        "RESTRICTED status exposes forbidden key " +
+                        key +
+                        " for " +
+                        record.entity,
+                    );
+                }
+            }
+
+            for (const qualification of record.coverage) {
+                for (const key of Object.keys(qualification)) {
+                    if (!RESTRICTED_COVERAGE_ALLOWED_KEYS.has(key)) {
+                        fail(
+                            "RESTRICTED coverage exposes forbidden key " +
+                            key +
+                            " for " +
+                            record.entity,
+                        );
+                    }
+                }
+            }
+
             continue;
         }
 
@@ -84,10 +121,10 @@ export function assertProvenanceIntegrity(
             fail("NONE source has coverage for " + record.entity);
         }
 
-        for (const key of ["kind", "label", "locator", "status"]) {
-            if (hasOwn(record, key)) {
+        for (const key of Object.keys(record)) {
+            if (!NONE_ALLOWED_KEYS.has(key)) {
                 fail(
-                    "NONE source exposes " +
+                    "NONE source exposes forbidden key " +
                     key +
                     " for " +
                     record.entity,
