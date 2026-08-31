@@ -2,15 +2,14 @@ import type { ProvenanceRecord, SystemRecord } from "./types";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-const RESTRICTED_SENSITIVE_PATTERNS = [
-    ["URL", /https?:\/\//i],
-    ["GITHUB_HOST", /github\.com/i],
-    ["SSH_URL", /git@/i],
-    ["WINDOWS_PATH", /[A-Za-z]:\\/],
-    ["GIT_SHA", /\b[0-9a-f]{7,40}\b/i],
-    ["GIT_REF", /refs\/heads\//i],
-    ["BRANCH_PATH", /\b(?:foundation|review|experiment|feature)\//i],
-] as const;
+const RESTRICTED_ALLOWED_KEYS = new Set([
+    "entity",
+    "availability",
+    "kind",
+    "status",
+    "checkedAt",
+    "coverage",
+]);
 
 function fail(message: string): never {
     throw new Error("[provenance-integrity] " + message);
@@ -67,18 +66,12 @@ export function assertProvenanceIntegrity(
         }
 
         if (record.availability === "RESTRICTED") {
-            if (hasOwn(record, "locator")) {
-                fail("RESTRICTED source exposes locator for " + record.entity);
-            }
-
-            const serialized = JSON.stringify(record);
-
-            for (const [label, pattern] of RESTRICTED_SENSITIVE_PATTERNS) {
-                if (pattern.test(serialized)) {
+            for (const key of Object.keys(record)) {
+                if (!RESTRICTED_ALLOWED_KEYS.has(key)) {
                     fail(
-                        "RESTRICTED source contains " +
-                        label +
-                        " material for " +
+                        "RESTRICTED source exposes forbidden key " +
+                        key +
+                        " for " +
                         record.entity,
                     );
                 }

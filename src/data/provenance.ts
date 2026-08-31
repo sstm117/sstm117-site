@@ -10,7 +10,6 @@ export const provenance = [
         entity: 'obs',
         availability: 'RESTRICTED',
         kind: 'REPOSITORY',
-        label: 'Private project repository',
         status: {
             authority: 'CANONICAL',
             roles: ['DESCRIPTIVE', 'NORMATIVE'],
@@ -27,7 +26,6 @@ export const provenance = [
         entity: 'food',
         availability: 'RESTRICTED',
         kind: 'REPOSITORY',
-        label: 'Private project repository',
         status: {
             authority: 'CANONICAL',
             roles: ['DESCRIPTIVE', 'NORMATIVE'],
@@ -45,7 +43,6 @@ export const provenance = [
         entity: 'moka',
         availability: 'RESTRICTED',
         kind: 'SPECIFICATION',
-        label: 'Private provisional specification',
         status: {
             authority: 'PROVISIONAL',
             roles: ['DESCRIPTIVE', 'NORMATIVE'],
@@ -62,7 +59,6 @@ export const provenance = [
         entity: 'fnode',
         availability: 'RESTRICTED',
         kind: 'REPOSITORY',
-        label: 'Private project repository',
         status: {
             authority: 'CANONICAL',
             roles: ['DESCRIPTIVE'],
@@ -77,7 +73,6 @@ export const provenance = [
         entity: 'fnode',
         availability: 'RESTRICTED',
         kind: 'DECLARATION',
-        label: 'Owner declaration',
         status: {
             authority: 'CANONICAL',
             roles: ['DECLARATIVE'],

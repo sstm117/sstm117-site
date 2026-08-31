@@ -88,7 +88,7 @@ export interface RestrictedProvenanceRecord {
     entity: SystemId;
     availability: 'RESTRICTED';
     kind: SourceKind;
-    label?: string;
+    label?: never;
     locator?: never;
     status: SourceStatus;
     checkedAt: string;
