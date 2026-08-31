@@ -47,6 +47,24 @@ const SOURCE_SUPPORTS = new Set([
     "DEMONSTRATES",
 ]);
 
+const PROVENANCE_ALLOWED_KEYS = new Set([
+    "entity",
+    "availability",
+    "kind",
+    "label",
+    "locator",
+    "status",
+    "checkedAt",
+    "coverage",
+]);
+
+const PROVENANCE_REQUIRED_KEYS = [
+    "entity",
+    "availability",
+    "checkedAt",
+    "coverage",
+] as const;
+
 const PUBLIC_ALLOWED_KEYS = new Set([
     "entity",
     "availability",
@@ -147,6 +165,26 @@ function hasOwn(record: object, key: PropertyKey): boolean {
     return Object.prototype.hasOwnProperty.call(record, key);
 }
 
+function assertCleanArrayPrototype(
+    context: string,
+    entity: string,
+): void {
+    for (const key of Reflect.ownKeys(Array.prototype)) {
+        if (
+            typeof key === "string" &&
+            ARRAY_INDEX.test(key)
+        ) {
+            fail(
+                context +
+                " inherits indexed key " +
+                key +
+                " from Array.prototype for " +
+                entity,
+            );
+        }
+    }
+}
+
 function assertCleanObjectPrototype(
     context: string,
     entity: string,
@@ -229,19 +267,39 @@ function assertPlainArray(
     }
 
     assertCleanObjectPrototype(context, entity);
+    assertCleanArrayPrototype(context, entity);
+    assertDataProperty(value, "length", context, entity);
+
+    const length = value.length;
 
     for (const key of Reflect.ownKeys(value)) {
         if (
             key !== "length" &&
             (
                 typeof key !== "string" ||
-                !isArrayIndex(key, value.length)
+                !isArrayIndex(key, length)
             )
         ) {
             fail(
                 context +
                 " exposes forbidden array key " +
                 String(key) +
+                " for " +
+                entity,
+            );
+        }
+
+        assertDataProperty(value, key, context, entity);
+    }
+
+    for (let index = 0; index < length; index += 1) {
+        const key = String(index);
+
+        if (!hasOwn(value, key)) {
+            fail(
+                context +
+                " has sparse index " +
+                key +
                 " for " +
                 entity,
             );
@@ -352,13 +410,17 @@ function assertSourceStatus(
         entity,
     );
 
+    const roles = value.roles;
+
     assertPlainArray(
-        value.roles,
+        roles,
         "source roles",
         entity,
     );
 
-    for (const role of value.roles) {
+    for (let index = 0; index < roles.length; index += 1) {
+        const role = roles[index];
+
         assertEnumValue(
             role,
             SOURCE_ROLES,
@@ -379,7 +441,9 @@ function assertSourceCoverage(
         entity,
     );
 
-    for (const qualification of value) {
+    for (let index = 0; index < value.length; index += 1) {
+        const qualification = value[index];
+
         assertExactShape(
             qualification,
             SOURCE_COVERAGE_ALLOWED_KEYS,
@@ -408,25 +472,48 @@ export function assertProvenanceIntegrity(
     systems: readonly SystemRecord[],
     provenance: readonly ProvenanceRecord[],
 ): void {
-    const systemIds = new Set(systems.map(({ id }) => id));
+    assertPlainArray(
+        systems,
+        "systems corpus",
+        "integrity input",
+    );
+
+    assertPlainArray(
+        provenance,
+        "provenance corpus",
+        "integrity input",
+    );
+
+    const systemIds = new Set<string>(systems.map(({ id }) => id));
 
     if (systemIds.size !== systems.length) {
         fail("duplicate system identity");
     }
 
-    for (const record of provenance) {
-        if (
-            typeof record !== "object" ||
-            record === null ||
-            Array.isArray(record)
-        ) {
-            fail("provenance record is not an object");
+    for (
+        let recordIndex = 0;
+        recordIndex < provenance.length;
+        recordIndex += 1
+    ) {
+        const record = provenance[recordIndex];
+
+        assertExactShape(
+            record,
+            PROVENANCE_ALLOWED_KEYS,
+            PROVENANCE_REQUIRED_KEYS,
+            "provenance record",
+            "unresolved entity",
+        );
+
+        const candidate = record as UnknownRecord;
+
+        if (typeof candidate.entity !== "string") {
+            fail("invalid provenance entity");
         }
 
-        const candidate = record as unknown as UnknownRecord;
-        const entity = String(candidate.entity);
+        const entity = candidate.entity;
 
-        if (!systemIds.has(record.entity)) {
+        if (!systemIds.has(entity)) {
             fail("orphan provenance entity: " + entity);
         }
 
