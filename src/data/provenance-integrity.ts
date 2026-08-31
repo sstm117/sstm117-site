@@ -2,6 +2,72 @@ import type { ProvenanceRecord, SystemRecord } from "./types";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
+const SOURCE_AVAILABILITIES = new Set([
+    "PUBLIC",
+    "RESTRICTED",
+    "NONE",
+]);
+
+const SOURCE_KINDS = new Set([
+    "REPOSITORY",
+    "SPECIFICATION",
+    "ARTIFACT",
+    "DECLARATION",
+]);
+
+const SOURCE_AUTHORITIES = new Set([
+    "CANONICAL",
+    "PROVISIONAL",
+    "LEGACY",
+]);
+
+const SOURCE_ROLES = new Set([
+    "DECLARATIVE",
+    "DESCRIPTIVE",
+    "NORMATIVE",
+    "EXPERIMENTAL",
+]);
+
+const SOURCE_COVERAGE_AREAS = new Set([
+    "IDENTITY",
+    "DESCRIPTION",
+    "QUESTION",
+    "STRUCTURE",
+    "PHASE",
+    "CONSTRAINTS",
+    "IMPLEMENTATION",
+    "CAPABILITY",
+    "RESULT",
+    "APPLICATION_CONTEXT",
+]);
+
+const SOURCE_SUPPORTS = new Set([
+    "ASSERTS",
+    "SPECIFIES",
+    "DEMONSTRATES",
+]);
+
+const PUBLIC_ALLOWED_KEYS = new Set([
+    "entity",
+    "availability",
+    "kind",
+    "label",
+    "locator",
+    "status",
+    "checkedAt",
+    "coverage",
+]);
+
+const PUBLIC_REQUIRED_KEYS = [
+    "entity",
+    "availability",
+    "kind",
+    "locator",
+    "status",
+    "checkedAt",
+    "coverage",
+] as const;
+
 const RESTRICTED_ALLOWED_KEYS = new Set([
     "entity",
     "availability",
@@ -11,15 +77,34 @@ const RESTRICTED_ALLOWED_KEYS = new Set([
     "coverage",
 ]);
 
-const RESTRICTED_STATUS_ALLOWED_KEYS = new Set([
+const RESTRICTED_REQUIRED_KEYS = [
+    "entity",
+    "availability",
+    "kind",
+    "status",
+    "checkedAt",
+    "coverage",
+] as const;
+
+const SOURCE_STATUS_ALLOWED_KEYS = new Set([
     "authority",
     "roles",
 ]);
 
-const RESTRICTED_COVERAGE_ALLOWED_KEYS = new Set([
+const SOURCE_STATUS_REQUIRED_KEYS = [
+    "authority",
+    "roles",
+] as const;
+
+const SOURCE_COVERAGE_ALLOWED_KEYS = new Set([
     "area",
     "support",
 ]);
+
+const SOURCE_COVERAGE_REQUIRED_KEYS = [
+    "area",
+    "support",
+] as const;
 
 const NONE_ALLOWED_KEYS = new Set([
     "entity",
@@ -28,11 +113,82 @@ const NONE_ALLOWED_KEYS = new Set([
     "coverage",
 ]);
 
+const NONE_REQUIRED_KEYS = [
+    "entity",
+    "availability",
+    "checkedAt",
+    "coverage",
+] as const;
+
+type UnknownRecord = Record<PropertyKey, unknown>;
+
 function fail(message: string): never {
     throw new Error("[provenance-integrity] " + message);
 }
 
-function isValidIsoDate(value: string): boolean {
+function hasOwn(record: object, key: PropertyKey): boolean {
+    return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function assertExactShape(
+    value: unknown,
+    allowedKeys: ReadonlySet<string>,
+    requiredKeys: readonly string[],
+    context: string,
+    entity: string,
+): asserts value is UnknownRecord {
+    if (
+        typeof value !== "object" ||
+        value === null ||
+        Array.isArray(value)
+    ) {
+        fail(context + " is not an object for " + entity);
+    }
+
+    for (const key of Reflect.ownKeys(value)) {
+        if (typeof key !== "string" || !allowedKeys.has(key)) {
+            fail(
+                context +
+                " exposes forbidden key " +
+                String(key) +
+                " for " +
+                entity,
+            );
+        }
+    }
+
+    for (const key of requiredKeys) {
+        if (!hasOwn(value, key)) {
+            fail(
+                context +
+                " lacks required key " +
+                key +
+                " for " +
+                entity,
+            );
+        }
+    }
+}
+
+function assertEnumValue(
+    value: unknown,
+    allowedValues: ReadonlySet<string>,
+    context: string,
+    entity: string,
+): asserts value is string {
+    if (
+        typeof value !== "string" ||
+        !allowedValues.has(value)
+    ) {
+        fail("invalid " + context + " for " + entity);
+    }
+}
+
+function isValidIsoDate(value: unknown): boolean {
+    if (typeof value !== "string") {
+        return false;
+    }
+
     const match = ISO_DATE.exec(value);
 
     if (!match) {
@@ -51,6 +207,74 @@ function isValidIsoDate(value: string): boolean {
     );
 }
 
+function assertSourceStatus(
+    value: unknown,
+    availability: "PUBLIC" | "RESTRICTED",
+    entity: string,
+): void {
+    assertExactShape(
+        value,
+        SOURCE_STATUS_ALLOWED_KEYS,
+        SOURCE_STATUS_REQUIRED_KEYS,
+        availability + " status",
+        entity,
+    );
+
+    assertEnumValue(
+        value.authority,
+        SOURCE_AUTHORITIES,
+        "source authority",
+        entity,
+    );
+
+    if (!Array.isArray(value.roles)) {
+        fail("invalid source roles for " + entity);
+    }
+
+    for (const role of value.roles) {
+        assertEnumValue(
+            role,
+            SOURCE_ROLES,
+            "source role",
+            entity,
+        );
+    }
+}
+
+function assertSourceCoverage(
+    value: unknown,
+    availability: "PUBLIC" | "RESTRICTED",
+    entity: string,
+): void {
+    if (!Array.isArray(value)) {
+        fail(availability + " coverage is not an array for " + entity);
+    }
+
+    for (const qualification of value) {
+        assertExactShape(
+            qualification,
+            SOURCE_COVERAGE_ALLOWED_KEYS,
+            SOURCE_COVERAGE_REQUIRED_KEYS,
+            availability + " coverage",
+            entity,
+        );
+
+        assertEnumValue(
+            qualification.area,
+            SOURCE_COVERAGE_AREAS,
+            "coverage area",
+            entity,
+        );
+
+        assertEnumValue(
+            qualification.support,
+            SOURCE_SUPPORTS,
+            "coverage support",
+            entity,
+        );
+    }
+}
+
 export function assertProvenanceIntegrity(
     systems: readonly SystemRecord[],
     provenance: readonly ProvenanceRecord[],
@@ -62,74 +286,122 @@ export function assertProvenanceIntegrity(
     }
 
     for (const record of provenance) {
+        if (
+            typeof record !== "object" ||
+            record === null ||
+            Array.isArray(record)
+        ) {
+            fail("provenance record is not an object");
+        }
+
+        const candidate = record as unknown as UnknownRecord;
+        const entity = String(candidate.entity);
+
         if (!systemIds.has(record.entity)) {
-            fail("orphan provenance entity: " + record.entity);
+            fail("orphan provenance entity: " + entity);
         }
 
-        if (!isValidIsoDate(record.checkedAt)) {
-            fail("invalid checkedAt for " + record.entity);
+        if (!isValidIsoDate(candidate.checkedAt)) {
+            fail("invalid checkedAt for " + entity);
         }
 
-        if (record.availability === "PUBLIC") {
-            if (!record.locator.trim()) {
-                fail("PUBLIC source lacks locator for " + record.entity);
+        assertEnumValue(
+            candidate.availability,
+            SOURCE_AVAILABILITIES,
+            "source availability",
+            entity,
+        );
+
+        if (candidate.availability === "PUBLIC") {
+            assertExactShape(
+                candidate,
+                PUBLIC_ALLOWED_KEYS,
+                PUBLIC_REQUIRED_KEYS,
+                "PUBLIC source",
+                entity,
+            );
+
+            assertEnumValue(
+                candidate.kind,
+                SOURCE_KINDS,
+                "source kind",
+                entity,
+            );
+
+            if (
+                hasOwn(candidate, "label") &&
+                typeof candidate.label !== "string"
+            ) {
+                fail("invalid PUBLIC label for " + entity);
             }
+
+            if (
+                typeof candidate.locator !== "string" ||
+                !candidate.locator.trim()
+            ) {
+                fail("PUBLIC source lacks locator for " + entity);
+            }
+
+            assertSourceStatus(
+                candidate.status,
+                "PUBLIC",
+                entity,
+            );
+
+            assertSourceCoverage(
+                candidate.coverage,
+                "PUBLIC",
+                entity,
+            );
 
             continue;
         }
 
-        if (record.availability === "RESTRICTED") {
-            for (const key of Object.keys(record)) {
-                if (!RESTRICTED_ALLOWED_KEYS.has(key)) {
-                    fail(
-                        "RESTRICTED source exposes forbidden key " +
-                        key +
-                        " for " +
-                        record.entity,
-                    );
-                }
-            }
+        if (candidate.availability === "RESTRICTED") {
+            assertExactShape(
+                candidate,
+                RESTRICTED_ALLOWED_KEYS,
+                RESTRICTED_REQUIRED_KEYS,
+                "RESTRICTED source",
+                entity,
+            );
 
-            for (const key of Object.keys(record.status)) {
-                if (!RESTRICTED_STATUS_ALLOWED_KEYS.has(key)) {
-                    fail(
-                        "RESTRICTED status exposes forbidden key " +
-                        key +
-                        " for " +
-                        record.entity,
-                    );
-                }
-            }
+            assertEnumValue(
+                candidate.kind,
+                SOURCE_KINDS,
+                "source kind",
+                entity,
+            );
 
-            for (const qualification of record.coverage) {
-                for (const key of Object.keys(qualification)) {
-                    if (!RESTRICTED_COVERAGE_ALLOWED_KEYS.has(key)) {
-                        fail(
-                            "RESTRICTED coverage exposes forbidden key " +
-                            key +
-                            " for " +
-                            record.entity,
-                        );
-                    }
-                }
-            }
+            assertSourceStatus(
+                candidate.status,
+                "RESTRICTED",
+                entity,
+            );
+
+            assertSourceCoverage(
+                candidate.coverage,
+                "RESTRICTED",
+                entity,
+            );
 
             continue;
         }
 
-        if (record.coverage.length !== 0) {
-            fail("NONE source has coverage for " + record.entity);
+        assertExactShape(
+            candidate,
+            NONE_ALLOWED_KEYS,
+            NONE_REQUIRED_KEYS,
+            "NONE source",
+            entity,
+        );
+
+        if (!Array.isArray(candidate.coverage)) {
+            fail("NONE coverage is not an array for " + entity);
         }
 
-        for (const key of Object.keys(record)) {
-            if (!NONE_ALLOWED_KEYS.has(key)) {
-                fail(
-                    "NONE source exposes forbidden key " +
-                    key +
-                    " for " +
-                    record.entity,
-                );
-            }
+        if (candidate.coverage.length !== 0) {
+            fail("NONE source has coverage for " + entity);
         }
     }
 
@@ -178,12 +450,15 @@ export function assertProvenanceIntegrity(
             (record) =>
                 record.availability !== "NONE" &&
                 record.coverage.length > 0 &&
-                record.status.authority !== "LEGACY",
+                (
+                    record.status.authority === "CANONICAL" ||
+                    record.status.authority === "PROVISIONAL"
+                ),
         );
 
         if (!hasCurrentAuthority) {
             fail(
-                "SOURCE-VERIFIED relies only on LEGACY authority for " +
+                "SOURCE-VERIFIED lacks current authority for " +
                 system.id,
             );
         }
