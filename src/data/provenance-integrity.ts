@@ -120,6 +120,23 @@ const NONE_REQUIRED_KEYS = [
     "coverage",
 ] as const;
 
+const OBJECT_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
+    "constructor",
+    "__defineGetter__",
+    "__defineSetter__",
+    "hasOwnProperty",
+    "__lookupGetter__",
+    "__lookupSetter__",
+    "isPrototypeOf",
+    "propertyIsEnumerable",
+    "toString",
+    "valueOf",
+    "__proto__",
+    "toLocaleString",
+]);
+
+const ARRAY_INDEX = /^(0|[1-9]\d*)$/;
+
 type UnknownRecord = Record<PropertyKey, unknown>;
 
 function fail(message: string): never {
@@ -128,6 +145,110 @@ function fail(message: string): never {
 
 function hasOwn(record: object, key: PropertyKey): boolean {
     return Object.prototype.hasOwnProperty.call(record, key);
+}
+
+function assertCleanObjectPrototype(
+    context: string,
+    entity: string,
+): void {
+    for (const key of Reflect.ownKeys(Object.prototype)) {
+        if (!OBJECT_PROTOTYPE_ALLOWED_KEYS.has(key)) {
+            fail(
+                context +
+                " inherits forbidden key " +
+                String(key) +
+                " from Object.prototype for " +
+                entity,
+            );
+        }
+    }
+}
+
+function assertPlainDataPrototype(
+    value: object,
+    context: string,
+    entity: string,
+): void {
+    const prototype = Object.getPrototypeOf(value);
+
+    if (prototype === null) {
+        return;
+    }
+
+    if (prototype !== Object.prototype) {
+        fail(context + " has unsupported prototype for " + entity);
+    }
+
+    assertCleanObjectPrototype(context, entity);
+}
+
+function assertDataProperty(
+    value: object,
+    key: PropertyKey,
+    context: string,
+    entity: string,
+): void {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key);
+
+    if (!descriptor || !("value" in descriptor)) {
+        fail(
+            context +
+            " uses accessor key " +
+            String(key) +
+            " for " +
+            entity,
+        );
+    }
+}
+
+function isArrayIndex(key: string, length: number): boolean {
+    if (!ARRAY_INDEX.test(key)) {
+        return false;
+    }
+
+    const index = Number(key);
+
+    return (
+        Number.isInteger(index) &&
+        index >= 0 &&
+        index < length
+    );
+}
+
+function assertPlainArray(
+    value: unknown,
+    context: string,
+    entity: string,
+): asserts value is unknown[] {
+    if (!Array.isArray(value)) {
+        fail(context + " is not an array for " + entity);
+    }
+
+    if (Object.getPrototypeOf(value) !== Array.prototype) {
+        fail(context + " has unsupported prototype for " + entity);
+    }
+
+    assertCleanObjectPrototype(context, entity);
+
+    for (const key of Reflect.ownKeys(value)) {
+        if (
+            key !== "length" &&
+            (
+                typeof key !== "string" ||
+                !isArrayIndex(key, value.length)
+            )
+        ) {
+            fail(
+                context +
+                " exposes forbidden array key " +
+                String(key) +
+                " for " +
+                entity,
+            );
+        }
+
+        assertDataProperty(value, key, context, entity);
+    }
 }
 
 function assertExactShape(
@@ -145,6 +266,8 @@ function assertExactShape(
         fail(context + " is not an object for " + entity);
     }
 
+    assertPlainDataPrototype(value, context, entity);
+
     for (const key of Reflect.ownKeys(value)) {
         if (typeof key !== "string" || !allowedKeys.has(key)) {
             fail(
@@ -155,6 +278,8 @@ function assertExactShape(
                 entity,
             );
         }
+
+        assertDataProperty(value, key, context, entity);
     }
 
     for (const key of requiredKeys) {
@@ -227,9 +352,11 @@ function assertSourceStatus(
         entity,
     );
 
-    if (!Array.isArray(value.roles)) {
-        fail("invalid source roles for " + entity);
-    }
+    assertPlainArray(
+        value.roles,
+        "source roles",
+        entity,
+    );
 
     for (const role of value.roles) {
         assertEnumValue(
@@ -246,9 +373,11 @@ function assertSourceCoverage(
     availability: "PUBLIC" | "RESTRICTED",
     entity: string,
 ): void {
-    if (!Array.isArray(value)) {
-        fail(availability + " coverage is not an array for " + entity);
-    }
+    assertPlainArray(
+        value,
+        availability + " coverage",
+        entity,
+    );
 
     for (const qualification of value) {
         assertExactShape(
@@ -396,9 +525,11 @@ export function assertProvenanceIntegrity(
             entity,
         );
 
-        if (!Array.isArray(candidate.coverage)) {
-            fail("NONE coverage is not an array for " + entity);
-        }
+        assertPlainArray(
+            candidate.coverage,
+            "NONE coverage",
+            entity,
+        );
 
         if (candidate.coverage.length !== 0) {
             fail("NONE source has coverage for " + entity);
