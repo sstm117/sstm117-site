@@ -153,6 +153,51 @@ const OBJECT_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
     "toLocaleString",
 ]);
 
+const ARRAY_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
+    "length",
+    "constructor",
+    "at",
+    "concat",
+    "copyWithin",
+    "fill",
+    "find",
+    "findIndex",
+    "findLast",
+    "findLastIndex",
+    "lastIndexOf",
+    "pop",
+    "push",
+    "reverse",
+    "shift",
+    "unshift",
+    "slice",
+    "sort",
+    "splice",
+    "includes",
+    "indexOf",
+    "join",
+    "keys",
+    "entries",
+    "values",
+    "forEach",
+    "filter",
+    "flat",
+    "flatMap",
+    "map",
+    "every",
+    "some",
+    "reduce",
+    "reduceRight",
+    "toReversed",
+    "toSorted",
+    "toSpliced",
+    "with",
+    "toLocaleString",
+    "toString",
+    Symbol.iterator,
+    Symbol.unscopables,
+]);
+
 const ARRAY_INDEX = /^(0|[1-9]\d*)$/;
 
 type UnknownRecord = Record<PropertyKey, unknown>;
@@ -170,14 +215,11 @@ function assertCleanArrayPrototype(
     entity: string,
 ): void {
     for (const key of Reflect.ownKeys(Array.prototype)) {
-        if (
-            typeof key === "string" &&
-            ARRAY_INDEX.test(key)
-        ) {
+        if (!ARRAY_PROTOTYPE_ALLOWED_KEYS.has(key)) {
             fail(
                 context +
-                " inherits indexed key " +
-                key +
+                " inherits forbidden key " +
+                String(key) +
                 " from Array.prototype for " +
                 entity,
             );
