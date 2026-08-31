@@ -2,44 +2,51 @@ import type { ProvenanceRecord, SystemRecord } from "./types";
 
 const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
 
-const SOURCE_AVAILABILITIES = new Set([
+const SOURCE_AVAILABILITIES = [
     "PUBLIC",
     "RESTRICTED",
     "NONE",
-]);
+] as const;
 
-const SYSTEM_EVIDENCE = new Set([
+const SYSTEM_IDS = [
+    "obs",
+    "food",
+    "moka",
+    "fnode",
+] as const;
+
+const SYSTEM_EVIDENCE = [
     "SOURCE-VERIFIED",
     "OWNER-DECLARED",
     "NO SOURCE",
-]);
+] as const;
 
 const SYSTEM_REQUIRED_KEYS = [
     "id",
     "evidence",
 ] as const;
 
-const SOURCE_KINDS = new Set([
+const SOURCE_KINDS = [
     "REPOSITORY",
     "SPECIFICATION",
     "ARTIFACT",
     "DECLARATION",
-]);
+] as const;
 
-const SOURCE_AUTHORITIES = new Set([
+const SOURCE_AUTHORITIES = [
     "CANONICAL",
     "PROVISIONAL",
     "LEGACY",
-]);
+] as const;
 
-const SOURCE_ROLES = new Set([
+const SOURCE_ROLES = [
     "DECLARATIVE",
     "DESCRIPTIVE",
     "NORMATIVE",
     "EXPERIMENTAL",
-]);
+] as const;
 
-const SOURCE_COVERAGE_AREAS = new Set([
+const SOURCE_COVERAGE_AREAS = [
     "IDENTITY",
     "DESCRIPTION",
     "QUESTION",
@@ -50,15 +57,15 @@ const SOURCE_COVERAGE_AREAS = new Set([
     "CAPABILITY",
     "RESULT",
     "APPLICATION_CONTEXT",
-]);
+] as const;
 
-const SOURCE_SUPPORTS = new Set([
+const SOURCE_SUPPORTS = [
     "ASSERTS",
     "SPECIFIES",
     "DEMONSTRATES",
-]);
+] as const;
 
-const PROVENANCE_ALLOWED_KEYS = new Set([
+const PROVENANCE_ALLOWED_KEYS = [
     "entity",
     "availability",
     "kind",
@@ -67,7 +74,7 @@ const PROVENANCE_ALLOWED_KEYS = new Set([
     "status",
     "checkedAt",
     "coverage",
-]);
+] as const;
 
 const PROVENANCE_REQUIRED_KEYS = [
     "entity",
@@ -76,7 +83,7 @@ const PROVENANCE_REQUIRED_KEYS = [
     "coverage",
 ] as const;
 
-const PUBLIC_ALLOWED_KEYS = new Set([
+const PUBLIC_ALLOWED_KEYS = [
     "entity",
     "availability",
     "kind",
@@ -85,7 +92,7 @@ const PUBLIC_ALLOWED_KEYS = new Set([
     "status",
     "checkedAt",
     "coverage",
-]);
+] as const;
 
 const PUBLIC_REQUIRED_KEYS = [
     "entity",
@@ -97,14 +104,14 @@ const PUBLIC_REQUIRED_KEYS = [
     "coverage",
 ] as const;
 
-const RESTRICTED_ALLOWED_KEYS = new Set([
+const RESTRICTED_ALLOWED_KEYS = [
     "entity",
     "availability",
     "kind",
     "status",
     "checkedAt",
     "coverage",
-]);
+] as const;
 
 const RESTRICTED_REQUIRED_KEYS = [
     "entity",
@@ -115,32 +122,32 @@ const RESTRICTED_REQUIRED_KEYS = [
     "coverage",
 ] as const;
 
-const SOURCE_STATUS_ALLOWED_KEYS = new Set([
+const SOURCE_STATUS_ALLOWED_KEYS = [
     "authority",
     "roles",
-]);
+] as const;
 
 const SOURCE_STATUS_REQUIRED_KEYS = [
     "authority",
     "roles",
 ] as const;
 
-const SOURCE_COVERAGE_ALLOWED_KEYS = new Set([
+const SOURCE_COVERAGE_ALLOWED_KEYS = [
     "area",
     "support",
-]);
+] as const;
 
 const SOURCE_COVERAGE_REQUIRED_KEYS = [
     "area",
     "support",
 ] as const;
 
-const NONE_ALLOWED_KEYS = new Set([
+const NONE_ALLOWED_KEYS = [
     "entity",
     "availability",
     "checkedAt",
     "coverage",
-]);
+] as const;
 
 const NONE_REQUIRED_KEYS = [
     "entity",
@@ -149,7 +156,7 @@ const NONE_REQUIRED_KEYS = [
     "coverage",
 ] as const;
 
-const OBJECT_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
+const OBJECT_PROTOTYPE_ALLOWED_KEYS = [
     "constructor",
     "__defineGetter__",
     "__defineSetter__",
@@ -162,9 +169,9 @@ const OBJECT_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
     "valueOf",
     "__proto__",
     "toLocaleString",
-]);
+] as const;
 
-const ARRAY_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
+const ARRAY_PROTOTYPE_ALLOWED_KEYS = [
     "length",
     "constructor",
     "at",
@@ -207,7 +214,7 @@ const ARRAY_PROTOTYPE_ALLOWED_KEYS = new Set<PropertyKey>([
     "toString",
     Symbol.iterator,
     Symbol.unscopables,
-]);
+] as const;
 
 const ARRAY_INDEX = /^(0|[1-9]\d*)$/;
 
@@ -218,6 +225,19 @@ function fail(message: string): never {
 }
 
 
+function containsStrict(
+    values: readonly unknown[],
+    candidate: unknown,
+): boolean {
+    for (let index = 0; index < values.length; index += 1) {
+        if (values[index] === candidate) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function assertCleanArrayPrototype(
     context: string,
     entity: string,
@@ -227,7 +247,7 @@ function assertCleanArrayPrototype(
     for (let index = 0; index < keys.length; index += 1) {
         const key = keys[index];
 
-        if (!ARRAY_PROTOTYPE_ALLOWED_KEYS.has(key)) {
+        if (!containsStrict(ARRAY_PROTOTYPE_ALLOWED_KEYS, key)) {
             fail(
                 context +
                 " inherits forbidden key " +
@@ -248,7 +268,7 @@ function assertCleanObjectPrototype(
     for (let index = 0; index < keys.length; index += 1) {
         const key = keys[index];
 
-        if (!OBJECT_PROTOTYPE_ALLOWED_KEYS.has(key)) {
+        if (!containsStrict(OBJECT_PROTOTYPE_ALLOWED_KEYS, key)) {
             fail(
                 context +
                 " inherits forbidden key " +
@@ -416,7 +436,7 @@ function snapshotPlainArray(
 
 function snapshotExactShape(
     value: unknown,
-    allowedKeys: ReadonlySet<string>,
+    allowedKeys: readonly string[],
     requiredKeys: readonly string[],
     context: string,
     entity: string,
@@ -441,7 +461,7 @@ function snapshotExactShape(
     ) {
         const key = ownKeys[keyIndex];
 
-        if (typeof key !== "string" || !allowedKeys.has(key)) {
+        if (typeof key !== "string" || !containsStrict(allowedKeys, key)) {
             fail(
                 context +
                 " exposes forbidden key " +
@@ -521,13 +541,13 @@ function snapshotRequiredDataProperties(
 
 function assertEnumValue(
     value: unknown,
-    allowedValues: ReadonlySet<string>,
+    allowedValues: readonly string[],
     context: string,
     entity: string,
 ): asserts value is string {
     if (
         typeof value !== "string" ||
-        !allowedValues.has(value)
+        !containsStrict(allowedValues, value)
     ) {
         fail("invalid " + context + " for " + entity);
     }
@@ -673,9 +693,12 @@ export function assertProvenanceIntegrity(
 
         const id = system.id;
 
-        if (typeof id !== "string") {
-            fail("invalid system identity");
-        }
+        assertEnumValue(
+            id,
+            SYSTEM_IDS,
+            "system identity",
+            "integrity input",
+        );
 
         const evidence = system.evidence;
 
