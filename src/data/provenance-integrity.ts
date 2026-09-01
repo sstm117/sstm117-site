@@ -1,6 +1,26 @@
 import type { ProvenanceRecord, SystemRecord } from "./types";
 
-const ISO_DATE = /^(\d{4})-(\d{2})-(\d{2})$/;
+type NodeProcess = {
+    getBuiltinModule?: (name: string) => unknown;
+};
+
+type NodeUtilModule = {
+    types?: {
+        isProxy?: (value: object) => boolean;
+    };
+};
+
+const nodeProcess = (
+    globalThis as typeof globalThis & {
+        process?: NodeProcess;
+    }
+).process;
+
+const nodeUtil = nodeProcess?.getBuiltinModule?.(
+    "node:util",
+) as NodeUtilModule | undefined;
+
+const nodeProxyDetector = nodeUtil?.types?.isProxy;
 
 const SOURCE_AVAILABILITIES = [
     "PUBLIC",
@@ -224,6 +244,14 @@ function fail(message: string): never {
     throw new Error("[provenance-integrity] " + message);
 }
 
+function isProxyValue(value: object): boolean {
+    if (typeof nodeProxyDetector !== "function") {
+        fail("Node proxy detection unavailable");
+    }
+
+    return nodeProxyDetector(value);
+}
+
 
 function containsStrict(
     values: readonly unknown[],
@@ -285,6 +313,10 @@ function assertPlainDataPrototype(
     context: string,
     entity: string,
 ): void {
+    if (isProxyValue(value)) {
+        fail(context + " cannot be a Proxy for " + entity);
+    }
+
     const prototype = Object.getPrototypeOf(value);
 
     if (prototype === null) {
@@ -340,6 +372,10 @@ function snapshotPlainArray(
 ): unknown[] {
     if (!Array.isArray(value)) {
         fail(context + " is not an array for " + entity);
+    }
+
+    if (isProxyValue(value)) {
+        fail(context + " cannot be a Proxy for " + entity);
     }
 
     if (Object.getPrototypeOf(value) !== Array.prototype) {
@@ -553,27 +589,134 @@ function assertEnumValue(
     }
 }
 
+function decimalDigit(value: string, index: number): number {
+    switch (value[index]) {
+        case "0": return 0;
+        case "1": return 1;
+        case "2": return 2;
+        case "3": return 3;
+        case "4": return 4;
+        case "5": return 5;
+        case "6": return 6;
+        case "7": return 7;
+        case "8": return 8;
+        case "9": return 9;
+        default: return -1;
+    }
+}
+
+function parseDecimal(
+    value: string,
+    start: number,
+    end: number,
+): number {
+    let result = 0;
+
+    for (let index = start; index < end; index += 1) {
+        const digit = decimalDigit(value, index);
+
+        if (digit < 0) {
+            return -1;
+        }
+
+        result = result * 10 + digit;
+    }
+
+    return result;
+}
+
+function daysInMonth(year: number, month: number): number {
+    if (month === 2) {
+        const leap =
+            year % 4 === 0 &&
+            (year % 100 !== 0 || year % 400 === 0);
+
+        return leap ? 29 : 28;
+    }
+
+    if (
+        month === 4 ||
+        month === 6 ||
+        month === 9 ||
+        month === 11
+    ) {
+        return 30;
+    }
+
+    return 31;
+}
+
 function isValidIsoDate(value: unknown): boolean {
+    if (
+        typeof value !== "string" ||
+        value.length !== 10 ||
+        value[4] !== "-" ||
+        value[7] !== "-"
+    ) {
+        return false;
+    }
+
+    const year = parseDecimal(value, 0, 4);
+    const month = parseDecimal(value, 5, 7);
+    const day = parseDecimal(value, 8, 10);
+
+    if (
+        year < 100 ||
+        month < 1 ||
+        month > 12 ||
+        day < 1
+    ) {
+        return false;
+    }
+
+    return day <= daysInMonth(year, month);
+}
+
+function isTrimWhitespace(value: string): boolean {
+    switch (value) {
+        case "\u0009":
+        case "\u000A":
+        case "\u000B":
+        case "\u000C":
+        case "\u000D":
+        case "\u0020":
+        case "\u00A0":
+        case "\u1680":
+        case "\u2000":
+        case "\u2001":
+        case "\u2002":
+        case "\u2003":
+        case "\u2004":
+        case "\u2005":
+        case "\u2006":
+        case "\u2007":
+        case "\u2008":
+        case "\u2009":
+        case "\u200A":
+        case "\u2028":
+        case "\u2029":
+        case "\u202F":
+        case "\u205F":
+        case "\u3000":
+        case "\uFEFF":
+            return true;
+        default:
+            return false;
+    }
+}
+
+function isNonBlankString(value: unknown): value is string {
     if (typeof value !== "string") {
         return false;
     }
 
-    const match = ISO_DATE.exec(value);
-
-    if (!match) {
-        return false;
+    for (let index = 0; index < value.length; index += 1) {
+        if (!isTrimWhitespace(value[index])) {
+            return true;
+        }
     }
 
-    const year = Number(match[1]);
-    const month = Number(match[2]);
-    const day = Number(match[3]);
-    const date = new Date(Date.UTC(year, month - 1, day));
-
-    return (
-        date.getUTCFullYear() === year &&
-        date.getUTCMonth() === month - 1 &&
-        date.getUTCDate() === day
-    );
+    return false;
 }
 
 function assertSourceStatus(
@@ -813,10 +956,7 @@ export function assertProvenanceIntegrity(
 
             const locator = source.locator;
 
-            if (
-                typeof locator !== "string" ||
-                !locator.trim()
-            ) {
+            if (!isNonBlankString(locator)) {
                 fail("PUBLIC source lacks locator for " + entity);
             }
 
