@@ -1,5 +1,14 @@
 import type { ProvenanceRecord, SystemRecord } from "./types";
 
+/**
+ * Build-time trust boundary:
+ *
+ * This validator checks repository-owned static data during the site build.
+ * It assumes an uncompromised JavaScript/Node realm. Code that executes
+ * before this module and replaces platform intrinsics is outside this data
+ * integrity contract because such code already controls the build process.
+ */
+
 type NodeProcess = {
     getBuiltinModule?: (name: string) => unknown;
 };
@@ -236,7 +245,6 @@ const ARRAY_PROTOTYPE_ALLOWED_KEYS = [
     Symbol.unscopables,
 ] as const;
 
-const ARRAY_INDEX = /^(0|[1-9]\d*)$/;
 
 type UnknownRecord = Record<PropertyKey, unknown>;
 
@@ -352,17 +360,31 @@ function getDataPropertyDescriptor(
 }
 
 function isArrayIndex(key: string, length: number): boolean {
-    if (!ARRAY_INDEX.test(key)) {
+    if (key.length === 0) {
         return false;
     }
 
-    const index = Number(key);
+    if (key.length > 1 && key[0] === "0") {
+        return false;
+    }
 
-    return (
-        Number.isInteger(index) &&
-        index >= 0 &&
-        index < length
-    );
+    let index = 0;
+
+    for (let position = 0; position < key.length; position += 1) {
+        const digit = decimalDigit(key, position);
+
+        if (digit < 0) {
+            return false;
+        }
+
+        index = index * 10 + digit;
+
+        if (index >= length) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 function snapshotPlainArray(
