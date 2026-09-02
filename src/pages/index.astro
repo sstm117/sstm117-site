@@ -1,10 +1,38 @@
 ---
 import FieldFigure from '../components/field/FieldFigure.astro';
 import RelationIndex from '../components/field/RelationIndex.astro';
+import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { FIELD } from '../data/field-composition';
+import { systems } from '../data/systems';
+import type { SystemRecord } from '../data/types';
 import { fieldCounts } from '../lib/field-geometry';
 
 const counts = fieldCounts();
+const scaffoldReadoutSubject = FIELD.plotted[0];
+
+const declaredNowSystems = FIELD.plotted.flatMap((id) => {
+    const system: SystemRecord | undefined = systems.find(
+        (candidate) => candidate.id === id,
+    );
+
+    if (!system) {
+        throw new Error(
+            'Unknown plotted system in NOW ledger invariant: ' + id,
+        );
+    }
+
+    return system.now === null
+        ? []
+        : [`${system.id} (${system.now})`];
+});
+
+if (declaredNowSystems.length > 0) {
+    throw new Error(
+        'Static NOW ledger claims awaiting declaration while canonical NOW is declared for: ' +
+            declaredNowSystems.join(', '),
+    );
+}
 ---
 
 <SiteLayout
@@ -56,6 +84,7 @@ const counts = fieldCounts();
                     {counts.present} PRESENT
                 </span>
             </div>
+            <SystemReadout subject={scaffoldReadoutSubject} />
         </section>
 
         <section class="index-relation-row">
