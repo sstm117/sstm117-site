@@ -1,0 +1,402 @@
+---
+import { concerns } from '../../data/concerns';
+import { FIELD } from '../../data/field-composition';
+import { provenance } from '../../data/provenance';
+import { relations } from '../../data/relations';
+import { systems } from '../../data/systems';
+import { assertFieldIntegrity } from '../../lib/field-geometry';
+import type {
+    ConcernId,
+    ProvenanceRecord,
+    SystemId,
+} from '../../data/types';
+
+interface Props {
+    subject: SystemId;
+}
+
+assertFieldIntegrity();
+
+const { subject } = Astro.props;
+
+if (!FIELD.plotted.includes(subject)) {
+    throw new Error(
+        `System readout subject is not eligible in FIELD.plotted: ${subject}`,
+    );
+}
+
+const system = systems.find(({ id }) => id === subject);
+
+if (!system) {
+    throw new Error(`Unknown system readout subject: ${subject}`);
+}
+
+const concernById = new Map<ConcernId, (typeof concerns)[number]>(
+    concerns.map((concern) => [concern.id, concern]),
+);
+
+const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
+
+const systemRelations = relations.filter(
+    ({ system: relationSystem, concern }) =>
+        relationSystem === system.id &&
+        fieldConcernIds.has(concern),
+);
+
+const resolveConcern = (id: ConcernId) => {
+    const concern = concernById.get(id);
+
+    if (!concern) {
+        throw new Error(`Unknown readout concern: ${id}`);
+    }
+
+    return concern;
+};
+
+const primaryConcerns = systemRelations
+    .filter(({ strength }) => strength === 'PRIMARY')
+    .map(({ concern }) => resolveConcern(concern));
+
+const presentConcerns = systemRelations
+    .filter(({ strength }) => strength === 'PRESENT')
+    .map(({ concern }) => resolveConcern(concern));
+
+const sourceRecords: readonly ProvenanceRecord[] = provenance.filter(
+    ({ entity }) => entity === system.id,
+);
+
+const headingId = `system-readout-${system.id}`;
+const phase = system.phase?.label ?? 'UNDECLARED';
+const now = system.now ?? 'UNDECLARED';
+---
+
+<section
+    class="system-readout"
+    aria-labelledby={headingId}
+    data-system-readout
+    data-system={system.id}
+>
+    <header class="system-readout__identity">
+        <span class="system-readout__index">
+            {system.index}
+        </span>
+
+        <h2 id={headingId} class="system-readout__name">
+            {system.name}
+        </h2>
+
+        <p class="system-readout__body">
+            {system.body}
+        </p>
+    </header>
+
+    <dl class="system-readout__facts">
+        <div>
+            <dt>PHASE</dt>
+            <dd>{phase}</dd>
+        </div>
+
+        <div>
+            <dt>NOW</dt>
+            <dd>{now}</dd>
+        </div>
+
+        <div>
+            <dt>EVIDENCE</dt>
+            <dd>{system.evidence}</dd>
+        </div>
+
+        <div>
+            <dt>RELATIONS · PRIMARY</dt>
+            <dd>
+                {
+                    primaryConcerns.length > 0
+                        ? primaryConcerns.map((concern, index) => (
+                              <>
+                                  {index > 0 && ', '}
+                                  {concern.label}
+                              </>
+                          ))
+                        : '—'
+                }
+            </dd>
+        </div>
+
+        <div>
+            <dt>RELATIONS · PRESENT</dt>
+            <dd>
+                {
+                    presentConcerns.length > 0
+                        ? presentConcerns.map((concern, index) => (
+                              <>
+                                  {index > 0 && ', '}
+                                  {concern.label}
+                              </>
+                          ))
+                        : '—'
+                }
+            </dd>
+        </div>
+
+        <div>
+            <dt>SOURCE</dt>
+            <dd>
+                {
+                    sourceRecords.length === 0 ? (
+                        'UNDECLARED'
+                    ) : (
+                        <ul class="system-readout__sources" role="list">
+                            {
+                                sourceRecords.map((source) => (
+                                    <li>
+                                        {
+                                            source.availability === 'NONE' ? (
+                                                <dl>
+                                                    <dt>AVAILABILITY</dt>
+                                                    <dd>NO SOURCE</dd>
+
+                                                    <dt>CHECKED</dt>
+                                                    <dd>{source.checkedAt}</dd>
+                                                </dl>
+                                            ) : (
+                                                <dl>
+                                                    <dt>AVAILABILITY</dt>
+                                                    <dd>{source.availability}</dd>
+
+                                                    <dt>KIND</dt>
+                                                    <dd>{source.kind}</dd>
+
+                                                    {
+                                                        source.availability === 'PUBLIC' &&
+                                                            source.label && (
+                                                                <>
+                                                                    <dt>LABEL</dt>
+                                                                    <dd>{source.label}</dd>
+                                                                </>
+                                                            )
+                                                    }
+
+                                                    <dt>AUTHORITY</dt>
+                                                    <dd>{source.status.authority}</dd>
+
+                                                    <dt>ROLES</dt>
+                                                    <dd>{source.status.roles.join(', ')}</dd>
+
+                                                    <dt>CHECKED</dt>
+                                                    <dd>{source.checkedAt}</dd>
+
+                                                    <dt>COVERAGE</dt>
+                                                    <dd>
+                                                        <ul role="list">
+                                                            {
+                                                                source.coverage.map(
+                                                                    ({ area, support }) => (
+                                                                        <li>
+                                                                            {area} · {support}
+                                                                        </li>
+                                                                    ),
+                                                                )
+                                                            }
+                                                        </ul>
+                                                    </dd>
+
+                                                    {
+                                                        source.availability === 'PUBLIC' && (
+                                                            <>
+                                                                <dt>LOCATOR</dt>
+                                                                <dd>{source.locator}</dd>
+                                                            </>
+                                                        )
+                                                    }
+                                                </dl>
+                                            )
+                                        }
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    )
+                }
+            </dd>
+        </div>
+    </dl>
+</section>
+
+<style>
+    .system-readout {
+        padding: 26px 32px 30px;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .system-readout__identity {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr);
+        gap: 0 18px;
+        align-items: baseline;
+        max-width: 1080px;
+    }
+
+    .system-readout__index {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+    }
+
+    .system-readout__name {
+        grid-column: 2;
+        margin: 0;
+        color: oklch(0.88 0.006 200);
+        font-size: 19px;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.015em;
+    }
+
+    .system-readout__body {
+        grid-column: 2;
+        max-width: 82ch;
+        margin: 8px 0 0;
+        color: var(--color-text-muted);
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .system-readout__facts {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        margin: 22px 0 0;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .system-readout__facts > div {
+        min-width: 0;
+        padding: 12px 18px 14px 0;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .system-readout__facts > div:nth-child(-n + 3) {
+        grid-column: span 2;
+    }
+
+    .system-readout__facts > div:nth-child(4),
+    .system-readout__facts > div:nth-child(5) {
+        grid-column: span 3;
+    }
+
+    .system-readout__facts > div:nth-child(6) {
+        grid-column: 1 / -1;
+    }
+
+    .system-readout__facts dt {
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1.2;
+        letter-spacing: 0.12em;
+    }
+
+    .system-readout__facts dd {
+        margin: 5px 0 0;
+        color: oklch(0.72 0.006 200);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.65;
+        letter-spacing: 0.06em;
+    }
+
+    .system-readout__sources,
+    .system-readout__sources ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .system-readout__sources > li + li {
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .system-readout__sources dl {
+        display: grid;
+        grid-template-columns: 92px minmax(0, 1fr) 92px minmax(0, 1fr);
+        gap: 5px 18px;
+        margin: 0;
+    }
+
+    .system-readout__sources dl dt,
+    .system-readout__sources dl dd {
+        margin: 0;
+    }
+
+    .system-readout__sources ul {
+        display: flex;
+        gap: 4px 16px;
+        flex-wrap: wrap;
+    }
+
+    @media (max-width: 859px) {
+        .system-readout {
+            padding: 18px var(--page-gutter-mobile) 22px;
+        }
+
+        .system-readout__identity {
+            grid-template-columns: 36px minmax(0, 1fr);
+            gap: 0 11px;
+        }
+
+        .system-readout__index {
+            padding-top: 2px;
+            font-size: 9.5px;
+        }
+
+        .system-readout__name {
+            font-size: 17px;
+            line-height: 1.2;
+        }
+
+        .system-readout__body {
+            grid-column: 1 / -1;
+            margin-top: 11px;
+            font-size: 12.5px;
+            line-height: 1.55;
+        }
+
+        .system-readout__facts {
+            display: block;
+            margin-top: 18px;
+        }
+
+        .system-readout__facts > div {
+            display: grid;
+            grid-template-columns: 94px minmax(0, 1fr);
+            gap: 12px;
+            padding: 9px 0;
+        }
+
+        .system-readout__facts > div > dd {
+            margin: 0;
+        }
+
+        .system-readout__facts > div:nth-child(6) {
+            display: block;
+            padding-top: 11px;
+        }
+
+        .system-readout__facts > div:nth-child(6) > dd {
+            margin-top: 9px;
+        }
+
+        .system-readout__sources dl {
+            grid-template-columns: 82px minmax(0, 1fr);
+            gap: 4px 12px;
+        }
+
+        .system-readout__sources ul {
+            display: block;
+        }
+    }
+</style>
