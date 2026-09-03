@@ -34,7 +34,10 @@ const plottedSystems = FIELD.plotted.map((id) => {
     <ul class="plotted-systems-roster__list" role="list">
         {
             plottedSystems.map((system) => (
-                <li class="plotted-systems-roster__item">
+                <li
+                    class="plotted-systems-roster__item"
+                    data-system={system.id}
+                >
                     <span class="plotted-systems-roster__index">
                         {system.index}
                     </span>

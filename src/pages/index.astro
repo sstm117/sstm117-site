@@ -5,12 +5,12 @@ import RelationIndex from '../components/field/RelationIndex.astro';
 import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { FIELD } from '../data/field-composition';
+import { READOUT_SUBJECT } from '../data/field-selection';
 import { systems } from '../data/systems';
 import type { SystemRecord } from '../data/types';
 import { fieldCounts } from '../lib/field-geometry';
 
 const counts = fieldCounts();
-const scaffoldReadoutSubject = FIELD.plotted[0];
 
 const declaredNowSystems = FIELD.plotted.flatMap((id) => {
     const system: SystemRecord | undefined = systems.find(
@@ -86,7 +86,7 @@ if (declaredNowSystems.length > 0) {
                 </span>
             </div>
             <PlottedSystemsRoster />
-            <SystemReadout subject={scaffoldReadoutSubject} />
+            <SystemReadout subject={READOUT_SUBJECT} />
         </section>
 
         <section class="index-relation-row">
