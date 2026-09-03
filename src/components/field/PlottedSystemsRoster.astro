@@ -1,0 +1,104 @@
+---
+import { FIELD } from '../../data/field-composition';
+import { systems } from '../../data/systems';
+import { assertFieldIntegrity } from '../../lib/field-geometry';
+
+assertFieldIntegrity();
+
+const systemById = new Map(
+    systems.map((system) => [system.id, system] as const),
+);
+
+const plottedSystems = FIELD.plotted.map((id) => {
+    const system = systemById.get(id);
+
+    if (!system) {
+        throw new Error(`Unknown plotted system in roster: ${id}`);
+    }
+
+    return system;
+});
+---
+
+<section
+    class="plotted-systems-roster"
+    aria-labelledby="plotted-systems-roster-heading"
+>
+    <h2
+        id="plotted-systems-roster-heading"
+        class="plotted-systems-roster__heading"
+    >
+        PLOTTED SYSTEMS
+    </h2>
+
+    <ul class="plotted-systems-roster__list" role="list">
+        {
+            plottedSystems.map((system) => (
+                <li class="plotted-systems-roster__item">
+                    <span class="plotted-systems-roster__index">
+                        {system.index}
+                    </span>
+
+                    <span class="plotted-systems-roster__name">
+                        {system.name}
+                    </span>
+                </li>
+            ))
+        }
+    </ul>
+</section>
+
+<style>
+    .plotted-systems-roster {
+        padding: 0 32px 20px;
+    }
+
+    .plotted-systems-roster__heading {
+        margin: 0 0 10px;
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .plotted-systems-roster__list {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid oklch(0.21 0.008 200);
+        list-style: none;
+    }
+
+    .plotted-systems-roster__item {
+        display: grid;
+        grid-template-columns: 36px minmax(0, 1fr);
+        gap: 10px;
+        min-width: 0;
+        padding: 10px 16px 11px 0;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .plotted-systems-roster__index {
+        color: oklch(0.60 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.4;
+        letter-spacing: 0.1em;
+    }
+
+    .plotted-systems-roster__name {
+        color: oklch(0.72 0.006 200);
+        font-size: 12.5px;
+        line-height: 1.4;
+        letter-spacing: -0.005em;
+    }
+
+    @media (max-width: 859px) {
+        .plotted-systems-roster {
+            display: none;
+        }
+    }
+</style>

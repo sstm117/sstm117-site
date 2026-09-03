@@ -1,5 +1,6 @@
 ---
 import FieldFigure from '../components/field/FieldFigure.astro';
+import PlottedSystemsRoster from '../components/field/PlottedSystemsRoster.astro';
 import RelationIndex from '../components/field/RelationIndex.astro';
 import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
@@ -84,6 +85,7 @@ if (declaredNowSystems.length > 0) {
                     {counts.present} PRESENT
                 </span>
             </div>
+            <PlottedSystemsRoster />
             <SystemReadout subject={scaffoldReadoutSubject} />
         </section>
 
