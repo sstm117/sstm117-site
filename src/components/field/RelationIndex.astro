@@ -139,11 +139,11 @@ const rows = FIELD.plotted.map((id) => {
                                       (concern, index) => (
                                           <>
                                               {index > 0 && (
-                                                  <span aria-hidden="true">
+                                                  <span class="relation-index__separator" aria-hidden="true">
                                                       {' · '}
                                                   </span><span class="relation-index__sr-only">{', '}</span>
                                               )}
-                                              <span data-relation-strength="PRIMARY">
+                                              <span class="relation-index__chip" data-relation-strength="PRIMARY">
                                                   {concern.label}
                                               </span>
                                           </>
@@ -169,11 +169,11 @@ const rows = FIELD.plotted.map((id) => {
                                       (concern, index) => (
                                           <>
                                               {index > 0 && (
-                                                  <span aria-hidden="true">
+                                                  <span class="relation-index__separator" aria-hidden="true">
                                                       {' · '}
                                                   </span><span class="relation-index__sr-only">{', '}</span>
                                               )}
-                                              <span data-relation-strength="PRESENT">
+                                              <span class="relation-index__chip" data-relation-strength="PRESENT">
                                                   {concern.label}
                                               </span>
                                           </>
@@ -391,6 +391,21 @@ const rows = FIELD.plotted.map((id) => {
 
         .relation-index__qualifier {
             display: inline;
+        }
+
+        .relation-index__separator {
+            display: none;
+        }
+
+        .relation-index__chip {
+            display: inline-block;
+            box-sizing: border-box;
+            margin: 2px 5px 2px 0;
+            padding: 2px 5px;
+            border: 1px solid currentColor;
+            border-radius: 2px;
+            line-height: 1.35;
+            letter-spacing: 0.06em;
         }
 
         .relation-index__note {
