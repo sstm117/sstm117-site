@@ -668,7 +668,7 @@ function daysInMonth(year: number, month: number): number {
     return 31;
 }
 
-function isValidIsoDate(value: unknown): boolean {
+export function isValidIsoDate(value: unknown): boolean {
     if (
         typeof value !== "string" ||
         value.length !== 10 ||
