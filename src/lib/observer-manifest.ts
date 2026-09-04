@@ -41,6 +41,8 @@ function isWellFormedString(value: string): boolean {
         const code = value.charCodeAt(index);
 
         if (code >= 0xd800 && code <= 0xdbff) {
+            if (index + 1 >= value.length) return false;
+
             const next = value.charCodeAt(index + 1);
             if (next < 0xdc00 || next > 0xdfff) return false;
             index += 1;
