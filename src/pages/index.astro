@@ -5,12 +5,43 @@ import RelationIndex from '../components/field/RelationIndex.astro';
 import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { FIELD } from '../data/field-composition';
+import { INDEX_CONTENT } from '../data/index-content';
 import { READOUT_SUBJECT } from '../data/field-selection';
 import { systems } from '../data/systems';
 import type { SystemRecord } from '../data/types';
 import { fieldCounts } from '../lib/field-geometry';
 
 const counts = fieldCounts();
+
+const middleDot = String.fromCodePoint(0x00b7);
+const emDash = String.fromCodePoint(0x2014);
+
+const identityNameLines = INDEX_CONTENT.identity.name.split(/ (?=[^ ]+$)/);
+
+if (identityNameLines.length !== 2) {
+    throw new Error('INDEX identity name must resolve to exactly two presentation lines.');
+}
+
+const identityTailParts = INDEX_CONTENT.identity.tail.split(` ${emDash} `);
+
+if (identityTailParts.length !== 3) {
+    throw new Error('INDEX identity tail must resolve to exactly three presentation segments.');
+}
+
+const nowNoteWords = INDEX_CONTENT.now.note.split(' ');
+const nowNoteLines = [
+    nowNoteWords.slice(0, 3).join(' '),
+    nowNoteWords.slice(3, 8).join(' '),
+    nowNoteWords.slice(8, 13).join(' '),
+    nowNoteWords.slice(13).join(' '),
+];
+
+if (
+    nowNoteLines.some((line) => line === '') ||
+    nowNoteLines.join(' ') !== INDEX_CONTENT.now.note
+) {
+    throw new Error('INDEX NOW note must resolve to exactly four non-empty presentation lines.');
+}
 
 const declaredNowSystems = FIELD.plotted.flatMap((id) => {
     const system: SystemRecord | undefined = systems.find(
@@ -37,7 +68,7 @@ if (declaredNowSystems.length > 0) {
 ---
 
 <SiteLayout
-    description="Supply chain engineer building software and AI tools."
+    description={INDEX_CONTENT.identity.lead}
 >
     <div class="index-surface">
         <section
@@ -46,25 +77,24 @@ if (declaredNowSystems.length > 0) {
         >
             <div class="index-identity">
                 <div class="index-identity__caption">
-                    PRACTICE · 000—117
+                    PRACTICE {middleDot} {INDEX_CONTENT.closing.mark}
                 </div>
 
                 <h1
                     id="index-identity"
                     class="index-identity__name"
                 >
-                    Simon Sainte<br />Mareville
+                    {identityNameLines[0]}<br />{identityNameLines[1]}
                 </h1>
 
                 <p class="index-identity__lead">
-                    Supply chain engineer building software and AI tools.
+                    {INDEX_CONTENT.identity.lead}
                 </p>
 
                 <p class="index-identity__tail">
-                    The work started in physical operations. The question it left behind —
-                    <span>how does this system actually behave</span>
-                    — is the one now put to software and to AI. What you are looking at is
-                    that practice, drawn.
+                    {identityTailParts[0]}{' '}{emDash}{' '}
+                    <span>{identityTailParts[1]}</span>
+                    {' '}{emDash}{' '}{identityTailParts[2]}
                 </p>
             </div>
 
@@ -158,10 +188,14 @@ if (declaredNowSystems.length > 0) {
                 </div>
 
                 <p class="index-now__note">
-                    OWNER-DECLARED. SLOTS RENDER<br />
-                    EMPTY UNTIL DECLARED — A<br />
-                    REPOSITORY PHASE IS NOT A<br />
-                    POSITION HERE.
+                    {
+                        nowNoteLines.map((line, index) => (
+                            <>
+                                {line}
+                                {index < nowNoteLines.length - 1 && <br />}
+                            </>
+                        ))
+                    }
                 </p>
             </section>
         </section>
@@ -178,18 +212,13 @@ if (declaredNowSystems.length > 0) {
             </h2>
 
             <div class="index-invariants__items">
-                <span data-practice-invariant>
-                    EVIDENCE BEFORE ASSERTION
-                </span>
-                <span data-practice-invariant>
-                    UNKNOWN IS A VALID STATE
-                </span>
-                <span data-practice-invariant>
-                    AUTOMATION DOES NOT CREATE AUTHORITY
-                </span>
-                <span data-practice-invariant>
-                    CONSTRAINTS ARE PART OF CORRECTNESS
-                </span>
+                {
+                    INDEX_CONTENT.invariants.map((invariant) => (
+                        <span data-practice-invariant>
+                            {invariant}
+                        </span>
+                    ))
+                }
             </div>
         </section>
 
@@ -198,10 +227,10 @@ if (declaredNowSystems.length > 0) {
                 &gt;_
             </span>
 
-            <span>github.com/sstm117</span>
+            <span>{INDEX_CONTENT.closing.locator}</span>
 
             <span class="index-closing-row__mark">
-                000—117
+                {INDEX_CONTENT.closing.mark}
             </span>
         </div>
     </div>

@@ -1,6 +1,7 @@
 ---
 import { concerns } from '../../data/concerns';
 import { FIELD } from '../../data/field-composition';
+import { INDEX_CONTENT } from '../../data/index-content';
 import { relations } from '../../data/relations';
 import { systems } from '../../data/systems';
 
@@ -18,6 +19,15 @@ const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
 const systemById = new Map(
     systems.map((system) => [system.id, system] as const),
 );
+
+const relationNoteParts = INDEX_CONTENT.relationIndex.note.split('. NO EDGE');
+
+if (relationNoteParts.length !== 2) {
+    throw new Error('INDEX relation note must resolve to exactly two presentation segments.');
+}
+
+const relationNoteLead = relationNoteParts[0] + '.';
+const relationNoteTail = 'NO EDGE' + relationNoteParts[1];
 
 const rows = FIELD.plotted.map((id) => {
     const system = systemById.get(id);
@@ -87,7 +97,7 @@ const rows = FIELD.plotted.map((id) => {
         </h2>
 
         <p class="relation-index__subtitle">
-            the field in words — the diagram is never the only route
+            {INDEX_CONTENT.relationIndex.subtitle}
         </p>
 
         <span class="relation-index__mobile-count">
@@ -188,10 +198,8 @@ const rows = FIELD.plotted.map((id) => {
     </div>
 
     <p class="relation-index__note">
-        RELATION SET · OWNER-DECLARED — EACH EDGE IS A STATEMENT ABOUT THE PRACTICE,
-        NOT A COMPUTED SIMILARITY.<br />
-        NO EDGE MEANS NO DECLARED RESPONSIBILITY, NOT A GAP. NODE POSITIONS REMAIN
-        A DESIGN DECISION.
+        {relationNoteLead}<br />
+        {relationNoteTail}
     </p>
 </section>
 
