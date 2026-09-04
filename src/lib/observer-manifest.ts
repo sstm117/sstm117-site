@@ -1,5 +1,6 @@
 import { concerns } from '../data/concerns';
 import { FIELD } from '../data/field-composition';
+import { INDEX_CONTENT } from '../data/index-content';
 import { READOUT_SUBJECT } from '../data/field-selection';
 import {
     observerResources,
@@ -200,11 +201,33 @@ function buildFieldPayload(): CanonicalValue {
         FIELD.ariaLabel,
     ];
 }
+
+function buildIndexPayload(): CanonicalValue {
+    return [
+        [
+            INDEX_CONTENT.identity.name,
+            INDEX_CONTENT.identity.lead,
+            INDEX_CONTENT.identity.tail,
+        ],
+        [
+            INDEX_CONTENT.relationIndex.subtitle,
+            INDEX_CONTENT.relationIndex.note,
+        ],
+        INDEX_CONTENT.now.note,
+        [...INDEX_CONTENT.invariants],
+        [
+            INDEX_CONTENT.closing.mark,
+            INDEX_CONTENT.closing.locator,
+        ],
+    ];
+}
+
 function assertResourceRegistryIntegrity(): void {
     const ids = new Set<string>();
     const systemIds = new Set<SystemId>();
     const plotted: readonly SystemId[] = FIELD.plotted;
-    let siteResourceCount = 0;
+    let fieldResourceCount = 0;
+    let indexResourceCount = 0;
 
     for (const resource of observerResources) {
         assertObserverResourceId(resource.id);
@@ -214,9 +237,17 @@ function assertResourceRegistryIntegrity(): void {
         ids.add(resource.id);
 
         if (resource.kind === 'field') {
-            siteResourceCount += 1;
+            fieldResourceCount += 1;
             if (resource.id !== 'site:field') {
-                fail('Unexpected site resource descriptor.');
+                fail('Unexpected field resource descriptor.');
+            }
+            continue;
+        }
+
+        if (resource.kind === 'index') {
+            indexResourceCount += 1;
+            if (resource.id !== 'site:index') {
+                fail('Unexpected index resource descriptor.');
             }
             continue;
         }
@@ -238,8 +269,12 @@ function assertResourceRegistryIntegrity(): void {
         }
     }
 
-    if (siteResourceCount !== 1) {
-        fail(`Expected exactly one site:* resource, found ${siteResourceCount}.`);
+    if (fieldResourceCount !== 1) {
+        fail(`Expected exactly one field resource, found ${fieldResourceCount}.`);
+    }
+
+    if (indexResourceCount !== 1) {
+        fail(`Expected exactly one index resource, found ${indexResourceCount}.`);
     }
 
     for (const systemId of FIELD.plotted) {
@@ -250,9 +285,9 @@ function assertResourceRegistryIntegrity(): void {
 }
 
 function buildResourcePayload(resource: RegistryResource): CanonicalValue {
-    return resource.kind === 'field'
-        ? buildFieldPayload()
-        : buildSystemPayload(resource.systemId);
+    if (resource.kind === 'field') return buildFieldPayload();
+    if (resource.kind === 'index') return buildIndexPayload();
+    return buildSystemPayload(resource.systemId);
 }
 
 async function hashResource(
