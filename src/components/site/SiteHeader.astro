@@ -1,4 +1,6 @@
 ---
+import Observer from './Observer.astro';
+
 const navigation = [
     { href: '/', label: 'INDEX' },
     { href: '/work', label: 'WORK' },
@@ -23,7 +25,9 @@ const mobileLabel = current ?? 'MENU';
         class="site-header__observer-reserve"
         aria-hidden="true"
         data-observer-reserve
-    ></div>
+    >
+        <Observer />
+    </div>
 
     <a class="site-header__brand" href="/" aria-label="sstm117 — Index">
         sstm117
