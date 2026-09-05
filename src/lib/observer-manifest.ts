@@ -7,6 +7,10 @@ import {
     type ObserverResourceId,
 } from '../data/observer-resources';
 import { provenance } from '../data/provenance';
+import { isValidIsoDate } from '../data/provenance-integrity';
+import {
+    assertObserverTemporalHash,
+} from '../data/observer-temporal';
 import { relations } from '../data/relations';
 import { systems } from '../data/systems';
 import type {
@@ -22,10 +26,12 @@ type RegistryResource = (typeof observerResources)[number];
 export interface ObserverManifestResource {
     readonly id: ObserverResourceId;
     readonly contentHash: string;
+    readonly lastContentChange: string;
+    readonly provenanceVerifiedThrough: string | null;
 }
 
 export interface ObserverManifest {
-    readonly schemaVersion: 1;
+    readonly schemaVersion: 2;
     readonly resources: readonly ObserverManifestResource[];
 }
 
@@ -127,7 +133,6 @@ function buildProvenancePayload(source: ProvenanceRecord): CanonicalValue {
     if (source.availability === 'NONE') {
         return [
             source.availability,
-            source.checkedAt,
             coverage,
         ];
     }
@@ -138,7 +143,6 @@ function buildProvenancePayload(source: ProvenanceRecord): CanonicalValue {
             source.kind,
             source.status.authority,
             [...source.status.roles],
-            source.checkedAt,
             coverage,
         ];
     }
@@ -158,7 +162,6 @@ function buildProvenancePayload(source: ProvenanceRecord): CanonicalValue {
         source.locator,
         source.status.authority,
         [...source.status.roles],
-        source.checkedAt,
         coverage,
     ];
 }
@@ -176,6 +179,7 @@ function buildSystemPayload(systemId: SystemId): CanonicalValue {
             : [system.phase.label, system.phase.compact];
 
     return [
+        'system-content/2',
         system.id,
         system.index,
         system.name,
@@ -290,6 +294,27 @@ function buildResourcePayload(resource: RegistryResource): CanonicalValue {
     return buildSystemPayload(resource.systemId);
 }
 
+function deriveProvenanceVerifiedThrough(
+    resource: RegistryResource,
+): string | null {
+    if (resource.kind !== 'system') return null;
+
+    let floor: string | null = null;
+
+    for (const source of provenance) {
+        if (source.entity !== resource.systemId) continue;
+
+        if (
+            floor === null ||
+            compareCodeUnits(source.checkedAt, floor) < 0
+        ) {
+            floor = source.checkedAt;
+        }
+    }
+
+    return floor;
+}
+
 async function hashResource(
     id: ObserverResourceId,
     payload: CanonicalValue,
@@ -355,8 +380,8 @@ export function assertObserverManifestIntegrity(
         resources?: unknown;
     };
 
-    if (candidate.schemaVersion !== 1) {
-        fail('Manifest schemaVersion must equal 1.');
+    if (candidate.schemaVersion !== 2) {
+        fail('Manifest schemaVersion must equal 2.');
     }
     if (
         !Array.isArray(candidate.resources) ||
@@ -392,13 +417,20 @@ export function assertObserverManifestIntegrity(
 
         assertExactKeys(
             resource,
-            ['id', 'contentHash'],
+            [
+                'id',
+                'contentHash',
+                'lastContentChange',
+                'provenanceVerifiedThrough',
+            ],
             `Manifest resource ${index}`,
         );
 
         const record = resource as {
             id?: unknown;
             contentHash?: unknown;
+            lastContentChange?: unknown;
+            provenanceVerifiedThrough?: unknown;
         };
 
         if (typeof record.id !== 'string') {
@@ -425,6 +457,57 @@ export function assertObserverManifestIntegrity(
                 `Manifest resource ${record.id} has an invalid contentHash.`,
             );
         }
+
+        if (
+            typeof record.lastContentChange !== 'string' ||
+            !isValidIsoDate(record.lastContentChange)
+        ) {
+            fail(
+                `Manifest resource ${record.id} has an invalid lastContentChange.`,
+            );
+        }
+
+        if (
+            record.provenanceVerifiedThrough !== null &&
+            (
+                typeof record.provenanceVerifiedThrough !== 'string' ||
+                !isValidIsoDate(record.provenanceVerifiedThrough)
+            )
+        ) {
+            fail(
+                `Manifest resource ${record.id} has an invalid provenanceVerifiedThrough.`,
+            );
+        }
+
+        const resourceId = record.id as ObserverResourceId;
+        const anchor = assertObserverTemporalHash(
+            resourceId,
+            record.contentHash,
+        );
+
+        if (record.lastContentChange !== anchor.lastContentChange) {
+            fail(
+                `Manifest resource ${record.id} has a stale lastContentChange.`,
+            );
+        }
+
+        const descriptor = observerResources.find(
+            (candidateResource) => candidateResource.id === resourceId,
+        );
+        if (!descriptor) {
+            fail(`Missing Observer resource descriptor: ${resourceId}`);
+        }
+
+        const expectedVerification =
+            deriveProvenanceVerifiedThrough(descriptor);
+
+        if (
+            record.provenanceVerifiedThrough !== expectedVerification
+        ) {
+            fail(
+                `Manifest resource ${record.id} has a non-derived provenanceVerifiedThrough.`,
+            );
+        }
     }
 }
 
@@ -432,19 +515,30 @@ export async function buildObserverManifest(): Promise<ObserverManifest> {
     assertResourceRegistryIntegrity();
 
     const resources = await Promise.all(
-        observerResources.map(async (resource) => ({
-            id: resource.id,
-            contentHash: await hashResource(
+        observerResources.map(async (resource) => {
+            const contentHash = await hashResource(
                 resource.id,
                 buildResourcePayload(resource),
-            ),
-        })),
+            );
+            const anchor = assertObserverTemporalHash(
+                resource.id,
+                contentHash,
+            );
+
+            return {
+                id: resource.id,
+                contentHash,
+                lastContentChange: anchor.lastContentChange,
+                provenanceVerifiedThrough:
+                    deriveProvenanceVerifiedThrough(resource),
+            };
+        }),
     );
 
     resources.sort((left, right) => compareCodeUnits(left.id, right.id));
 
     const manifest: ObserverManifest = {
-        schemaVersion: 1,
+        schemaVersion: 2,
         resources,
     };
 
