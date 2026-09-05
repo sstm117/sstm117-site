@@ -33,25 +33,25 @@ export const observerTemporalAnchors = [
     {
         id: 'system:obs',
         contentHash:
-            'c836ece436aa8ac20d3a358d4bfbf664d36b0459122b157909752770eae2123a',
+            '4ce7cf9564472398b5f954c36146770948fac7a91ec835f8f0e37ebb927a7f7c',
         lastContentChange: '2026-09-04',
     },
     {
         id: 'system:food',
         contentHash:
-            'c9d5cad313dbc9ba4ac3a479bba69e6806cecd251cc28412e29a9b0524268a30',
+            '54d801c3dad7cc8d040bec3ae048537204d6711dd21665a3e0767e31c61f2aff',
         lastContentChange: '2026-09-04',
     },
     {
         id: 'system:moka',
         contentHash:
-            '8d856fd0fe95c1851d845e4cb64b3ec7877b5ae2832099be5ffd23263d7fd942',
+            '3c373efd49c75f52ed7fcc41ca850dcd871ec2a1fad897d2253c061ee05e73ec',
         lastContentChange: '2026-09-04',
     },
     {
         id: 'system:fnode',
         contentHash:
-            '2188c5d2df306e88c7e96ccc8389d0e106919077a9b8c72f65ee42ee0573b79d',
+            '4e7c5198833deaa76ba7cc1f94e790cc9f4ea79b90ffba86437e185b26b84ee9',
         lastContentChange: '2026-09-04',
     },
 ] as const satisfies readonly ObserverTemporalAnchor[];
