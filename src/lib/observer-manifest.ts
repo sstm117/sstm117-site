@@ -167,8 +167,12 @@ function buildProvenancePayload(source: ProvenanceRecord): CanonicalValue {
 }
 function buildSystemPayload(systemId: SystemId): CanonicalValue {
     const system = findSystem(systemId);
+    const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
     const systemRelations = relations
-        .filter(({ system: relationSystem }) => relationSystem === systemId)
+        .filter(
+            ({ system: relationSystem, concern }) =>
+                relationSystem === systemId && fieldConcernIds.has(concern),
+        )
         .map(({ concern, strength }) => [concern, strength] as const);
     const sourceRecords = provenance
         .filter(({ entity }) => entity === systemId)
@@ -179,7 +183,7 @@ function buildSystemPayload(systemId: SystemId): CanonicalValue {
             : [system.phase.label, system.phase.compact];
 
     return [
-        'system-content/2',
+        'system-content/3',
         system.id,
         system.index,
         system.name,
