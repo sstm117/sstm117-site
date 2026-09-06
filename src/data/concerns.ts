@@ -32,3 +32,12 @@ export const concerns = [
         gloss: 'Flows, throughput, feedback and failure under load. The original discipline.',
     },
 ] as const satisfies readonly ConcernRecord[];
+const concernIds = new Set<string>();
+
+for (const concern of concerns) {
+    if (concernIds.has(concern.id)) {
+        throw new Error(`Duplicate concern id: ${concern.id}`);
+    }
+
+    concernIds.add(concern.id);
+}
