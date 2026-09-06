@@ -11,8 +11,10 @@ import { isValidIsoDate } from '../data/provenance-integrity';
 import {
     assertObserverTemporalHash,
 } from '../data/observer-temporal';
-import { relations } from '../data/relations';
+
 import { systems } from '../data/systems';
+import { fieldRelationsFor } from './field-relations';
+
 import type {
     ConcernId,
     ProvenanceRecord,
@@ -167,12 +169,7 @@ function buildProvenancePayload(source: ProvenanceRecord): CanonicalValue {
 }
 function buildSystemPayload(systemId: SystemId): CanonicalValue {
     const system = findSystem(systemId);
-    const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
-    const systemRelations = relations
-        .filter(
-            ({ system: relationSystem, concern }) =>
-                relationSystem === systemId && fieldConcernIds.has(concern),
-        )
+    const systemRelations = fieldRelationsFor(systemId)
         .map(
             ({ concern, strength }) =>
                 [concern, findConcernLabel(concern), strength] as const,

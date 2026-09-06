@@ -2,7 +2,7 @@
 import { concerns } from '../../data/concerns';
 import { FIELD } from '../../data/field-composition';
 import { provenance } from '../../data/provenance';
-import { relations } from '../../data/relations';
+import { fieldRelationsFor } from '../../lib/field-relations';
 import { systems } from '../../data/systems';
 import { assertFieldIntegrity } from '../../lib/field-geometry';
 import type {
@@ -35,13 +35,8 @@ const concernById = new Map<ConcernId, (typeof concerns)[number]>(
     concerns.map((concern) => [concern.id, concern]),
 );
 
-const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
 
-const systemRelations = relations.filter(
-    ({ system: relationSystem, concern }) =>
-        relationSystem === system.id &&
-        fieldConcernIds.has(concern),
-);
+const systemRelations = fieldRelationsFor(system.id);
 
 const resolveConcern = (id: ConcernId) => {
     const concern = concernById.get(id);
