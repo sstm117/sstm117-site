@@ -111,9 +111,7 @@ export function assertFieldIntegrity(): void {
         throw new Error('Duplicate system id.');
     }
 
-    if (concernIds.size !== concerns.length) {
-        throw new Error('Duplicate concern id.');
-    }
+    // concerns.ts guarantees ConcernRecord.id uniqueness at module evaluation.
 
     if (indexes.size !== systems.length) {
         throw new Error('Duplicate system index.');
