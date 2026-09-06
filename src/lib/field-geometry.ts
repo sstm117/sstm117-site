@@ -1,6 +1,7 @@
 import { concerns } from '../data/concerns.ts';
 import { FIELD } from '../data/field-composition.ts';
 import { relations } from '../data/relations.ts';
+import { fieldRelations } from './field-relations.ts';
 import { systems } from '../data/systems.ts';
 
 import type {
@@ -58,15 +59,7 @@ export function trace(a: Point, b: Point): string {
 }
 
 export function resolveTraces(): readonly ResolvedTrace[] {
-    const plotted = new Set<SystemId>(FIELD.plotted);
-    const fieldConcerns = new Set<ConcernId>(FIELD.concerns);
-
-    return relations
-        .filter(
-            ({ system, concern }) =>
-                plotted.has(system) &&
-                fieldConcerns.has(concern),
-        )
+    return fieldRelations()
         .map(({ system, concern, strength }) => ({
             system,
             concern,
