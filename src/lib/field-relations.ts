@@ -6,10 +6,12 @@ import type {
     SystemId,
 } from '../data/types';
 
+type ReadonlyRelationRecord = Readonly<RelationRecord>;
+
 const plottedSystemIds = new Set<SystemId>(FIELD.plotted);
 const fieldConcernIds = new Set<ConcernId>(FIELD.concerns);
 
-export function fieldRelations(): readonly RelationRecord[] {
+export function fieldRelations(): readonly ReadonlyRelationRecord[] {
     return relations.filter(
         ({ system, concern }) =>
             plottedSystemIds.has(system) &&
@@ -19,7 +21,7 @@ export function fieldRelations(): readonly RelationRecord[] {
 
 export function fieldRelationsFor(
     systemId: SystemId,
-): readonly RelationRecord[] {
+): readonly ReadonlyRelationRecord[] {
     return fieldRelations().filter(
         ({ system }) => system === systemId,
     );
