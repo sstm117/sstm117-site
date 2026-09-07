@@ -298,6 +298,23 @@ function buildResourcePayload(resource: RegistryResource): CanonicalValue {
     return buildSystemPayload(resource.systemId);
 }
 
+/**
+ * Conservative verification floor for a system resource.
+ *
+ * The value is the minimum checkedAt across every provenance record
+ * declared for that system, including a record that declares no source
+ * exists. It guarantees only that every such record has been checked at
+ * least as recently as this date.
+ *
+ * It is not the most recent check, not per-record verification state,
+ * and not a claim that the records were checked together or that any
+ * assertion held continuously up to this date. A later checkedAt above
+ * the floor leaves it unchanged; the floor can rise only after every
+ * record at the previous floor has a later checkedAt.
+ *
+ * null means no floor is defined: the resource is not a system, or the
+ * system declares no provenance records.
+ */
 function deriveProvenanceVerifiedThrough(
     resource: RegistryResource,
 ): string | null {
