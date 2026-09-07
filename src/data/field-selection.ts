@@ -22,7 +22,8 @@ export const READOUT_SUBJECT = 'obs' as const satisfies SystemId;
  *
  * Disclosure eligibility is NOT re-checked here — it is guaranteed
  * transitively by assertFieldIntegrity() (SystemReadout.astro:18 ->
- * field-geometry.ts:151-159). Importing it here would be circular.
+ * field-geometry.ts FIELD.plotted disclosure loop). Importing it here
+ * would be circular.
  */
 const eligible: readonly SystemId[] = FIELD.plotted;
 
