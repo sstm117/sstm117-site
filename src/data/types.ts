@@ -116,20 +116,20 @@ export type Strength =
     | 'PRESENT';
 
 export interface Phase {
-    label: string;
-    compact: string;
+    readonly label: string;
+    readonly compact: string;
 }
 
 export interface SystemRecord {
-    id: SystemId;
-    index: string;
-    name: string;
-    short: string;
-    body: string;
-    disclosure: Disclosure;
-    evidence: Evidence;
-    phase: Phase | null;
-    now: NowPosition | null;
+    readonly id: SystemId;
+    readonly index: string;
+    readonly name: string;
+    readonly short: string;
+    readonly body: string;
+    readonly disclosure: Disclosure;
+    readonly evidence: Evidence;
+    readonly phase: Phase | null;
+    readonly now: NowPosition | null;
 }
 
 export interface ConcernRecord {
