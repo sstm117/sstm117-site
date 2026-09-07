@@ -308,8 +308,8 @@ function buildResourcePayload(resource: RegistryResource): CanonicalValue {
  *
  * It is not the most recent check, not per-record verification state,
  * and not a claim that the records were checked together or that any
- * assertion held continuously up to this date. A later checkedAt above
- * the floor leaves it unchanged; the floor can rise only after every
+ * assertion held continuously up to this date. Advancing a record already
+ * above the floor leaves it unchanged; the floor can rise only after every
  * record at the previous floor has a later checkedAt.
  *
  * null means no floor is defined: the resource is not a system, or the
