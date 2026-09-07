@@ -64,46 +64,46 @@ export type SourceSupport =
     | 'DEMONSTRATES';
 
 export interface CoverageQualification {
-    area: SourceCoverageArea;
-    support: SourceSupport;
+    readonly area: SourceCoverageArea;
+    readonly support: SourceSupport;
 }
 
 export interface SourceStatus {
-    authority: SourceAuthority;
-    roles: readonly SourceRole[];
+    readonly authority: SourceAuthority;
+    readonly roles: readonly SourceRole[];
 }
 
 export interface PublicProvenanceRecord {
-    entity: SystemId;
-    availability: 'PUBLIC';
-    kind: SourceKind;
-    label?: string;
-    locator: string;
-    status: SourceStatus;
-    checkedAt: string;
-    coverage: readonly CoverageQualification[];
+    readonly entity: SystemId;
+    readonly availability: 'PUBLIC';
+    readonly kind: SourceKind;
+    readonly label?: string;
+    readonly locator: string;
+    readonly status: SourceStatus;
+    readonly checkedAt: string;
+    readonly coverage: readonly CoverageQualification[];
 }
 
 export interface RestrictedProvenanceRecord {
-    entity: SystemId;
-    availability: 'RESTRICTED';
-    kind: SourceKind;
-    label?: never;
-    locator?: never;
-    status: SourceStatus;
-    checkedAt: string;
-    coverage: readonly CoverageQualification[];
+    readonly entity: SystemId;
+    readonly availability: 'RESTRICTED';
+    readonly kind: SourceKind;
+    readonly label?: never;
+    readonly locator?: never;
+    readonly status: SourceStatus;
+    readonly checkedAt: string;
+    readonly coverage: readonly CoverageQualification[];
 }
 
 export interface NoSourceProvenanceRecord {
-    entity: SystemId;
-    availability: 'NONE';
-    kind?: never;
-    label?: never;
-    locator?: never;
-    status?: never;
-    checkedAt: string;
-    coverage: readonly [];
+    readonly entity: SystemId;
+    readonly availability: 'NONE';
+    readonly kind?: never;
+    readonly label?: never;
+    readonly locator?: never;
+    readonly status?: never;
+    readonly checkedAt: string;
+    readonly coverage: readonly [];
 }
 
 export type ProvenanceRecord =
