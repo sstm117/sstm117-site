@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 64 64"
+     role="img"
+     aria-label="117">
+  <rect width="64" height="64" rx="8" fill="#070b0b"/>
+  <path
+    d="M10 22 L16 17 V47
+       M24 22 L30 17 V47
+       M39 17 H54 L43 47"
+    fill="none"
+    stroke="#e5e9e9"
+    stroke-width="4"
+    stroke-linecap="square"
+    stroke-linejoin="miter"
+  />
+  <path
+    d="M9 54 H55"
+    fill="none"
+    stroke="#98d263"
+    stroke-width="2"
+  />
+</svg>
