@@ -1,5 +1,156 @@
 ---
+import PageMasthead from '../components/site/PageMasthead.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { INDEX_CONTENT } from '../data/index-content';
+import { lab } from '../data/lab';
+
+const lead =
+    'Fragments, probes and explorations. None of this is a product, and none of it is presented as one.';
 ---
 
-<SiteLayout title="LAB — sstm117" />
+<SiteLayout title="LAB — sstm117" description={lead}>
+    <div class="lab-surface">
+        <PageMasthead
+            caption={`FRAGMENTS · ${INDEX_CONTENT.closing.mark}`}
+            title="Lab"
+            lead={lead}
+        >
+            <p class="lab-surface__note">
+                A fragment gets a name, the question it probes, and one honest
+                line about where it stands. Nothing here carries a phase, a
+                maturity rating or a promise.
+            </p>
+        </PageMasthead>
+
+        <section class="lab-fragments" aria-labelledby="lab-fragments-heading">
+            <h2 id="lab-fragments-heading" class="lab-fragments__heading">
+                {lab.length} FRAGMENTS
+            </h2>
+
+            <ul class="lab-fragments__list" role="list">
+                {
+                    lab.map((fragment) => (
+                        <li
+                            class="lab-fragment"
+                            id={fragment.anchor}
+                            data-lab-fragment
+                        >
+                            <h3 class="lab-fragment__name">{fragment.name}</h3>
+
+                            <p class="lab-fragment__probe">{fragment.probe}</p>
+
+                            <p class="lab-fragment__state">{fragment.state}</p>
+                        </li>
+                    ))
+                }
+            </ul>
+        </section>
+    </div>
+</SiteLayout>
+
+<style>
+    .lab-surface {
+        width: 100%;
+    }
+
+    .lab-surface__note {
+        max-width: 58ch;
+        margin: 16px 0 0;
+        color: var(--color-text-dim);
+        font-size: 14px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .lab-fragments {
+        padding: 26px var(--page-gutter-desktop) 34px;
+    }
+
+    .lab-fragments__heading {
+        margin: 0 0 14px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .lab-fragments__list {
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid var(--color-line);
+        list-style: none;
+    }
+
+    .lab-fragment {
+        display: grid;
+        grid-template-columns: minmax(0, 20ch) minmax(0, 1fr);
+        gap: 8px 34px;
+        align-items: baseline;
+        padding: 20px 0 22px;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+        scroll-margin-block-start: 18px;
+    }
+
+    .lab-fragment__name {
+        grid-column: 1;
+        grid-row: 1 / span 2;
+        margin: 0;
+        color: var(--color-text);
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 1.2;
+        letter-spacing: -0.018em;
+    }
+
+    .lab-fragment__probe {
+        grid-column: 2;
+        max-width: 76ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 14.5px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .lab-fragment__state {
+        grid-column: 2;
+        max-width: 76ch;
+        margin: 0;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 10.5px;
+        line-height: 1.7;
+        letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 859px) {
+        .lab-fragments {
+            padding: 20px var(--page-gutter-mobile) 26px;
+        }
+
+        .lab-fragment {
+            display: block;
+            padding: 17px 0 19px;
+        }
+
+        .lab-fragment__name {
+            font-size: 17px;
+        }
+
+        .lab-fragment__probe {
+            max-width: none;
+            margin-top: 9px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .lab-fragment__state {
+            max-width: none;
+            margin-top: 9px;
+            font-size: 10px;
+            line-height: 1.65;
+        }
+    }
+</style>

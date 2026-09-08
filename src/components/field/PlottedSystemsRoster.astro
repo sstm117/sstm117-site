@@ -2,6 +2,7 @@
 import { FIELD } from '../../data/field-composition';
 import { systems } from '../../data/systems';
 import { assertFieldIntegrity } from '../../lib/field-geometry';
+import { workHrefFor } from '../../lib/work-view';
 
 assertFieldIntegrity();
 
@@ -38,13 +39,19 @@ const plottedSystems = FIELD.plotted.map((id) => {
                     class="plotted-systems-roster__item"
                     data-system={system.id}
                 >
-                    <span class="plotted-systems-roster__index">
-                        {system.index}
-                    </span>
+                    <a
+                        class="plotted-systems-roster__link"
+                        href={workHrefFor(system.id)}
+                        data-field-emphasis={system.id}
+                    >
+                        <span class="plotted-systems-roster__index">
+                            {system.index}
+                        </span>
 
-                    <span class="plotted-systems-roster__name">
-                        {system.name}
-                    </span>
+                        <span class="plotted-systems-roster__name">
+                            {system.name}
+                        </span>
+                    </a>
                 </li>
             ))
         }
@@ -76,12 +83,23 @@ const plottedSystems = FIELD.plotted.map((id) => {
     }
 
     .plotted-systems-roster__item {
+        min-width: 0;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .plotted-systems-roster__link {
         display: grid;
         grid-template-columns: 36px minmax(0, 1fr);
         gap: 10px;
         min-width: 0;
         padding: 10px 16px 11px 0;
-        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .plotted-systems-roster__link:hover
+        .plotted-systems-roster__name,
+    .plotted-systems-roster__link:focus-visible
+        .plotted-systems-roster__name {
+        color: var(--color-text);
     }
 
     .plotted-systems-roster__index {

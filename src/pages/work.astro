@@ -1,5 +1,152 @@
 ---
+import PageMasthead from '../components/site/PageMasthead.astro';
+import WorkEntry from '../components/work/WorkEntry.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { INDEX_CONTENT } from '../data/index-content';
+import { workViews } from '../lib/work-view';
+
+const entries = workViews();
+const plottedCount = entries.filter(({ inField }) => inField).length;
+
+const lead =
+    'What Simon actually works on. Each entry states what exists today, what does not exist yet, and what it rests on.';
 ---
 
-<SiteLayout title="WORK — sstm117" />
+<SiteLayout title="WORK — sstm117" description={lead}>
+    <div class="work-surface">
+        <PageMasthead
+            caption={`CORPUS · ${INDEX_CONTENT.closing.mark}`}
+            title="Work"
+            lead={lead}
+        >
+            <p class="work-surface__boundary">
+                The field on the front page plots {plottedCount} of them. It is a
+                selection made to express one idea, not an inventory — an entry
+                here needs no place in it.
+            </p>
+        </PageMasthead>
+
+        <section class="work-index" aria-labelledby="work-index-heading">
+            <h2 id="work-index-heading" class="work-index__heading">
+                INDEX
+            </h2>
+
+            <ul class="work-index__list" role="list">
+                {
+                    entries.map((entry) => (
+                        <li class="work-index__item">
+                            <a
+                                class="work-index__link"
+                                href={`#${entry.anchor}`}
+                            >
+                                {entry.name}
+                            </a>
+
+                            {
+                                entry.inField && (
+                                    <span class="work-index__marker">
+                                        FIELD
+                                    </span>
+                                )
+                            }
+                        </li>
+                    ))
+                }
+            </ul>
+        </section>
+
+        <div class="work-entries">
+            {entries.map((entry) => <WorkEntry entry={entry} />)}
+        </div>
+    </div>
+</SiteLayout>
+
+<style>
+    .work-surface {
+        width: 100%;
+    }
+
+    .work-surface__boundary {
+        max-width: 58ch;
+        margin: 16px 0 0;
+        color: var(--color-text-dim);
+        font-size: 14px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .work-index {
+        padding: 24px var(--page-gutter-desktop) 26px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .work-index__heading {
+        margin: 0 0 12px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .work-index__list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(248px, 1fr));
+        margin: 0;
+        padding: 0;
+        border-top: 1px solid oklch(0.21 0.008 200);
+        list-style: none;
+    }
+
+    .work-index__item {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 14px;
+        min-width: 0;
+        padding-right: 24px;
+        border-bottom: 1px solid oklch(0.21 0.008 200);
+    }
+
+    .work-index__link {
+        display: block;
+        padding: 10px 0 11px;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.4;
+        letter-spacing: -0.005em;
+    }
+
+    .work-index__link:hover,
+    .work-index__link:focus-visible {
+        color: var(--color-text);
+    }
+
+    .work-index__marker {
+        flex: none;
+        color: oklch(0.52 0.008 200);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.12em;
+    }
+
+    @media (max-width: 859px) {
+        .work-index {
+            padding: 18px var(--page-gutter-mobile) 20px;
+        }
+
+        .work-index__list {
+            grid-template-columns: 1fr;
+        }
+
+        .work-index__item {
+            padding-right: 0;
+        }
+
+        .work-index__link {
+            padding: 13px 0 14px;
+            font-size: 15px;
+        }
+    }
+</style>

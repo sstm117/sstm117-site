@@ -4,6 +4,7 @@ import { FIELD } from '../../data/field-composition';
 import { INDEX_CONTENT } from '../../data/index-content';
 import { fieldRelationsFor } from '../../lib/field-relations';
 import { systems } from '../../data/systems';
+import { workHrefFor } from '../../lib/work-view';
 
 import type {
     ConcernId,
@@ -119,14 +120,18 @@ const rows = FIELD.plotted.map((id) => {
                     class="relation-index__row"
                     data-relation-row
                     data-system={row.id}
+                    data-field-emphasis={row.id}
                 >
                     <span class="relation-index__number">
                         {row.index}
                     </span>
 
-                    <span class="relation-index__name">
+                    <a
+                        class="relation-index__name"
+                        href={workHrefFor(row.id)}
+                    >
                         {row.name}
-                    </span>
+                    </a>
 
                     <span class="relation-index__concerns relation-index__concerns--primary">
                         <span class="relation-index__sr-only">
@@ -282,10 +287,19 @@ const rows = FIELD.plotted.map((id) => {
     }
 
     .relation-index__name {
+        display: inline-block;
         color: oklch(0.88 0.006 200);
         font-size: 14.5px;
         line-height: 1.4;
         letter-spacing: -0.01em;
+    }
+
+    .relation-index__name:hover,
+    .relation-index__name:focus-visible {
+        color: var(--color-text);
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
     }
 
     .relation-index__concerns {
@@ -376,6 +390,9 @@ const rows = FIELD.plotted.map((id) => {
 
         .relation-index__name {
             grid-column: 2;
+            /* Padding lifts the tap target to ~44px without moving the row. */
+            margin: -11px 0;
+            padding: 11px 0;
             font-size: 17px;
             line-height: 1.2;
             letter-spacing: -0.015em;
