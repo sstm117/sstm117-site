@@ -14,6 +14,14 @@ const {
     title = 'sstm117',
     description,
 } = Astro.props;
+
+const site = Astro.site;
+
+if (!site) {
+    throw new Error('SiteLayout requires Astro.site to resolve canonical URLs.');
+}
+
+const canonicalUrl = new URL(Astro.url.pathname, site);
 ---
 
 <!doctype html>
@@ -25,6 +33,7 @@ const {
             content="width=device-width, initial-scale=1"
         />
         {description && <meta name="description" content={description} />}
+        <link rel="canonical" href={canonicalUrl} />
         <title>{title}</title>
     </head>
 
