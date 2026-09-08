@@ -11,7 +11,7 @@ interface Props {
 }
 
 const {
-    title = 'sstm117',
+    title = 'sstm117 — Simon Sainte Mareville',
     description,
 } = Astro.props;
 
@@ -33,7 +33,21 @@ const canonicalUrl = new URL(Astro.url.pathname, site);
             content="width=device-width, initial-scale=1"
         />
         {description && <meta name="description" content={description} />}
+        <meta name="author" content="Simon Sainte Mareville" />
+
         <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="sstm117" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={title} />
+        {description && <meta property="og:description" content={description} />}
+        <meta property="og:url" content={canonicalUrl} />
+
+        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:title" content={title} />
+        {description && <meta name="twitter:description" content={description} />}
+
         <title>{title}</title>
     </head>
 
