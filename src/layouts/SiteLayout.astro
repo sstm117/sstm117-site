@@ -8,11 +8,13 @@ import '../styles/global.css';
 interface Props {
     title?: string;
     description?: string;
+    robots?: string;
 }
 
 const {
     title = 'sstm117 — Simon Sainte Mareville',
     description,
+    robots,
 } = Astro.props;
 
 const site = Astro.site;
@@ -35,9 +37,11 @@ const socialImageAlt = 'sstm117 — Simon Sainte Mareville';
             content="width=device-width, initial-scale=1"
         />
         {description && <meta name="description" content={description} />}
+        {robots && <meta name="robots" content={robots} />}
         <meta name="author" content="Simon Sainte Mareville" />
 
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="sitemap" href="/sitemap-index.xml" />
         <link rel="canonical" href={canonicalUrl} />
 
         <meta property="og:type" content="website" />

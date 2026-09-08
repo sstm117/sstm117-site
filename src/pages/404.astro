@@ -1,0 +1,44 @@
+---
+import PageMasthead from '../components/site/PageMasthead.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+---
+
+<SiteLayout
+    title="404 — sstm117"
+    description="The requested route does not exist."
+    robots="noindex"
+>
+    <div class="not-found-surface">
+        <PageMasthead
+            caption="404 / NOT FOUND"
+            title="Route not found."
+            lead="The requested location is not part of this public surface."
+        >
+            <a class="not-found-return" href="/">RETURN TO INDEX</a>
+        </PageMasthead>
+    </div>
+</SiteLayout>
+
+<style>
+    .not-found-surface {
+        width: 100%;
+    }
+
+    .not-found-return {
+        display: inline-block;
+        margin-top: 24px;
+        color: var(--color-text);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.4;
+        letter-spacing: 0.12em;
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
+    }
+
+    .not-found-return:hover,
+    .not-found-return:focus-visible {
+        color: var(--color-signal-hover);
+    }
+</style>
