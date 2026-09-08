@@ -24,6 +24,10 @@ export interface WorkEntryView {
     readonly name: string;
     readonly lede: string;
     readonly meta: readonly string[];
+    /**
+     * Whether the system stands in FIELD.plotted now — not whether the
+     * WORK record happens to be of field origin.
+     */
     readonly inField: boolean;
     readonly question: string;
     readonly contribution: string;
@@ -99,6 +103,17 @@ function techView(entry: WorkEntry): WorkTechView | null {
     };
 }
 
+/**
+ * Current FIELD membership, read from the canonical composition.
+ *
+ * A field entry records where a WORK record came from, not where the field
+ * stands today. The dependency runs WORK --optional reference--> FIELD, so an
+ * editorial removal from FIELD.plotted has to leave the WORK record standing
+ * and stop it claiming a place in the field. The converse is deliberately not
+ * asserted: a record of field origin is under no obligation to stay plotted.
+ */
+const plottedSystems = new Set<SystemId>(FIELD.plotted);
+
 export function workViews(): readonly WorkEntryView[] {
     return work.map((entry): WorkEntryView => {
         const shared = {
@@ -129,6 +144,8 @@ export function workViews(): readonly WorkEntryView[] {
             fail(`Unknown work system: ${entry.system}`);
         }
 
+        const inField = plottedSystems.has(system.id);
+
         return {
             ...shared,
             name: system.name,
@@ -137,9 +154,9 @@ export function workViews(): readonly WorkEntryView[] {
                 system.index,
                 system.phase?.label ?? 'PHASE UNDECLARED',
                 system.evidence,
-                'IN THE FIELD',
+                inField ? 'IN THE FIELD' : 'OUTSIDE THE FIELD',
             ],
-            inField: true,
+            inField,
             source: deriveFieldSource(system.id),
         };
     });
@@ -156,6 +173,10 @@ const fieldAnchors = new Map<SystemId, string>(
 /**
  * Every plotted FIELD system must have a WORK destination. Checked at build
  * time so that a system can never be plotted without somewhere to go.
+ *
+ * One way only. Nothing here requires a WORK record of field origin to still
+ * be plotted, which is what lets a system be withdrawn from the field without
+ * withdrawing the work.
  */
 for (const id of FIELD.plotted) {
     if (!fieldAnchors.has(id)) {

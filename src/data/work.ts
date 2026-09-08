@@ -280,7 +280,7 @@ export const work = [
         question:
             'What does it actually take to put a reasoning system into a body — and how much of that can be established before touching the hardware?',
         contribution:
-            'Simon produced the founding technical atlas: a reconstruction of the platform pinned to specific published revisions, an architecture decision, a staged gate structure, a thirty-experiment research program, a skills-depth map, an evidence register and a register of open questions.',
+            'Simon produced the founding technical atlas: a reconstruction of the platform pinned to specific published revisions, an architecture decision, a staged gate structure, a structured experiment program, a skills-depth map, an evidence register and a register of open questions.',
         today: [
             'A thirteen-document founding corpus, with every moving source pinned to a revision and a consultation date.',
             'An architecture decision: the real-time control layer remains the only writer to the motors, and EXOMIND sits above it as cognition, planning and skill arbitration.',
