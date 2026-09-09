@@ -8,12 +8,24 @@ import '../styles/global.css';
 interface Props {
     title?: string;
     description?: string;
+    robots?: string;
 }
 
 const {
-    title = 'sstm117',
+    title = 'sstm117 — Simon Sainte Mareville',
     description,
+    robots,
 } = Astro.props;
+
+const site = Astro.site;
+
+if (!site) {
+    throw new Error('SiteLayout requires Astro.site to resolve canonical URLs.');
+}
+
+const canonicalUrl = new URL(Astro.url.pathname, site);
+const socialImageUrl = new URL('/social-card.png', site);
+const socialImageAlt = 'sstm117 — Simon Sainte Mareville';
 ---
 
 <!doctype html>
@@ -25,6 +37,31 @@ const {
             content="width=device-width, initial-scale=1"
         />
         {description && <meta name="description" content={description} />}
+        {robots && <meta name="robots" content={robots} />}
+        <meta name="author" content="Simon Sainte Mareville" />
+
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        <link rel="sitemap" href="/sitemap-index.xml" />
+        <link rel="canonical" href={canonicalUrl} />
+
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="sstm117" />
+        <meta property="og:locale" content="en_US" />
+        <meta property="og:title" content={title} />
+        {description && <meta property="og:description" content={description} />}
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content={socialImageUrl} />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content={socialImageAlt} />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={title} />
+        {description && <meta name="twitter:description" content={description} />}
+        <meta name="twitter:image" content={socialImageUrl} />
+        <meta name="twitter:image:alt" content={socialImageAlt} />
+
         <title>{title}</title>
     </head>
 
