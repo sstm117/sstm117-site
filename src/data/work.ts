@@ -350,9 +350,10 @@ export const work = [
             'A static site that ships zero client-side JavaScript.',
             'Build-time validators: a system marked source-verified with no qualified source behind it fails the build, and relations, placements and identifiers are all checked before anything renders.',
             'A content-hash manifest over the resources registered with the Observer — the field, the front index and each plotted system — which detects when one of them changes. It is not a hash of every published page.',
+            'A live production deployment at sstm117.com, with its canonical origin, social metadata, a sitemap and Cloudflare Workers Static Assets hosting.',
         ],
         notYet: [
-            'Not deployed. There is no production origin, no social metadata, no sitemap and no hosting configuration.',
+            'No sustained real-world observation has been completed yet, and no post-launch maintenance burden has been measured.',
         ],
         constraint:
             'No client-side JavaScript. Interaction has to be expressible in links and CSS, or it does not ship.',
