@@ -353,7 +353,7 @@ export const work = [
             'A live production deployment at sstm117.com, with its canonical origin, social metadata, a sitemap and Cloudflare Workers Static Assets hosting.',
         ],
         notYet: [
-            'No sustained real-world observation has been completed yet, and no post-launch maintenance burden has been measured.',
+            'No measurement of post-launch maintenance effort is documented in this repository.',
         ],
         constraint:
             'No client-side JavaScript. Interaction has to be expressible in links and CSS, or it does not ship.',
