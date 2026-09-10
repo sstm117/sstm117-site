@@ -1,6 +1,8 @@
 import type { RelationRecord } from './types';
 
 /**
+ * Relations are declared semantic edges of the current FIELD composition.
+ *
  * PRIMARY: removing the concern would materially change
  * what the system fundamentally is.
  *
@@ -9,21 +11,22 @@ import type { RelationRecord } from './types';
  *
  * Absence of an edge is intentional and must never be
  * interpreted as an inferred relation.
+ *
+ * Systems outside FIELD.plotted carry no relation rows here.
+ * Leaving FIELD does not erase their identity or provenance.
  */
 export const relations = [
     { system: 'obs', concern: 'kno', strength: 'PRIMARY' },
     { system: 'obs', concern: 'int', strength: 'PRIMARY' },
-    { system: 'obs', concern: 'phy', strength: 'PRESENT' },
-    { system: 'obs', concern: 'hum', strength: 'PRESENT' },
-
-    { system: 'food', concern: 'hum', strength: 'PRIMARY' },
-    { system: 'food', concern: 'kno', strength: 'PRESENT' },
-    { system: 'food', concern: 'ops', strength: 'PRESENT' },
-    { system: 'food', concern: 'dec', strength: 'PRESENT' },
-    { system: 'food', concern: 'phy', strength: 'PRESENT' },
 
     { system: 'moka', concern: 'hum', strength: 'PRIMARY' },
 
-    { system: 'fnode', concern: 'phy', strength: 'PRIMARY' },
-    { system: 'fnode', concern: 'ops', strength: 'PRESENT' },
+    { system: 'herve', concern: 'ops', strength: 'PRIMARY' },
+    { system: 'herve', concern: 'dec', strength: 'PRIMARY' },
+    { system: 'herve', concern: 'hum', strength: 'PRESENT' },
+    { system: 'herve', concern: 'phy', strength: 'PRESENT' },
+
+    { system: 'exomind', concern: 'phy', strength: 'PRIMARY' },
+    { system: 'exomind', concern: 'int', strength: 'PRIMARY' },
+    { system: 'exomind', concern: 'dec', strength: 'PRESENT' },
 ] as const satisfies readonly RelationRecord[];

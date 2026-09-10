@@ -8,7 +8,7 @@ export const systems = [
         index: '001',
         name: 'AI Evolution Observatory',
         short: 'OBSERVATORY',
-        body: 'A temporal, provenance-aware knowledge system for reconstructing and explaining the evolution of AI. At P0 — knowledge foundation only: epistemic, temporal and governance models settled before any application stack is called canonical. Its vision reaches into physical AI infrastructure, which is why physical systems is a declared concern.',
+        body: 'A temporal, provenance-aware knowledge system for reconstructing and explaining the evolution of AI. At P0 — knowledge foundation only: epistemic, temporal and governance models settled before any application stack is called canonical.',
         disclosure: 'PARTIAL',
         evidence: 'SOURCE-VERIFIED',
         phase: {
@@ -74,7 +74,7 @@ export const systems = [
         short: 'EXOMIND',
         body: "A research program for embodied AI: cognition, planning and skill arbitration above a robot's real-time control boundary. Its founding work defines the architecture, experiment gates and an evidence register before autonomy; generative output and remote agents are not permitted to drive the motors directly. Nothing has yet been operated, trained, measured or replicated.",
         disclosure: 'PARTIAL',
-        evidence: 'OWNER-DECLARED',
+        evidence: 'SOURCE-VERIFIED',
         phase: null,
         now: null,
     },

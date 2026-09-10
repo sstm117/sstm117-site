@@ -35,18 +35,18 @@ export const observerResources = [
         systemId: 'obs',
     },
     {
-        id: 'system:food',
-        kind: 'system',
-        systemId: 'food',
-    },
-    {
         id: 'system:moka',
         kind: 'system',
         systemId: 'moka',
     },
     {
-        id: 'system:fnode',
+        id: 'system:herve',
         kind: 'system',
-        systemId: 'fnode',
+        systemId: 'herve',
+    },
+    {
+        id: 'system:exomind',
+        kind: 'system',
+        systemId: 'exomind',
     },
 ] as const satisfies readonly ObserverResourceDescriptor[];

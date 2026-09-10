@@ -14,9 +14,9 @@ import type { SystemId } from './types';
  * relation, no Observer resource, no temporal anchor and no provenance
  * record. Adding one is a single record in this file.
  *
- * A field entry carries no name, description, index, phase or evidence of
- * its own: those are read from systems.ts at render time so that exactly one
- * truth exists per system.
+ * A system-backed entry carries no name, description, index, phase or evidence
+ * of its own: those are read from systems.ts at render time so that exactly
+ * one identity truth exists per system, independently of FIELD membership.
  */
 
 export interface PublicWorkSource {
@@ -91,9 +91,9 @@ interface WorkEntryFields {
     readonly unknowns: readonly string[];
 }
 
-export type FieldWorkEntry = WorkEntryFields &
+export type SystemWorkEntry = WorkEntryFields &
     TechDeclaration & {
-        readonly kind: 'field';
+        readonly kind: 'system';
         readonly system: SystemId;
     };
 
@@ -105,11 +105,11 @@ export type StandaloneWorkEntry = WorkEntryFields &
         readonly source: WorkSource;
     };
 
-export type WorkEntry = FieldWorkEntry | StandaloneWorkEntry;
+export type WorkEntry = SystemWorkEntry | StandaloneWorkEntry;
 
 export const work = [
     {
-        kind: 'field',
+        kind: 'system',
         anchor: 'obs',
         system: 'obs',
         question:
@@ -134,7 +134,7 @@ export const work = [
         tech: [],
     },
     {
-        kind: 'field',
+        kind: 'system',
         anchor: 'food',
         system: 'food',
         question:
@@ -158,7 +158,7 @@ export const work = [
         tech: [],
     },
     {
-        kind: 'field',
+        kind: 'system',
         anchor: 'moka',
         system: 'moka',
         question:
@@ -182,27 +182,87 @@ export const work = [
         techBasis: 'SPECIFIED',
     },
     {
-        kind: 'field',
-        anchor: 'fnode',
-        system: 'fnode',
+        kind: 'system',
+        anchor: 'herve',
+        system: 'herve',
+
         question:
-            'What can heterogeneous, constrained and reused hardware actually do inside a distributed software system?',
+            'Can a lightweight operational system become the missing layer between enterprise software and physical reality — without forcing operators to work for the software?',
+
         contribution:
-            'Simon declared the research direction and its boundary: constrained nodes imply lifecycle and availability concerns without turning this into an operations project.',
+            'Simon designed and built HERVÉ as an offline-first operational platform for the point where central information systems stop and physical work begins. It captures field reality, embeds operational rules into workflows and turns everyday activity into traceable data for operators and managers. The architecture is designed to complement an ERP, WMS or CMMS where one already exists, while remaining capable of operating tactically on its own within the domains it covers.',
+
         today: [
-            'A declared research direction. The repository is a single paragraph, and that is the honest extent of it.',
+            'A working offline-first operational platform with implemented workflows spanning stock, cycle counting, replenishment, preparations and operational control.',
+            'A local synchronization model with queued actions, replay, server-side idempotence and explicit handling of degraded network conditions.',
+            'Operational and managerial surfaces built from the same underlying activity, including read-only multi-site views.',
+            'Business rules, lifecycle guards, auditability and executable contracts around selected critical workflows, with CI used to protect selected semantics from regression.',
+            'Bounded statistical forecasting paths exist inside the operational-intelligence layer; validated predictive performance is not claimed.',
         ],
+
         notYet: [
-            'No node is characterised, no capability is demonstrated and no lifecycle state is declared.',
+            'No claim of enterprise-wide deployment, cross-industry replication or measured business impact.',
+            'Validated predictive performance, broad prescriptive automation and an operational digital twin are not claimed.',
+            'The platform is not presented as a generic drop-in replacement for an ERP, WMS or CMMS.',
         ],
+
         constraint:
-            'Capability has to be verified before a role is chosen. The first useful step is small, reversible and discriminating rather than ambitious.',
+            'Complexity belongs in the system, not with the operator. Offline operation, explicit state transitions, traceability and the distinction between system truth and field truth are treated as correctness constraints rather than optional features.',
+
         unknowns: [
-            'Networking, storage, headless operation and useful workload are all open questions.',
+            'How far the architecture transfers beyond its originating operational context without losing the simplicity that makes it useful.',
+            'Which combination of modules forms the smallest credible standalone operational system.',
         ],
-        tech: [],
+
+        tech: [
+            'PHP',
+            'SQLite',
+            'Vanilla JavaScript',
+            'PWA / Service Worker',
+        ],
+
+        techBasis: 'BUILT',
     },
     {
+        kind: 'system',
+        anchor: 'exomind',
+        system: 'exomind',
+
+        question:
+            'What does it actually take to put a reasoning system into a body — and how much of that can be established before touching the hardware?',
+
+        contribution:
+            'Simon produced a versioned founding technical atlas: a reconstruction of the platform and its sources, an embodied-AI architecture, staged experiment gates, a structured research programme, a skills-depth map, an evidence register and a register of open questions.',
+
+        today: [
+            'A versioned founding technical corpus with a checksum manifest, pinned code revisions where reproducible and dated consultation of mutable sources.',
+            'An architecture decision: the real-time control layer remains the only writer to the motors, and EXOMIND sits above it as cognition, planning and skill arbitration.',
+            'A structural prohibition — no generative model output, no remote agent and no experiment script may drive the motors directly.',
+            'A structured programme of thirty planned physical experiments, alongside explicit evidence and unknown registers. Designed experiments are not reported as results.',
+        ],
+
+        notYet: [
+            'Nothing has been operated, trained, measured or replicated. A manufacturer or maintainer measurement is not treated as an EXOMIND replication.',
+            'No original robot, no custom electronics and no modification to the first body.',
+        ],
+
+        constraint:
+            'The first body is treated as an instrument, not a project: freeze the baseline before changing anything, build observability before autonomy, and no drilling, no parallel power supply and no actuator replacement until that baseline is complete.',
+
+        unknowns: [
+            'The gap between simulation and reality, which is precisely what the experiment programme exists to measure.',
+            'Which capabilities transfer from a documented body to an original one.',
+        ],
+
+        tech: [
+            'MicroDuck (Pollen Robotics) — third-party robot platform',
+            'MuJoCo simulation',
+            'Reinforcement learning, ONNX policy export',
+            'Python',
+        ],
+
+        techBasis: 'RESEARCHED',
+    },    {
         kind: 'standalone',
         anchor: 'world-press-lens',
         name: 'World Press Lens',
@@ -274,43 +334,6 @@ export const work = [
     },
     {
         kind: 'standalone',
-        anchor: 'exomind',
-        name: 'EXOMIND',
-        lede: 'A research program for embodied AI: a cognition and planning layer above a robot’s real-time control boundary, using one thoroughly documented body to learn the whole discipline — source, model, build, control, measurement, learning, deployment and recovery.',
-        question:
-            'What does it actually take to put a reasoning system into a body — and how much of that can be established before touching the hardware?',
-        contribution:
-            'Simon produced the founding technical atlas: a reconstruction of the platform pinned to specific published revisions, an architecture decision, a staged gate structure, a structured experiment program, a skills-depth map, an evidence register and a register of open questions.',
-        today: [
-            'A thirteen-document founding corpus, with every moving source pinned to a revision and a consultation date.',
-            'An architecture decision: the real-time control layer remains the only writer to the motors, and EXOMIND sits above it as cognition, planning and skill arbitration.',
-            'A structural prohibition — no generative model output, no remote agent and no experiment script may drive the motors directly.',
-            'Twenty recorded facts, twenty recorded unknowns and twenty designed experiments, each labelled by how strongly it is actually supported.',
-        ],
-        notYet: [
-            'Nothing has been operated, trained, measured or replicated. The atlas states plainly that a manufacturer’s measurement is not a replication.',
-            'No original robot, no custom electronics and no modification to the first body.',
-        ],
-        constraint:
-            'The first body is treated as an instrument, not a project: freeze the baseline before changing anything, build observability before autonomy, and no drilling, no parallel power supply and no actuator replacement until that baseline is complete.',
-        unknowns: [
-            'The gap between simulation and reality, which is precisely what the experiment program exists to measure.',
-            'Which capabilities transfer from a documented body to an original one.',
-        ],
-        tech: [
-            'MicroDuck (Pollen Robotics) — third-party robot platform',
-            'MuJoCo simulation',
-            'Reinforcement learning, ONNX policy export',
-            'Python',
-        ],
-        techBasis: 'RESEARCHED',
-        source: {
-            public: false,
-            note: 'Not published.',
-        },
-    },
-    {
-        kind: 'standalone',
         anchor: 'project-trail',
         name: 'ProjectTrail',
         lede: 'A local-first, content-blind temporal memory for people working across several projects at once. The time is already there; you decide what it meant.',
@@ -345,7 +368,7 @@ export const work = [
         question:
             'Can a personal site be held to the same evidence standard as the systems it describes?',
         contribution:
-            'Simon built the site and its integrity machinery, and drew the line where that machinery stops: each system plotted in the field carries a source record and is checked at build time, while the standalone entries, the fragments and the notes carry no such record and are held to the same standard editorially.',
+            'Simon built the site and its integrity machinery around a deliberate separation of identity, evidence and presentation. Provenance records attach to system identities independently of where those systems are shown; every plotted FIELD system must have one, while displaying an entry in WORK or LAB does not itself create that requirement. Build checks enforce the declared structure without pretending to verify every sentence on the site.',
         today: [
             'A static site that ships zero client-side JavaScript.',
             'Build-time validators: a system marked source-verified with no qualified source behind it fails the build, and relations, placements and identifiers are all checked before anything renders.',
@@ -423,7 +446,7 @@ for (const entry of entries) {
         );
     }
 
-    if (entry.kind === 'field') {
+    if (entry.kind === 'system') {
         if (!systemIds.has(entry.system)) {
             fail(`Unknown work system: ${entry.system}`);
         }
@@ -432,7 +455,7 @@ for (const entry of entries) {
         // name for a plotted system can come into existence.
         if (entry.anchor !== entry.system) {
             fail(
-                `Field work anchor must equal its system id: ${entry.anchor} != ${entry.system}`,
+                `System work anchor must equal its system id: ${entry.anchor} != ${entry.system}`,
             );
         }
 

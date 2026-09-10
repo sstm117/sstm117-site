@@ -8,10 +8,10 @@ import type { ProvenanceRecord, SystemId } from '../data/types';
 /**
  * Resolution layer between the WORK corpus and its presentation.
  *
- * A field entry is joined here to its canonical SystemRecord and to the
- * provenance records that already exist for it, so that no canonical fact is
- * restated in work.ts. A standalone entry passes through with the source it
- * declares for itself and touches none of this.
+ * A system-backed entry is joined here to its canonical SystemRecord and to
+ * the provenance records that already exist for it, so that no canonical
+ * identity fact is restated in work.ts. A standalone entry passes through
+ * with the source it declares for itself and touches none of this.
  */
 
 export interface WorkTechView {
@@ -25,8 +25,8 @@ export interface WorkEntryView {
     readonly lede: string;
     readonly meta: readonly string[];
     /**
-     * Whether the system stands in FIELD.plotted now — not whether the
-     * WORK record happens to be of field origin.
+     * Whether the system stands in FIELD.plotted now. System-backed WORK and
+     * current FIELD membership are deliberately independent.
      */
     readonly inField: boolean;
     readonly question: string;
@@ -45,12 +45,12 @@ function fail(message: string): never {
 }
 
 /**
- * A field entry's source line is derived from the provenance records that
- * already exist for that system. LR-1 renders no locator for them, because
+ * A system-backed entry's source line is derived from the provenance records
+ * that already exist for that system. LR-1 renders no locator for them, because
  * every current record is RESTRICTED and mandate section 17 forbids widening
  * the provenance contract to make WORK fit.
  */
-function deriveFieldSource(systemId: SystemId): WorkSource {
+function deriveSystemSource(systemId: SystemId): WorkSource {
     // Widened deliberately: the literal availabilities of the current corpus
     // would make these branches statically unreachable, and they exist to catch
     // a future provenance change rather than to describe today's data.
@@ -106,11 +106,9 @@ function techView(entry: WorkEntry): WorkTechView | null {
 /**
  * Current FIELD membership, read from the canonical composition.
  *
- * A field entry records where a WORK record came from, not where the field
- * stands today. The dependency runs WORK --optional reference--> FIELD, so an
- * editorial removal from FIELD.plotted has to leave the WORK record standing
- * and stop it claiming a place in the field. The converse is deliberately not
- * asserted: a record of field origin is under no obligation to stay plotted.
+ * System-backed WORK does not encode FIELD membership. FIELD.plotted is the
+ * sole current editorial selection, so a system can remain public in WORK
+ * while standing outside FIELD without creating a second identity truth.
  */
 const plottedSystems = new Set<SystemId>(FIELD.plotted);
 
@@ -157,14 +155,14 @@ export function workViews(): readonly WorkEntryView[] {
                 inField ? 'IN THE FIELD' : 'OUTSIDE THE FIELD',
             ],
             inField,
-            source: deriveFieldSource(system.id),
+            source: deriveSystemSource(system.id),
         };
     });
 }
 
-const fieldAnchors = new Map<SystemId, string>(
+const systemAnchors = new Map<SystemId, string>(
     work.flatMap((entry) =>
-        entry.kind === 'field'
+        entry.kind === 'system'
             ? ([[entry.system, entry.anchor]] as const)
             : [],
     ),
@@ -174,18 +172,17 @@ const fieldAnchors = new Map<SystemId, string>(
  * Every plotted FIELD system must have a WORK destination. Checked at build
  * time so that a system can never be plotted without somewhere to go.
  *
- * One way only. Nothing here requires a WORK record of field origin to still
- * be plotted, which is what lets a system be withdrawn from the field without
- * withdrawing the work.
+ * One way only. A system-backed WORK entry may remain outside FIELD; only
+ * plotted systems are required to have a WORK destination.
  */
 for (const id of FIELD.plotted) {
-    if (!fieldAnchors.has(id)) {
+    if (!systemAnchors.has(id)) {
         fail(`Plotted FIELD system has no WORK destination: ${id}`);
     }
 }
 
 export function workHrefFor(systemId: SystemId): string {
-    const anchor = fieldAnchors.get(systemId);
+    const anchor = systemAnchors.get(systemId);
 
     if (!anchor) {
         fail(`No WORK destination for system: ${systemId}`);

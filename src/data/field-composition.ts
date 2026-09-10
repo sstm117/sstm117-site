@@ -2,9 +2,9 @@ import type { ConcernId, SystemId } from './types';
 
 const FIELD_PLOTTED = [
     'obs',
-    'food',
     'moka',
-    'fnode',
+    'herve',
+    'exomind',
 ] as const satisfies readonly SystemId[];
 
 export type FieldSystemId =
@@ -50,9 +50,9 @@ export const FIELD = {
         ops: { x: 120, y: 336 },
 
         obs: { x: 700, y: 236 },
-        food: { x: 440, y: 400 },
         moka: { x: 790, y: 340 },
-        fnode: { x: 250, y: 486 },
+        herve: { x: 250, y: 486 },
+        exomind: { x: 440, y: 400 },
     } satisfies Readonly<Record<FieldNodeId, NodePlacement>>,
 
     labels: {
@@ -64,9 +64,9 @@ export const FIELD = {
         ops: { x: 138, y: 336, anchor: 'l' },
 
         obs: { x: 722, y: 236, anchor: 'l' },
-        food: { x: 418, y: 400, anchor: 'r' },
         moka: { x: 812, y: 340, anchor: 'l' },
-        fnode: { x: 228, y: 486, anchor: 'r' },
+        herve: { x: 228, y: 486, anchor: 'r' },
+        exomind: { x: 418, y: 400, anchor: 'r' },
     } satisfies Readonly<Record<FieldNodeId, LabelPlacement>>,
 
     ariaLabel:
