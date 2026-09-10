@@ -1,4 +1,5 @@
 import { FIELD } from '../data/field-composition';
+import { READOUT_SUBJECT } from '../data/field-selection';
 import { fieldRelationsFor } from './field-relations';
 import type { ConcernId, SystemId } from '../data/types';
 
@@ -35,7 +36,7 @@ const IDENTIFIER_PATTERN = /^[a-z][a-z0-9-]*$/;
  * needs an edge to exist. Where nothing is declared the concern selectors
  * carry no exclusions, so every concern node and label simply recedes.
  */
-const UNCONDITIONAL_RULES_PER_SYSTEM = 8;
+const UNCONDITIONAL_RULES_PER_SYSTEM = 10;
 
 /**
  * The two trace-raising rules, emitted only where at least one relation is
@@ -145,6 +146,15 @@ function emphasisRules(
     }
 
     blocks.push(
+        rule(system, `[data-system-readout]`, [
+            'display: none;',
+        ]),
+        rule(
+            system,
+            `[data-system-readout][data-system="${system}"]`,
+            ['display: block;'],
+        ),
+
         rule(system, `.node--system[data-system="${system}"] .node__ring`, [
             'stroke: var(--color-signal);',
         ]),
@@ -164,7 +174,14 @@ function emphasisRules(
 }
 
 export function fieldEmphasisCss(): string {
-    const blocks: string[] = [];
+    const blocks: string[] = [
+        `[data-system-readout] {
+    display: none;
+}`,
+        `[data-system-readout][data-system="${READOUT_SUBJECT}"] {
+    display: block;
+}`,
+    ];
 
     for (const system of FIELD.plotted) {
         blocks.push(
@@ -178,7 +195,7 @@ export function fieldEmphasisCss(): string {
     // Derived from the canonical data a second time rather than counted off the
     // loop above, so a rule dropped or duplicated in generation still fails
     // here.
-    const expected = FIELD.plotted.reduce(
+    const expected = 2 + FIELD.plotted.reduce(
         (total, system) =>
             total +
             UNCONDITIONAL_RULES_PER_SYSTEM +
