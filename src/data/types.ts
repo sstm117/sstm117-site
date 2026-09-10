@@ -1,4 +1,4 @@
-export type SystemId = 'obs' | 'food' | 'moka' | 'fnode';
+export type SystemId = 'obs' | 'food' | 'moka' | 'fnode' | 'herve' | 'exomind';
 
 export type ConcernId =
     | 'kno'

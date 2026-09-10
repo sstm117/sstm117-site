@@ -60,15 +60,27 @@ export function trace(a: Point, b: Point): string {
 
 export function resolveTraces(): readonly ResolvedTrace[] {
     return fieldRelations()
-        .map(({ system, concern, strength }) => ({
-            system,
-            concern,
-            strength,
-            d: trace(
-                FIELD.nodes[system],
-                FIELD.nodes[concern],
-            ),
-        }));
+        .map(({ system, concern, strength }) => {
+            const plottedSystem = FIELD.plotted.find(
+                (candidate) => candidate === system,
+            );
+
+            if (!plottedSystem) {
+                throw new Error(
+                    `Relation resolved for an unplotted system: ${system}`,
+                );
+            }
+
+            return {
+                system,
+                concern,
+                strength,
+                d: trace(
+                    FIELD.nodes[plottedSystem],
+                    FIELD.nodes[concern],
+                ),
+            };
+        });
 }
 
 export function fieldCounts() {

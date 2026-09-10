@@ -56,6 +56,28 @@ export const systems = [
         phase: null,
         now: null,
     },
+    {
+        id: 'herve',
+        index: '005',
+        name: 'HERVÉ',
+        short: 'HERVÉ',
+        body: 'An offline-first operational platform documented and implemented around operator workflows, cycle counting, stock and replenishment, and operational dashboards. Its founding doctrine positions it as a bridge between central information systems and operational work. Deployment, scale and operational results are not claimed.',
+        disclosure: 'PARTIAL',
+        evidence: 'SOURCE-VERIFIED',
+        phase: null,
+        now: null,
+    },
+    {
+        id: 'exomind',
+        index: '006',
+        name: 'EXOMIND',
+        short: 'EXOMIND',
+        body: "A research program for embodied AI: cognition, planning and skill arbitration above a robot's real-time control boundary. Its founding work defines the architecture, experiment gates and an evidence register before autonomy; generative output and remote agents are not permitted to drive the motors directly. Nothing has yet been operated, trained, measured or replicated.",
+        disclosure: 'PARTIAL',
+        evidence: 'OWNER-DECLARED',
+        phase: null,
+        now: null,
+    },
 ] as const satisfies readonly SystemRecord[];
 
 assertProvenanceIntegrity(systems, provenance);

@@ -42,6 +42,8 @@ const SYSTEM_IDS = [
     "food",
     "moka",
     "fnode",
+    "herve",
+    "exomind",
 ] as const;
 
 const SYSTEM_EVIDENCE = [
