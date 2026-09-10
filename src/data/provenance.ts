@@ -95,6 +95,24 @@ export const provenance = [
             { area: 'IDENTITY', support: 'ASSERTS' },
             { area: 'DESCRIPTION', support: 'ASSERTS' },
             { area: 'IMPLEMENTATION', support: 'DEMONSTRATES' },
+            { area: 'CAPABILITY', support: 'DEMONSTRATES' },
+            { area: 'CONSTRAINTS', support: 'SPECIFIES' },
+        ],
+    },
+    {
+        entity: 'exomind',
+        availability: 'RESTRICTED',
+        kind: 'ARTIFACT',
+        status: {
+            authority: 'CANONICAL',
+            roles: ['DESCRIPTIVE', 'NORMATIVE'],
+        },
+        checkedAt: '2026-09-10',
+        coverage: [
+            { area: 'IDENTITY', support: 'ASSERTS' },
+            { area: 'DESCRIPTION', support: 'ASSERTS' },
+            { area: 'STRUCTURE', support: 'SPECIFIES' },
+            { area: 'CONSTRAINTS', support: 'SPECIFIES' },
         ],
     },
 ] as const satisfies readonly ProvenanceRecord[];

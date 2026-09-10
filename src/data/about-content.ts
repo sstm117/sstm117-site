@@ -84,7 +84,7 @@ export const PRACTICE_APPLICATIONS = [
     {
         invariant: 'EVIDENCE BEFORE ASSERTION',
         application:
-            'Each system plotted in the field is bound to a source record: what kind of source it is, how recently the claims were confronted with it, and which parts of the claim it actually covers. That much the build enforces — it refuses to complete if a system marked source-verified has no qualified source behind it. The work entries outside the field, the fragments and these pages carry no such record, and there the rule is editorial. Saying which is which is part of keeping it: one checked structure does not vouch for every other sentence on the site.',
+            'Provenance records attach to system identities independently of where those systems are shown: what kind of source exists, how recently the relevant assertions were confronted with it, and which parts of a claim it actually covers. Every system plotted in the field must carry such a record, while WORK and LAB do not create that requirement merely by displaying an item. A system outside FIELD may therefore retain provenance. The build enforces this declared structure and the stronger source requirements of source-verified systems; it does not make every sentence on the site automatically verified.',
     },
     {
         invariant: 'UNKNOWN IS A VALID STATE',

@@ -288,6 +288,10 @@ function assertResourceRegistryIntegrity(): void {
         if (!systemIds.has(systemId)) {
             fail(`FIELD.plotted lacks a matching system resource: ${systemId}`);
         }
+
+        if (!provenance.some(({ entity }) => entity === systemId)) {
+            fail(`FIELD.plotted lacks a provenance record: ${systemId}`);
+        }
     }
 }
 

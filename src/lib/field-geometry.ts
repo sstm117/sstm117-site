@@ -108,6 +108,14 @@ export function assertFieldIntegrity(): void {
         concerns.map(({ id }) => id),
     );
 
+    const plottedSystemIds = new Set<SystemId>(
+        FIELD.plotted,
+    );
+
+    const fieldConcernIds = new Set<ConcernId>(
+        FIELD.concerns,
+    );
+
     const indexes = new Set<string>(
         systems.map(({ index }) => index),
     );
@@ -194,6 +202,18 @@ export function assertFieldIntegrity(): void {
         if (!concernIds.has(relation.concern)) {
             throw new Error(
                 `Unknown relation concern: ${relation.concern}`,
+            );
+        }
+
+        if (!plottedSystemIds.has(relation.system)) {
+            throw new Error(
+                `Relation system is not plotted in FIELD: ${relation.system}`,
+            );
+        }
+
+        if (!fieldConcernIds.has(relation.concern)) {
+            throw new Error(
+                `Relation concern is not present in FIELD: ${relation.concern}`,
             );
         }
 

@@ -21,8 +21,8 @@ export const observerTemporalAnchors = [
     {
         id: 'site:field',
         contentHash:
-            '2e923906c293759a15c705dc9c1e1324188cf3677398c5b7a62dde9f1dee5929',
-        lastContentChange: '2026-09-04',
+            '92effd89862c68298ab096409e260ca322b6fdb5136dc612af6be22ea5cb3c2c',
+        lastContentChange: '2026-09-10',
     },
     {
         id: 'site:index',
@@ -33,14 +33,8 @@ export const observerTemporalAnchors = [
     {
         id: 'system:obs',
         contentHash:
-            '2d15d656166b5ea3613510fa7e2f34e90597708c972008e2184a0d99da2eafb8',
-        lastContentChange: '2026-09-04',
-    },
-    {
-        id: 'system:food',
-        contentHash:
-            '0a1fcc93fb697d6eb3a4c1c13c526abecedf36e7e8e27524af26a76b0c74f046',
-        lastContentChange: '2026-09-04',
+            '74881697a675cf704ba0c5d5c78bf8fc8a453ff5da98845e259255284c21b522',
+        lastContentChange: '2026-09-10',
     },
     {
         id: 'system:moka',
@@ -49,10 +43,16 @@ export const observerTemporalAnchors = [
         lastContentChange: '2026-09-04',
     },
     {
-        id: 'system:fnode',
+        id: 'system:herve',
         contentHash:
-            'b86f3868790dfa2dfd64ada98c1775ca0cdda642a75a1b531ba408a0773d294f',
-        lastContentChange: '2026-09-04',
+            '5de4cd3c4b204be23d119c840330db8a3faaaf58918b0e3ee58d285788522221',
+        lastContentChange: '2026-09-10',
+    },
+    {
+        id: 'system:exomind',
+        contentHash:
+            'aa4acab8502d7578ea49a8036ae3db66f10f1afe8afe861b78d8cf671540fac9',
+        lastContentChange: '2026-09-10',
     },
 ] as const satisfies readonly ObserverTemporalAnchor[];
 
