@@ -76,11 +76,13 @@ if (identityTailParts.length !== 3) {
 
             </div>
             <PlottedSystemsRoster />
-            {
-                readoutSubjects.map((subject) => (
-                    <SystemReadout subject={subject} />
-                ))
-            }
+            <div class="system-readout-stack">
+                {
+                    readoutSubjects.map((subject) => (
+                        <SystemReadout subject={subject} />
+                    ))
+                }
+            </div>
         </section>
 
         <section class="index-relation-row">

@@ -146,13 +146,13 @@ function emphasisRules(
     }
 
     blocks.push(
-        rule(system, `[data-system-readout]`, [
-            'display: none;',
+        rule(system, `.system-readout-stack > [data-system-readout]`, [
+            'visibility: hidden;',
         ]),
         rule(
             system,
-            `[data-system-readout][data-system="${system}"]`,
-            ['display: block;'],
+            `.system-readout-stack > [data-system-readout][data-system="${system}"]`,
+            ['visibility: visible;'],
         ),
 
         rule(system, `.node--system[data-system="${system}"] .node__ring`, [
@@ -175,11 +175,15 @@ function emphasisRules(
 
 export function fieldEmphasisCss(): string {
     const blocks: string[] = [
-        `[data-system-readout] {
-    display: none;
+        `.system-readout-stack {
+    display: grid;
 }`,
-        `[data-system-readout][data-system="${READOUT_SUBJECT}"] {
-    display: block;
+        `.system-readout-stack > [data-system-readout] {
+    grid-area: 1 / 1;
+    visibility: hidden;
+}`,
+        `.system-readout-stack > [data-system-readout][data-system="${READOUT_SUBJECT}"] {
+    visibility: visible;
 }`,
     ];
 
@@ -195,7 +199,7 @@ export function fieldEmphasisCss(): string {
     // Derived from the canonical data a second time rather than counted off the
     // loop above, so a rule dropped or duplicated in generation still fails
     // here.
-    const expected = 2 + FIELD.plotted.reduce(
+    const expected = 3 + FIELD.plotted.reduce(
         (total, system) =>
             total +
             UNCONDITIONAL_RULES_PER_SYSTEM +
