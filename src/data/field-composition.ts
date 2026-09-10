@@ -1,6 +1,16 @@
 import type { ConcernId, SystemId } from './types';
 
-export type FieldNodeId = SystemId | ConcernId;
+const FIELD_PLOTTED = [
+    'obs',
+    'food',
+    'moka',
+    'fnode',
+] as const satisfies readonly SystemId[];
+
+export type FieldSystemId =
+    (typeof FIELD_PLOTTED)[number];
+export type FieldNodeId =
+    FieldSystemId | ConcernId;
 export type LabelAnchor = 'l' | 'c' | 'r';
 
 export interface NodePlacement {
@@ -20,12 +30,7 @@ export const FIELD = {
         height: 620,
     },
 
-    plotted: [
-        'obs',
-        'food',
-        'moka',
-        'fnode',
-    ] as const satisfies readonly SystemId[],
+    plotted: FIELD_PLOTTED,
 
     concerns: [
         'kno',

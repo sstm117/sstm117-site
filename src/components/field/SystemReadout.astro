@@ -19,7 +19,9 @@ assertFieldIntegrity();
 
 const { subject } = Astro.props;
 
-if (!FIELD.plotted.includes(subject)) {
+const plottedSystems: readonly SystemId[] = FIELD.plotted;
+
+if (!plottedSystems.includes(subject)) {
     throw new Error(
         `System readout subject is not eligible in FIELD.plotted: ${subject}`,
     );

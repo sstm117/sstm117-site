@@ -82,4 +82,19 @@ export const provenance = [
             { area: 'DESCRIPTION', support: 'ASSERTS' },
         ],
     },
+    {
+        entity: 'herve',
+        availability: 'RESTRICTED',
+        kind: 'REPOSITORY',
+        status: {
+            authority: 'CANONICAL',
+            roles: ['DESCRIPTIVE', 'NORMATIVE'],
+        },
+        checkedAt: '2026-09-10',
+        coverage: [
+            { area: 'IDENTITY', support: 'ASSERTS' },
+            { area: 'DESCRIPTION', support: 'ASSERTS' },
+            { area: 'IMPLEMENTATION', support: 'DEMONSTRATES' },
+        ],
+    },
 ] as const satisfies readonly ProvenanceRecord[];
