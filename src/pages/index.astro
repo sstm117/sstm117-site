@@ -10,10 +10,8 @@ import { READOUT_SUBJECT } from '../data/field-selection';
 import { systems } from '../data/systems';
 import type { SystemRecord } from '../data/types';
 import { fieldEmphasisCss } from '../lib/field-emphasis';
-import { fieldCounts } from '../lib/field-geometry';
 import { GITHUB_PROFILE_URL } from '../lib/public-links';
 
-const counts = fieldCounts();
 const relationEmphasisCss = fieldEmphasisCss();
 
 const middleDot = String.fromCodePoint(0x00b7);
@@ -108,15 +106,6 @@ if (declaredNowSystems.length > 0) {
                     THE FIELD
                 </h2>
 
-                <span class="index-field-caption__counts">
-                    {counts.plotted} PLOTTED
-                    {' · '}
-                    {counts.relations} RELATIONS
-                    {' · '}
-                    {counts.primary} PRIMARY
-                    {' · '}
-                    {counts.present} PRESENT
-                </span>
             </div>
             <PlottedSystemsRoster />
             <SystemReadout subject={READOUT_SUBJECT} />
@@ -326,11 +315,6 @@ if (declaredNowSystems.length > 0) {
         letter-spacing: 0.16em;
     }
 
-    .index-field-caption__counts {
-        color: var(--color-text-dim);
-        font-size: 13.5px;
-        line-height: 1.4;
-    }
 
     .index-relation-row {
         display: grid;
