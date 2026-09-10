@@ -221,7 +221,6 @@ function buildIndexPayload(): CanonicalValue {
             INDEX_CONTENT.relationIndex.subtitle,
             INDEX_CONTENT.relationIndex.note,
         ],
-        INDEX_CONTENT.now.note,
         [...INDEX_CONTENT.invariants],
         [
             INDEX_CONTENT.closing.mark,

@@ -27,8 +27,8 @@ export const observerTemporalAnchors = [
     {
         id: 'site:index',
         contentHash:
-            '4615b7eee73b54b3e5b033ccca32f2d71829e623727145d4d46181001b413d31',
-        lastContentChange: '2026-09-04',
+            '5e1af42df9afffdfaef1d6cf43da5196592d8a66a6badbcb871c9ddc8670b3f2',
+        lastContentChange: '2026-09-10',
     },
     {
         id: 'system:obs',
