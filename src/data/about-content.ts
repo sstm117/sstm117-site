@@ -89,7 +89,7 @@ export const PRACTICE_APPLICATIONS = [
     {
         invariant: 'UNKNOWN IS A VALID STATE',
         application:
-            'The NOW ledger on the front page is empty. Not because nothing is happening, but because no current position has been declared — and recent repository activity is not evidence of one. Food OS is deliberately held at a stage where the first problem is still marked unknown, and saying so is more useful than filling the field.',
+            'No current position is inferred from repository activity. Where a position has not been explicitly declared, the site leaves it undeclared rather than treating recent work as evidence of one. Food OS is deliberately held at a stage where the first problem is still marked unknown; preserving that unknown is more useful than manufacturing a stronger claim.',
     },
     {
         invariant: 'AUTOMATION DOES NOT CREATE AUTHORITY',

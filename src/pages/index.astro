@@ -4,11 +4,8 @@ import PlottedSystemsRoster from '../components/field/PlottedSystemsRoster.astro
 import RelationIndex from '../components/field/RelationIndex.astro';
 import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
-import { FIELD } from '../data/field-composition';
 import { INDEX_CONTENT } from '../data/index-content';
 import { READOUT_SUBJECT } from '../data/field-selection';
-import { systems } from '../data/systems';
-import type { SystemRecord } from '../data/types';
 import { fieldEmphasisCss } from '../lib/field-emphasis';
 import { GITHUB_PROFILE_URL } from '../lib/public-links';
 
@@ -29,43 +26,6 @@ if (identityTailParts.length !== 3) {
     throw new Error('INDEX identity tail must resolve to exactly three presentation segments.');
 }
 
-const nowNoteWords = INDEX_CONTENT.now.note.split(' ');
-const nowNoteLines = [
-    nowNoteWords.slice(0, 3).join(' '),
-    nowNoteWords.slice(3, 8).join(' '),
-    nowNoteWords.slice(8, 13).join(' '),
-    nowNoteWords.slice(13).join(' '),
-];
-
-if (
-    nowNoteLines.some((line) => line === '') ||
-    nowNoteLines.join(' ') !== INDEX_CONTENT.now.note
-) {
-    throw new Error('INDEX NOW note must resolve to exactly four non-empty presentation lines.');
-}
-
-const declaredNowSystems = FIELD.plotted.flatMap((id) => {
-    const system: SystemRecord | undefined = systems.find(
-        (candidate) => candidate.id === id,
-    );
-
-    if (!system) {
-        throw new Error(
-            'Unknown plotted system in NOW ledger invariant: ' + id,
-        );
-    }
-
-    return system.now === null
-        ? []
-        : [`${system.id} (${system.now})`];
-});
-
-if (declaredNowSystems.length > 0) {
-    throw new Error(
-        'Static NOW ledger claims awaiting declaration while canonical NOW is declared for: ' +
-            declaredNowSystems.join(', '),
-    );
-}
 ---
 
 <SiteLayout
@@ -114,82 +74,6 @@ if (declaredNowSystems.length > 0) {
         <section class="index-relation-row">
             <RelationIndex />
 
-            <section
-                class="index-now"
-                aria-labelledby="index-now-heading"
-            >
-                <header class="index-now__header">
-                    <h2
-                        id="index-now-heading"
-                        class="index-now__heading"
-                    >
-                        NOW
-                    </h2>
-
-                    <span class="index-now__ledger">
-                        LEDGER
-                    </span>
-                </header>
-
-                <div class="index-now__slot" data-now-slot="ACTIVE">
-                    <h3 class="index-now__slot-heading">
-                        ACTIVE
-                    </h3>
-
-                    <div class="index-now__item">
-                        <span
-                            class="index-now__mark"
-                            aria-hidden="true"
-                        >
-                            ·
-                        </span>
-                        <span>awaiting declaration</span>
-                    </div>
-                </div>
-
-                <div class="index-now__slot" data-now-slot="EXPLORING">
-                    <h3 class="index-now__slot-heading">
-                        EXPLORING
-                    </h3>
-
-                    <div class="index-now__item">
-                        <span
-                            class="index-now__mark"
-                            aria-hidden="true"
-                        >
-                            ·
-                        </span>
-                        <span>awaiting declaration</span>
-                    </div>
-                </div>
-
-                <div class="index-now__slot" data-now-slot="HELD">
-                    <h3 class="index-now__slot-heading">
-                        HELD
-                    </h3>
-
-                    <div class="index-now__item">
-                        <span
-                            class="index-now__mark"
-                            aria-hidden="true"
-                        >
-                            ·
-                        </span>
-                        <span>awaiting declaration</span>
-                    </div>
-                </div>
-
-                <p class="index-now__note">
-                    {
-                        nowNoteLines.map((line, index) => (
-                            <>
-                                {line}
-                                {index < nowNoteLines.length - 1 && <br />}
-                            </>
-                        ))
-                    }
-                </p>
-            </section>
         </section>
 
         <section
@@ -317,83 +201,8 @@ if (declaredNowSystems.length > 0) {
 
 
     .index-relation-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1.5fr) 306px;
-        gap: 56px;
         padding: 30px 32px 34px;
         border-top: 1px solid var(--color-line);
-    }
-
-    .index-now {
-        padding-left: 26px;
-        border-left: 1px solid var(--color-line);
-    }
-
-    .index-now__header {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        margin-bottom: 18px;
-    }
-
-    .index-now__heading {
-        margin: 0;
-        color: var(--color-text);
-        font-family: var(--font-mono);
-        font-size: 10.5px;
-        font-weight: 400;
-        line-height: 1;
-        letter-spacing: 0.16em;
-    }
-
-    .index-now__ledger {
-        color: oklch(0.60 0.008 200);
-        font-family: var(--font-mono);
-        font-size: 9.5px;
-        line-height: 1;
-        letter-spacing: 0.1em;
-    }
-
-    .index-now__slot {
-        margin-bottom: 16px;
-    }
-
-    .index-now__slot-heading {
-        margin: 0 0 7px;
-        color: oklch(0.60 0.008 200);
-        font-family: var(--font-mono);
-        font-size: 9.5px;
-        font-weight: 400;
-        line-height: 1;
-        letter-spacing: 0.14em;
-    }
-
-    .index-now__item {
-        display: flex;
-        align-items: baseline;
-        gap: 10px;
-        padding: 2px 0;
-        color: oklch(0.60 0.008 200);
-        font-family: var(--font-mono);
-        font-size: 11px;
-        line-height: 1.4;
-        letter-spacing: 0.06em;
-    }
-
-    .index-now__mark {
-        width: 10px;
-        flex: none;
-        font-size: 10px;
-    }
-
-    .index-now__note {
-        margin: 0;
-        padding-top: 13px;
-        border-top: 1px solid var(--color-line);
-        color: oklch(0.60 0.008 200);
-        font-family: var(--font-mono);
-        font-size: 9.5px;
-        line-height: 1.7;
     }
 
     .index-invariants {
@@ -478,10 +287,6 @@ if (declaredNowSystems.length > 0) {
         .index-relation-row {
             display: block;
             padding: 16px var(--page-gutter-mobile) 10px;
-        }
-
-        .index-now {
-            display: none;
         }
 
         .index-closing-row {
