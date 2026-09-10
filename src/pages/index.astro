@@ -4,12 +4,20 @@ import PlottedSystemsRoster from '../components/field/PlottedSystemsRoster.astro
 import RelationIndex from '../components/field/RelationIndex.astro';
 import SystemReadout from '../components/field/SystemReadout.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
+import { FIELD } from '../data/field-composition';
 import { INDEX_CONTENT } from '../data/index-content';
 import { READOUT_SUBJECT } from '../data/field-selection';
 import { fieldEmphasisCss } from '../lib/field-emphasis';
 import { GITHUB_PROFILE_URL } from '../lib/public-links';
 
 const relationEmphasisCss = fieldEmphasisCss();
+
+const readoutSubjects = [
+    READOUT_SUBJECT,
+    ...FIELD.plotted.filter(
+        (system) => system !== READOUT_SUBJECT,
+    ),
+];
 
 const middleDot = String.fromCodePoint(0x00b7);
 const emDash = String.fromCodePoint(0x2014);
@@ -68,7 +76,13 @@ if (identityTailParts.length !== 3) {
 
             </div>
             <PlottedSystemsRoster />
-            <SystemReadout subject={READOUT_SUBJECT} />
+            <div class="system-readout-stack">
+                {
+                    readoutSubjects.map((subject) => (
+                        <SystemReadout subject={subject} />
+                    ))
+                }
+            </div>
         </section>
 
         <section class="index-relation-row">

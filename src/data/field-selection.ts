@@ -6,11 +6,12 @@ import type { SystemId } from './types';
  *
  * Not derived from FIELD.plotted order, from system.index, or from the
  * I1-E.3 scaffold subject. READOUT_SUBJECT is the SystemId whose readout
- * the static Field renders. No selection state exists today.
+ * the Field renders at rest. No persistent selection state exists.
  *
- * When and if interaction is authorised (I1-E.8 runtime necessity,
- * I1-E.9 interaction), the initial selection SHALL equal READOUT_SUBJECT.
- * This declaration asserts no runtime and no interaction.
+ * RM-1B I07 authorises transient CSS-only readout correspondence: hover
+ * or focus emphasis may temporarily expose another plotted system readout.
+ * READOUT_SUBJECT remains the fallback whenever no emphasis context is active.
+ * No client runtime, hydration, persistent selection, or route state exists.
  */
 export const READOUT_SUBJECT = 'obs' as const satisfies SystemId;
 
