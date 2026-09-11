@@ -26,8 +26,7 @@ const basisText = axis.basis
     .join(' and ');
 
 const latticeLabel =
-    `Qualitative position between ${leftPole} and ${rightPole}: ` +
-    `${axis.declaration.wording} ` +
+    `Qualitative position between ${leftPole} and ${rightPole}. ` +
     'Marker placement is a design interpretation, not a score.';
 
 const isExternalHref = (href: string): boolean =>
@@ -117,7 +116,7 @@ const isExternalHref = (href: string): boolean =>
                 aria-labelledby={`frame-axis-${axis.id}-support`}
             >
                 <h4 id={`frame-axis-${axis.id}-support`}>
-                    PUBLIC SUPPORT
+                    PUBLIC SUPPORT / {publicSupport.support}
                 </h4>
 
                 <p class="frame-axis__source">
@@ -304,6 +303,26 @@ const isExternalHref = (href: string): boolean =>
         grid-row: 1;
         height: 1px;
         border-top: 1px solid var(--color-line-strong);
+    }
+
+    .frame-axis__cell:nth-child(1) {
+        grid-column: 1;
+    }
+
+    .frame-axis__cell:nth-child(2) {
+        grid-column: 2;
+    }
+
+    .frame-axis__cell:nth-child(3) {
+        grid-column: 3;
+    }
+
+    .frame-axis__cell:nth-child(4) {
+        grid-column: 4;
+    }
+
+    .frame-axis__cell:nth-child(5) {
+        grid-column: 5;
     }
 
     .frame-axis__cell + .frame-axis__cell {

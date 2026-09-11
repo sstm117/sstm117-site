@@ -2,7 +2,10 @@ import {
     SITE_REPOSITORY_LOCATOR,
     SITE_REPOSITORY_URL,
 } from '../lib/public-links';
+import { lab } from './lab';
+import { notes } from './notes';
 import type { SourceSupport } from './types';
+import { work } from './work';
 
 /**
  * FRAME represents how the practice reasons when legitimate pressures conflict.
@@ -138,7 +141,8 @@ export const FRAME_CONTENT = {
     readingContract: [
         'These are my current positions. They are not skill ratings and they are not universal rules. They describe how I presently reason when these pressures conflict. A position may move when the evidence or the constraints change.',
         'BASIS names where the reasoning comes from — professional practice, engineering reasoning, or both. These are kinds of grounding, not evidence grades, ranks or counts of strength.',
-        'PUBLIC SUPPORT records only whether a qualifying public artifact supports a narrow claim. Its absence records a limit of public verifiability, not a weakness in the position, the reasoning behind it or the professional practice it may draw from.',
+        'PUBLIC SUPPORT records whether and how a qualifying public artifact supports a narrow claim. ASSERTS, SPECIFIES and DEMONSTRATES describe the relation to that claim, not strength, maturity or proficiency. Its absence records a limit of public verifiability, not a weakness in the position, the reasoning behind it or the professional practice it may draw from.',
+        'RELATED MATERIAL points to public work that helps explain a position. It does not support the position by itself. Each entry states the limit of what it establishes.',
         'Declaration wording is owner-ratified. Lattice placement and anchor selection are design interpretations, not additional owner claims.',
     ],
 } as const;
@@ -262,7 +266,7 @@ export const FRAME_AXES = [
                 'Increasing the performance of one station, team, stock point or algorithm does not establish improvement if the constraint simply moves, another part of the system absorbs the cost, or the final service does not improve.',
             ],
             movesWhen:
-                'A local improvement produces a demonstrated system-level gain without merely displacing the constraint or transferring unacceptable cost or risk elsewhere.',
+                'The position moves toward local performance when a local requirement is independently binding — for safety, quality, compliance or service — or when repeated evidence shows that local performance is a reliable proxy for system performance without displacing the constraint or transferring unacceptable cost or risk elsewhere.',
         },
         marker: {
             kind: 'POINT',
@@ -417,6 +421,16 @@ const EXPECTED_BANDS: readonly FrameBandId[] = [
     'DECISION',
 ];
 
+const EXPECTED_RENDERED_AXIS_ORDER: readonly FrameAxisId[] = [
+    '01',
+    '02',
+    '03',
+    '04',
+    '07',
+    '05',
+    '06',
+];
+
 const EXPECTED_AXES = {
     '01': {
         band: 'MATERIAL',
@@ -466,6 +480,12 @@ const SOURCE_SUPPORT_VALUES: readonly SourceSupport[] = [
     'DEMONSTRATES',
 ];
 
+const RELATED_INTERNAL_TARGETS = new Set<string>([
+    ...work.map(({ anchor }) => `/work#${anchor}`),
+    ...lab.map(({ anchor }) => `/lab#${anchor}`),
+    ...notes.map(({ slug }) => `/notes#${slug}`),
+]);
+
 function fail(message: string): never {
     throw new Error(`[frame] ${message}`);
 }
@@ -503,6 +523,18 @@ function validHref(href: string): boolean {
     } catch {
         return false;
     }
+}
+
+function validRelatedHref(href: string): boolean {
+    if (!validHref(href)) {
+        return false;
+    }
+
+    if (href.startsWith('https://')) {
+        return true;
+    }
+
+    return RELATED_INTERNAL_TARGETS.has(href);
 }
 
 if (FRAME_BANDS.length !== EXPECTED_BANDS.length) {
@@ -618,11 +650,11 @@ for (const axis of FRAME_AXES) {
 
     for (const anchor of axis.relatedAnchors) {
         if (
-            !validHref(anchor.href) ||
+            !validRelatedHref(anchor.href) ||
             anchor.label.trim().length === 0 ||
             anchor.limit.trim().length === 0
         ) {
-            fail(`Axis ${axis.id} has an incomplete related anchor.`);
+            fail(`Axis ${axis.id} has an incomplete or unresolved related anchor.`);
         }
     }
 }
@@ -631,6 +663,24 @@ for (const expectedId of Object.keys(EXPECTED_AXES) as FrameAxisId[]) {
     if (!seenAxisIds.has(expectedId)) {
         fail(`Missing canonical axis: ${expectedId}.`);
     }
+}
+
+const renderedAxisOrder = FRAME_BANDS.flatMap((band) =>
+    FRAME_AXES
+        .filter((axis) => axis.band === band.id)
+        .map((axis) => axis.id),
+);
+
+if (
+    renderedAxisOrder.length !== EXPECTED_RENDERED_AXIS_ORDER.length ||
+    renderedAxisOrder.some(
+        (axisId, index) =>
+            axisId !== EXPECTED_RENDERED_AXIS_ORDER[index],
+    )
+) {
+    fail(
+        `Rendered axis order changed: ${renderedAxisOrder.join(',')}.`,
+    );
 }
 
 /**
