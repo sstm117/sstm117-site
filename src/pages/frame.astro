@@ -45,12 +45,43 @@ const description = FRAME_CONTENT.lead;
             </div>
         </section>
 
+        <aside
+            class="frame-legend"
+            aria-label="How to read the qualitative position lattice"
+        >
+            <p class="frame-legend__title">
+                QUALITATIVE POSITION · NOT A SCORE
+            </p>
+
+            <div class="frame-legend__items">
+                <span class="frame-legend__item">
+                    <span
+                        class="frame-legend__point"
+                        aria-hidden="true"
+                    ></span>
+                    current point
+                </span>
+
+                <span class="frame-legend__item">
+                    <span
+                        class="frame-legend__span"
+                        aria-hidden="true"
+                    ></span>
+                    conditional range
+                </span>
+            </div>
+        </aside>
+
         <div class="frame-bands">
             {
                 FRAME_BANDS.map((band) => {
                     const axes = FRAME_RENDERED_AXES.filter(
                         (axis) => axis.band === band.id,
                     );
+
+                    const sequence = axes
+                        .map(({ id }) => id)
+                        .join(' · ');
 
                     const headingId =
                         `frame-band-${band.id.toLowerCase()}-heading`;
@@ -61,13 +92,15 @@ const description = FRAME_CONTENT.lead;
                             aria-labelledby={headingId}
                         >
                             <header class="frame-band__header">
-                                <p class="frame-band__sequence">
-                                    {band.id}
-                                </p>
+                                <div class="frame-band__identity">
+                                    <h2 id={headingId}>
+                                        {band.id}
+                                    </h2>
 
-                                <h2 id={headingId}>
-                                    {band.id}
-                                </h2>
+                                    <p class="frame-band__sequence">
+                                        {sequence}
+                                    </p>
+                                </div>
 
                                 <p class="frame-band__description">
                                     {band.description}
@@ -101,7 +134,6 @@ const description = FRAME_CONTENT.lead;
             minmax(280px, 0.9fr);
         gap: clamp(36px, 7vw, 96px);
         padding: 42px 0 48px;
-        border-bottom: 1px solid var(--color-line);
     }
 
     .frame-intro__opening {
@@ -145,30 +177,91 @@ const description = FRAME_CONTENT.lead;
         line-height: 1.55;
     }
 
+    .frame-legend {
+        display: flex;
+        max-width: 860px;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 32px;
+        margin: 0;
+        padding: 18px 0 18px 16px;
+        border-left: 2px solid var(--color-signal);
+    }
+
+    .frame-legend__title {
+        margin: 0;
+        color: var(--color-text-soft);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.4;
+        letter-spacing: 0.12em;
+    }
+
+    .frame-legend__items {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+        color: var(--color-text-muted);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.4;
+        letter-spacing: 0.05em;
+    }
+
+    .frame-legend__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .frame-legend__point {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--color-signal);
+        box-shadow: 0 0 0 3px var(--color-bg);
+    }
+
+    .frame-legend__span {
+        width: 28px;
+        height: 4px;
+        background: var(--color-signal);
+    }
+
     .frame-bands {
         display: grid;
+        margin-top: 38px;
     }
 
     .frame-band {
-        padding-top: 52px;
+        padding-top: 12px;
     }
 
     .frame-band + .frame-band {
-        margin-top: 26px;
+        margin-top: 50px;
+        padding-top: 52px;
         border-top: 1px solid var(--color-line-strong);
     }
 
     .frame-band__header {
         display: grid;
-        grid-template-columns: 84px minmax(160px, 0.55fr) minmax(0, 1fr);
+        grid-template-columns: minmax(240px, 0.72fr) minmax(0, 1fr);
         align-items: start;
-        gap: 24px;
-        padding-bottom: 26px;
+        gap: clamp(34px, 7vw, 96px);
+        padding-bottom: 22px;
+    }
+
+    .frame-band__identity {
+        display: flex;
+        align-items: baseline;
+        gap: 18px;
+        min-width: 0;
     }
 
     .frame-band__sequence {
-        margin: 6px 0 0;
+        margin: 0;
         color: var(--color-text-dim);
+        white-space: nowrap;
     }
 
     .frame-band__header h2 {
@@ -190,7 +283,7 @@ const description = FRAME_CONTENT.lead;
     }
 
     .frame-band__axes {
-        border-bottom: 1px solid var(--color-line);
+        display: grid;
     }
 
     @media (max-width: 859px) {
@@ -212,22 +305,43 @@ const description = FRAME_CONTENT.lead;
             line-height: 1.4;
         }
 
+        .frame-legend {
+            display: block;
+            padding: 15px 0 16px 13px;
+        }
+
+        .frame-legend__title {
+            font-size: 9px;
+        }
+
+        .frame-legend__items {
+            margin-top: 11px;
+            gap: 18px;
+            flex-wrap: wrap;
+            font-size: 9px;
+        }
+
+        .frame-bands {
+            margin-top: 28px;
+        }
+
         .frame-band {
-            padding-top: 38px;
+            padding-top: 8px;
         }
 
         .frame-band + .frame-band {
-            margin-top: 18px;
+            margin-top: 34px;
+            padding-top: 38px;
         }
 
         .frame-band__header {
             grid-template-columns: 1fr;
-            gap: 8px;
-            padding-bottom: 20px;
+            gap: 12px;
+            padding-bottom: 18px;
         }
 
-        .frame-band__sequence {
-            margin: 0;
+        .frame-band__identity {
+            gap: 14px;
         }
 
         .frame-band__header h2 {
@@ -235,7 +349,7 @@ const description = FRAME_CONTENT.lead;
         }
 
         .frame-band__description {
-            margin-top: 4px;
+            margin-top: 0;
         }
     }
 </style>

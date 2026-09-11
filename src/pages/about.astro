@@ -63,19 +63,32 @@ const { masthead, sections, practice, direction, exit } = ABOUT_CONTENT;
                     }
                 </dl>
 
-                <ul class="about-links" role="list">
-                    <li>
+                <section
+                    class="about-frame-bridge"
+                    aria-labelledby="about-frame-bridge-heading"
+                >
+                    <p class="about-frame-bridge__eyebrow">
+                        FRAME
+                    </p>
+
+                    <div class="about-frame-bridge__body">
+                        <h3 id="about-frame-bridge-heading">
+                            CURRENT POSITIONS
+                        </h3>
+
+                        <p>
+                            How these principles behave when legitimate
+                            engineering pressures conflict.
+                        </p>
+
                         <a
-                            class="about-links__link"
+                            class="about-frame-bridge__link"
                             href="/frame"
                         >
-                            FRAME / CURRENT POSITIONS
+                            EXPLORE FRAME <span aria-hidden="true">→</span>
                         </a>
-                        <span class="about-links__gloss">
-                            current positions when engineering pressures conflict
-                        </span>
-                    </li>
-                </ul>
+                    </div>
+                </section>
             </div>
         </section>
 
@@ -200,6 +213,58 @@ const { masthead, sections, practice, direction, exit } = ABOUT_CONTENT;
         text-wrap: pretty;
     }
 
+    .about-frame-bridge {
+        display: grid;
+        grid-template-columns: 126px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+        margin-top: 28px;
+        padding: 18px 0 20px 16px;
+        border-left: 2px solid var(--color-signal);
+    }
+
+    .about-frame-bridge__eyebrow {
+        margin: 3px 0 0 !important;
+        color: var(--color-text-dim) !important;
+        font-family: var(--font-mono);
+        font-size: 9.5px !important;
+        line-height: 1.4 !important;
+        letter-spacing: 0.14em;
+    }
+
+    .about-frame-bridge__body h3 {
+        margin: 0 0 8px;
+        color: var(--color-text);
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+    }
+
+    .about-frame-bridge__body p {
+        max-width: 52ch;
+        font-size: 13.5px;
+        line-height: 1.55;
+    }
+
+    .about-frame-bridge__link {
+        display: inline-block;
+        margin-top: 14px;
+        color: var(--color-text-soft);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.4;
+        letter-spacing: 0.1em;
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
+    }
+
+    .about-frame-bridge__link:hover,
+    .about-frame-bridge__link:focus-visible {
+        color: var(--color-signal-hover);
+    }
+
     .about-links {
         display: grid;
         gap: 0;
@@ -270,6 +335,31 @@ const { masthead, sections, practice, direction, exit } = ABOUT_CONTENT;
         .about-practice dd {
             margin-top: 8px;
             font-size: 14px;
+        }
+
+        .about-frame-bridge {
+            display: block;
+            margin-top: 24px;
+            padding: 16px 0 18px 14px;
+        }
+
+        .about-frame-bridge__eyebrow {
+            margin-bottom: 9px !important;
+            font-size: 9px !important;
+        }
+
+        .about-frame-bridge__body h3 {
+            font-size: 19px;
+        }
+
+        .about-frame-bridge__body p {
+            font-size: 13.5px;
+            line-height: 1.55;
+        }
+
+        .about-frame-bridge__link {
+            margin-top: 12px;
+            padding: 6px 0;
         }
 
         .about-links li {

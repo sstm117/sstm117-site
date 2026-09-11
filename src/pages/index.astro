@@ -112,19 +112,38 @@ if (identityTailParts.length !== 3) {
             </div>
         </section>
 
+        <section
+            class="index-frame-bridge"
+            aria-labelledby="index-frame-bridge-heading"
+        >
+            <p class="index-frame-bridge__eyebrow">
+                FRAME / CURRENT POSITIONS
+            </p>
+
+            <div class="index-frame-bridge__body">
+                <h2 id="index-frame-bridge-heading">
+                    WHEN THE INVARIANTS CONFLICT
+                </h2>
+
+                <p>
+                    Seven recurring engineering tensions, and the current
+                    position taken on each.
+                </p>
+
+                <a
+                    class="index-frame-bridge__link"
+                    href="/frame"
+                >
+                    EXPLORE FRAME <span aria-hidden="true">→</span>
+                </a>
+            </div>
+        </section>
+
         <div class="index-closing-row">
             <span class="index-closing-row__prompt" aria-hidden="true">
                 &gt;_
             </span>
 
-            <a
-                class="index-closing-row__locator"
-                href="/frame"
-            >
-                FRAME / CURRENT POSITIONS
-            </a>
-
-            <span aria-hidden="true">/</span>
 
             <a
                 class="index-closing-row__locator"
@@ -259,6 +278,65 @@ if (identityTailParts.length !== 3) {
         letter-spacing: 0.1em;
     }
 
+    .index-frame-bridge {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 26px;
+        align-items: start;
+        margin: 4px 32px 30px;
+        padding: 24px 0 26px 18px;
+        border-left: 2px solid var(--color-signal);
+    }
+
+    .index-frame-bridge__eyebrow {
+        margin: 4px 0 0;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.5;
+        letter-spacing: 0.14em;
+    }
+
+    .index-frame-bridge__body {
+        max-width: 720px;
+    }
+
+    .index-frame-bridge__body h2 {
+        margin: 0 0 10px;
+        color: var(--color-text);
+        font-size: clamp(22px, 2.2vw, 31px);
+        font-weight: 600;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+    }
+
+    .index-frame-bridge__body p {
+        max-width: 58ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .index-frame-bridge__link {
+        display: inline-block;
+        margin-top: 17px;
+        color: var(--color-text-soft);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.4;
+        letter-spacing: 0.1em;
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
+    }
+
+    .index-frame-bridge__link:hover,
+    .index-frame-bridge__link:focus-visible {
+        color: var(--color-signal-hover);
+    }
+
     .index-closing-row {
         display: flex;
         align-items: center;
@@ -310,6 +388,34 @@ if (identityTailParts.length !== 3) {
         .index-relation-row {
             display: block;
             padding: 16px var(--page-gutter-mobile) 10px;
+        }
+
+        .index-frame-bridge {
+            display: block;
+            margin:
+                8px
+                var(--page-gutter-mobile)
+                24px;
+            padding: 18px 0 20px 14px;
+        }
+
+        .index-frame-bridge__eyebrow {
+            margin: 0 0 11px;
+            font-size: 9px;
+        }
+
+        .index-frame-bridge__body h2 {
+            margin-bottom: 9px;
+            font-size: 21px;
+        }
+
+        .index-frame-bridge__body p {
+            font-size: 13.5px;
+        }
+
+        .index-frame-bridge__link {
+            margin-top: 15px;
+            padding: 6px 0;
         }
 
         .index-closing-row {
