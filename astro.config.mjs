@@ -7,6 +7,7 @@ const INDEXABLE_PATHS = new Set([
   '/lab',
   '/notes',
   '/about',
+  '/frame',
 ]);
 
 export default defineConfig({

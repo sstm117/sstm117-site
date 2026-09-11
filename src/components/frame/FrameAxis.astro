@@ -1,0 +1,494 @@
+---
+import type { FrameAxis } from '../../data/frame';
+
+interface Props {
+    axis: FrameAxis;
+}
+
+const { axis } = Astro.props;
+
+const leftPole = axis.declaration.poles[0];
+const rightPole = axis.declaration.poles[1];
+
+const publicSupport = axis.publicSupport;
+
+const markerClass =
+    axis.marker.kind === 'POINT'
+        ? `frame-axis__marker--point-${axis.marker.step}`
+        : `frame-axis__marker--span-${axis.marker.from}-${axis.marker.to}`;
+
+const basisText = axis.basis
+    .map((basis) =>
+        basis === 'PROFESSIONAL PRACTICE'
+            ? 'professional practice'
+            : 'engineering reasoning',
+    )
+    .join(' and ');
+
+const markerPositionLabel =
+    axis.marker.kind === 'POINT'
+        ? `Design-interpreted position: step ${axis.marker.step} of 5, where step 1 is ${leftPole} and step 5 is ${rightPole}.`
+        : `Design-interpreted range: steps ${axis.marker.from} to ${axis.marker.to} of 5, where step 1 is ${leftPole} and step 5 is ${rightPole}.`;
+
+const latticeLabel =
+    `Qualitative position between ${leftPole} and ${rightPole}. ` +
+    `${markerPositionLabel} ` +
+    'This placement is not a score.';
+
+const isExternalHref = (href: string): boolean =>
+    href.startsWith('https://');
+---
+
+<article
+    class="frame-axis"
+    id={`frame-axis-${axis.id}`}
+    aria-labelledby={`frame-axis-${axis.id}-question`}
+>
+    <header class="frame-axis__header">
+        <p class="frame-axis__meta">
+            {axis.id} / {axis.band}
+        </p>
+
+        <h3
+            class="frame-axis__question"
+            id={`frame-axis-${axis.id}-question`}
+        >
+            {axis.declaration.question}
+        </h3>
+
+        <p class="frame-axis__wording">
+            {axis.declaration.wording}
+        </p>
+    </header>
+
+    <div class="frame-axis__statement">
+        {
+            axis.declaration.statement.map((paragraph) => (
+                <p>{paragraph}</p>
+            ))
+        }
+    </div>
+
+    <dl class="frame-axis__facts">
+        <div class="frame-axis__fact">
+            <dt>MOVES WHEN</dt>
+            <dd>{axis.declaration.movesWhen}</dd>
+        </div>
+
+        <div class="frame-axis__fact">
+            <dt>BASIS</dt>
+            <dd>
+                Grounded in {basisText}. Basis is a kind of grounding,
+                not an evidence grade.
+            </dd>
+        </div>
+    </dl>
+
+    <div
+        class="frame-axis__lattice"
+        role="img"
+        aria-label={latticeLabel}
+    >
+        <div
+            class="frame-axis__poles"
+            aria-hidden="true"
+        >
+            <span>{leftPole}</span>
+            <span>{rightPole}</span>
+        </div>
+
+        <div
+            class="frame-axis__track"
+            aria-hidden="true"
+        >
+            <span class="frame-axis__cell"></span>
+            <span class="frame-axis__cell"></span>
+            <span class="frame-axis__cell"></span>
+            <span class="frame-axis__cell"></span>
+            <span class="frame-axis__cell"></span>
+
+            <span
+                class:list={[
+                    'frame-axis__marker',
+                    axis.marker.kind === 'POINT'
+                        ? 'frame-axis__marker--point'
+                        : 'frame-axis__marker--span',
+                    markerClass,
+                ]}
+            ></span>
+        </div>
+    </div>
+
+    {
+        publicSupport && (
+            <section
+                class="frame-axis__support"
+                aria-labelledby={`frame-axis-${axis.id}-support`}
+            >
+                <h4 id={`frame-axis-${axis.id}-support`}>
+                    PUBLIC SUPPORT / {publicSupport.support}
+                </h4>
+
+                <p class="frame-axis__source">
+                    <a
+                        href={publicSupport.href}
+                        rel={
+                            isExternalHref(publicSupport.href)
+                                ? 'noopener'
+                                : undefined
+                        }
+                    >
+                        {publicSupport.label}
+                    </a>
+
+                    {
+                        publicSupport.qualifier && (
+                            <span>
+                                {' / '}
+                                {publicSupport.qualifier}
+                            </span>
+                        )
+                    }
+                </p>
+
+                <p class="frame-axis__limit">
+                    {publicSupport.limit}
+                </p>
+            </section>
+        )
+    }
+
+    {
+        axis.relatedAnchors.length > 0 && (
+            <section
+                class="frame-axis__related"
+                aria-labelledby={`frame-axis-${axis.id}-question frame-axis-${axis.id}-related`}
+            >
+                <h4 id={`frame-axis-${axis.id}-related`}>
+                    RELATED MATERIAL
+                </h4>
+
+                <ul>
+                    {
+                        axis.relatedAnchors.map((anchor) => (
+                            <li>
+                                <a
+                                    href={anchor.href}
+                                    rel={
+                                        isExternalHref(anchor.href)
+                                            ? 'noopener'
+                                            : undefined
+                                    }
+                                >
+                                    {anchor.label}
+                                </a>
+
+                                <p class="frame-axis__limit">
+                                    {anchor.limit}
+                                </p>
+                            </li>
+                        ))
+                    }
+                </ul>
+            </section>
+        )
+    }
+</article>
+
+<style>
+    .frame-axis {
+        padding: 34px 0 38px;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .frame-axis__header {
+        max-width: 760px;
+    }
+
+    .frame-axis__meta,
+    .frame-axis__facts dt,
+    .frame-axis__support h4,
+    .frame-axis__related h4 {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.3;
+        letter-spacing: 0.12em;
+    }
+
+    .frame-axis__meta {
+        margin: 0 0 14px;
+        color: var(--color-text-dim);
+    }
+
+    .frame-axis__question {
+        margin: 0 0 12px;
+        color: var(--color-text);
+        font-size: clamp(23px, 2.2vw, 31px);
+        font-weight: 600;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        text-wrap: balance;
+    }
+
+    .frame-axis__wording {
+        margin: 0;
+        color: var(--color-signal);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        line-height: 1.4;
+        letter-spacing: 0.02em;
+    }
+
+    .frame-axis__statement {
+        max-width: 72ch;
+        margin-top: 22px;
+        color: var(--color-text-soft);
+        font-size: 16px;
+        line-height: 1.6;
+    }
+
+    .frame-axis__statement p {
+        margin: 0;
+    }
+
+    .frame-axis__statement p + p {
+        margin-top: 12px;
+    }
+
+    .frame-axis__facts {
+        display: grid;
+        max-width: 860px;
+        margin: 24px 0 0;
+        gap: 14px;
+    }
+
+    .frame-axis__fact {
+        display: grid;
+        grid-template-columns: 116px minmax(0, 1fr);
+        gap: 18px;
+    }
+
+    .frame-axis__facts dt {
+        margin: 0;
+        color: var(--color-text-dim);
+    }
+
+    .frame-axis__facts dd {
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .frame-axis__lattice {
+        max-width: 860px;
+        margin-top: 28px;
+    }
+
+    .frame-axis__poles {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 24px;
+        margin-bottom: 10px;
+        color: var(--color-text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.3;
+        letter-spacing: 0.08em;
+    }
+
+    .frame-axis__poles span:last-child {
+        text-align: right;
+    }
+
+    .frame-axis__track {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        height: 22px;
+        position: relative;
+        align-items: center;
+    }
+
+    .frame-axis__cell {
+        grid-row: 1;
+        height: 1px;
+        border-top: 1px solid var(--color-line-strong);
+    }
+
+    .frame-axis__cell:nth-child(1) {
+        grid-column: 1;
+    }
+
+    .frame-axis__cell:nth-child(2) {
+        grid-column: 2;
+    }
+
+    .frame-axis__cell:nth-child(3) {
+        grid-column: 3;
+    }
+
+    .frame-axis__cell:nth-child(4) {
+        grid-column: 4;
+    }
+
+    .frame-axis__cell:nth-child(5) {
+        grid-column: 5;
+    }
+
+    .frame-axis__cell + .frame-axis__cell {
+        border-left: 1px solid var(--color-line);
+    }
+
+    .frame-axis__marker {
+        grid-row: 1;
+        z-index: 1;
+        background: var(--color-signal);
+    }
+
+    .frame-axis__marker--point {
+        width: 9px;
+        height: 9px;
+        justify-self: center;
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px var(--color-bg);
+    }
+
+    .frame-axis__marker--span {
+        height: 3px;
+        margin-inline: 4px;
+    }
+
+    .frame-axis__marker--point-1 {
+        grid-column: 1;
+    }
+
+    .frame-axis__marker--point-2 {
+        grid-column: 2;
+    }
+
+    .frame-axis__marker--point-3 {
+        grid-column: 3;
+    }
+
+    .frame-axis__marker--point-4 {
+        grid-column: 4;
+    }
+
+    .frame-axis__marker--point-5 {
+        grid-column: 5;
+    }
+
+    .frame-axis__marker--span-1-2 {
+        grid-column: 1 / 3;
+    }
+
+    .frame-axis__marker--span-2-3 {
+        grid-column: 2 / 4;
+    }
+
+    .frame-axis__marker--span-3-4 {
+        grid-column: 3 / 5;
+    }
+
+    .frame-axis__marker--span-4-5 {
+        grid-column: 4 / 6;
+    }
+
+    .frame-axis__support,
+    .frame-axis__related {
+        max-width: 860px;
+        margin-top: 26px;
+        padding-top: 18px;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .frame-axis__support h4,
+    .frame-axis__related h4 {
+        margin: 0 0 11px;
+        color: var(--color-text-dim);
+        font-weight: 400;
+    }
+
+    .frame-axis__source,
+    .frame-axis__related li {
+        color: var(--color-text-soft);
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .frame-axis__source {
+        margin: 0;
+        font-family: var(--font-mono);
+    }
+
+    .frame-axis__source a,
+    .frame-axis__related a {
+        color: var(--color-text);
+        text-decoration-color: var(--color-line-strong);
+        text-underline-offset: 3px;
+    }
+
+    .frame-axis__source a:hover,
+    .frame-axis__source a:focus-visible,
+    .frame-axis__related a:hover,
+    .frame-axis__related a:focus-visible {
+        color: var(--color-signal-hover);
+        text-decoration-color: currentColor;
+    }
+
+    .frame-axis__limit {
+        max-width: 72ch;
+        margin: 7px 0 0;
+        color: var(--color-text-muted);
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    .frame-axis__related ul {
+        display: grid;
+        margin: 0;
+        padding: 0;
+        gap: 16px;
+        list-style: none;
+    }
+
+    .frame-axis__related li {
+        margin: 0;
+    }
+
+    @media (max-width: 859px) {
+        .frame-axis {
+            padding: 28px 0 32px;
+        }
+
+        .frame-axis__question {
+            font-size: 23px;
+        }
+
+        .frame-axis__statement {
+            margin-top: 18px;
+            font-size: 15px;
+            line-height: 1.55;
+        }
+
+        .frame-axis__fact {
+            grid-template-columns: 1fr;
+            gap: 5px;
+        }
+
+        .frame-axis__lattice {
+            margin-top: 24px;
+        }
+
+        .frame-axis__poles {
+            gap: 14px;
+            font-size: 9px;
+            letter-spacing: 0.05em;
+        }
+
+        .frame-axis__support,
+        .frame-axis__related {
+            margin-top: 22px;
+        }
+    }
+</style>
