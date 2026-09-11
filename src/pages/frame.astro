@@ -1,0 +1,241 @@
+---
+import FrameAxis from '../components/frame/FrameAxis.astro';
+import PageMasthead from '../components/site/PageMasthead.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import {
+    FRAME_AXES,
+    FRAME_BANDS,
+    FRAME_CONTENT,
+} from '../data/frame';
+
+const description = FRAME_CONTENT.lead;
+---
+
+<SiteLayout
+    title={`${FRAME_CONTENT.title.toUpperCase()} — sstm117`}
+    description={description}
+>
+    <PageMasthead
+        caption="FRAME / CURRENT POSITIONS"
+        title={FRAME_CONTENT.title}
+        lead={FRAME_CONTENT.lead}
+    />
+
+    <div class="frame-page">
+        <section
+            class="frame-intro"
+            aria-labelledby="frame-reading-contract-heading"
+        >
+            <p class="frame-intro__opening">
+                {FRAME_CONTENT.opening}
+            </p>
+
+            <div class="frame-contract">
+                <h2 id="frame-reading-contract-heading">
+                    READING CONTRACT
+                </h2>
+
+                <div class="frame-contract__copy">
+                    {
+                        FRAME_CONTENT.readingContract.map((paragraph) => (
+                            <p>{paragraph}</p>
+                        ))
+                    }
+                </div>
+            </div>
+        </section>
+
+        <div class="frame-bands">
+            {
+                FRAME_BANDS.map((band) => {
+                    const axes = FRAME_AXES.filter(
+                        (axis) => axis.band === band.id,
+                    );
+
+                    const headingId =
+                        `frame-band-${band.id.toLowerCase()}-heading`;
+
+                    return (
+                        <section
+                            class="frame-band"
+                            aria-labelledby={headingId}
+                        >
+                            <header class="frame-band__header">
+                                <p class="frame-band__sequence">
+                                    {band.id}
+                                </p>
+
+                                <h2 id={headingId}>
+                                    {band.id}
+                                </h2>
+
+                                <p class="frame-band__description">
+                                    {band.description}
+                                </p>
+                            </header>
+
+                            <div class="frame-band__axes">
+                                {
+                                    axes.map((axis) => (
+                                        <FrameAxis axis={axis} />
+                                    ))
+                                }
+                            </div>
+                        </section>
+                    );
+                })
+            }
+        </div>
+    </div>
+</SiteLayout>
+
+<style>
+    .frame-page {
+        padding: 0 var(--page-gutter-desktop) 72px;
+    }
+
+    .frame-intro {
+        display: grid;
+        grid-template-columns:
+            minmax(0, 1.1fr)
+            minmax(280px, 0.9fr);
+        gap: clamp(36px, 7vw, 96px);
+        padding: 42px 0 48px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .frame-intro__opening {
+        max-width: 58ch;
+        margin: 0;
+        color: var(--color-text);
+        font-size: clamp(20px, 2vw, 27px);
+        font-weight: 500;
+        line-height: 1.35;
+        letter-spacing: -0.025em;
+        text-wrap: pretty;
+    }
+
+    .frame-contract {
+        max-width: 66ch;
+    }
+
+    .frame-contract h2,
+    .frame-band__sequence {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        line-height: 1.3;
+        letter-spacing: 0.13em;
+    }
+
+    .frame-contract h2 {
+        margin: 0 0 15px;
+        color: var(--color-text-dim);
+        font-weight: 400;
+    }
+
+    .frame-contract__copy {
+        display: grid;
+        gap: 11px;
+    }
+
+    .frame-contract__copy p {
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 13px;
+        line-height: 1.55;
+    }
+
+    .frame-bands {
+        display: grid;
+    }
+
+    .frame-band {
+        padding-top: 52px;
+    }
+
+    .frame-band + .frame-band {
+        margin-top: 26px;
+        border-top: 1px solid var(--color-line-strong);
+    }
+
+    .frame-band__header {
+        display: grid;
+        grid-template-columns: 84px minmax(160px, 0.55fr) minmax(0, 1fr);
+        align-items: start;
+        gap: 24px;
+        padding-bottom: 26px;
+    }
+
+    .frame-band__sequence {
+        margin: 6px 0 0;
+        color: var(--color-text-dim);
+    }
+
+    .frame-band__header h2 {
+        margin: 0;
+        color: var(--color-text);
+        font-size: clamp(27px, 3vw, 40px);
+        font-weight: 600;
+        line-height: 1;
+        letter-spacing: -0.035em;
+    }
+
+    .frame-band__description {
+        max-width: 58ch;
+        margin: 2px 0 0;
+        color: var(--color-text-muted);
+        font-size: 14px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .frame-band__axes {
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    @media (max-width: 859px) {
+        .frame-page {
+            padding:
+                0
+                var(--page-gutter-mobile)
+                48px;
+        }
+
+        .frame-intro {
+            grid-template-columns: 1fr;
+            gap: 30px;
+            padding: 30px 0 36px;
+        }
+
+        .frame-intro__opening {
+            font-size: 19px;
+            line-height: 1.4;
+        }
+
+        .frame-band {
+            padding-top: 38px;
+        }
+
+        .frame-band + .frame-band {
+            margin-top: 18px;
+        }
+
+        .frame-band__header {
+            grid-template-columns: 1fr;
+            gap: 8px;
+            padding-bottom: 20px;
+        }
+
+        .frame-band__sequence {
+            margin: 0;
+        }
+
+        .frame-band__header h2 {
+            font-size: 28px;
+        }
+
+        .frame-band__description {
+            margin-top: 4px;
+        }
+    }
+</style>
