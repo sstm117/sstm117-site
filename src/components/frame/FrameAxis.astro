@@ -61,6 +61,41 @@ const isExternalHref = (href: string): boolean =>
         </p>
     </header>
 
+    <div
+        class="frame-axis__lattice"
+        role="img"
+        aria-label={latticeLabel}
+    >
+        <div
+            class="frame-axis__poles"
+            aria-hidden="true"
+        >
+            <span>{leftPole}</span>
+            <span>{rightPole}</span>
+        </div>
+
+        <div
+            class="frame-axis__track"
+            aria-hidden="true"
+        >
+            <span class="frame-axis__position"></span>
+            <span class="frame-axis__position"></span>
+            <span class="frame-axis__position"></span>
+            <span class="frame-axis__position"></span>
+            <span class="frame-axis__position"></span>
+
+            <span
+                class:list={[
+                    'frame-axis__marker',
+                    axis.marker.kind === 'POINT'
+                        ? 'frame-axis__marker--point'
+                        : 'frame-axis__marker--span',
+                    markerClass,
+                ]}
+            ></span>
+        </div>
+    </div>
+
     <div class="frame-axis__statement">
         {
             axis.declaration.statement.map((paragraph) => (
@@ -83,41 +118,6 @@ const isExternalHref = (href: string): boolean =>
             </dd>
         </div>
     </dl>
-
-    <div
-        class="frame-axis__lattice"
-        role="img"
-        aria-label={latticeLabel}
-    >
-        <div
-            class="frame-axis__poles"
-            aria-hidden="true"
-        >
-            <span>{leftPole}</span>
-            <span>{rightPole}</span>
-        </div>
-
-        <div
-            class="frame-axis__track"
-            aria-hidden="true"
-        >
-            <span class="frame-axis__cell"></span>
-            <span class="frame-axis__cell"></span>
-            <span class="frame-axis__cell"></span>
-            <span class="frame-axis__cell"></span>
-            <span class="frame-axis__cell"></span>
-
-            <span
-                class:list={[
-                    'frame-axis__marker',
-                    axis.marker.kind === 'POINT'
-                        ? 'frame-axis__marker--point'
-                        : 'frame-axis__marker--span',
-                    markerClass,
-                ]}
-            ></span>
-        </div>
-    </div>
 
     {
         publicSupport && (
@@ -197,7 +197,10 @@ const isExternalHref = (href: string): boolean =>
 
 <style>
     .frame-axis {
-        padding: 34px 0 38px;
+        padding: 32px 0 42px;
+    }
+
+    .frame-axis + .frame-axis {
         border-top: 1px solid var(--color-line);
     }
 
@@ -282,19 +285,20 @@ const isExternalHref = (href: string): boolean =>
 
     .frame-axis__lattice {
         max-width: 860px;
-        margin-top: 28px;
+        margin-top: 24px;
     }
 
     .frame-axis__poles {
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 24px;
-        margin-bottom: 10px;
-        color: var(--color-text-muted);
+        margin-bottom: 8px;
+        color: var(--color-text-soft);
         font-family: var(--font-mono);
-        font-size: 10px;
+        font-size: 11px;
+        font-weight: 500;
         line-height: 1.3;
-        letter-spacing: 0.08em;
+        letter-spacing: 0.07em;
     }
 
     .frame-axis__poles span:last-child {
@@ -302,60 +306,75 @@ const isExternalHref = (href: string): boolean =>
     }
 
     .frame-axis__track {
+        position: relative;
         display: grid;
         grid-template-columns: repeat(5, minmax(0, 1fr));
-        height: 22px;
-        position: relative;
         align-items: center;
+        height: 30px;
     }
 
-    .frame-axis__cell {
-        grid-row: 1;
+    .frame-axis__track::before {
+        position: absolute;
+        top: 50%;
+        right: 10%;
+        left: 10%;
         height: 1px;
-        border-top: 1px solid var(--color-line-strong);
+        background: var(--color-line-strong);
+        content: '';
+        transform: translateY(-50%);
     }
 
-    .frame-axis__cell:nth-child(1) {
+    .frame-axis__position {
+        grid-row: 1;
+        z-index: 1;
+        width: 7px;
+        height: 7px;
+        justify-self: center;
+        border: 1px solid var(--color-line-strong);
+        border-radius: 50%;
+        background: var(--color-bg);
+    }
+
+    .frame-axis__position:nth-child(1) {
         grid-column: 1;
     }
 
-    .frame-axis__cell:nth-child(2) {
+    .frame-axis__position:nth-child(2) {
         grid-column: 2;
     }
 
-    .frame-axis__cell:nth-child(3) {
+    .frame-axis__position:nth-child(3) {
         grid-column: 3;
     }
 
-    .frame-axis__cell:nth-child(4) {
+    .frame-axis__position:nth-child(4) {
         grid-column: 4;
     }
 
-    .frame-axis__cell:nth-child(5) {
+    .frame-axis__position:nth-child(5) {
         grid-column: 5;
-    }
-
-    .frame-axis__cell + .frame-axis__cell {
-        border-left: 1px solid var(--color-line);
     }
 
     .frame-axis__marker {
         grid-row: 1;
-        z-index: 1;
+        z-index: 2;
         background: var(--color-signal);
     }
 
     .frame-axis__marker--point {
-        width: 9px;
-        height: 9px;
+        width: 13px;
+        height: 13px;
         justify-self: center;
         border-radius: 50%;
-        box-shadow: 0 0 0 3px var(--color-bg);
+        box-shadow: 0 0 0 4px var(--color-bg);
     }
 
     .frame-axis__marker--span {
-        height: 3px;
-        margin-inline: 4px;
+        height: 5px;
+        margin-inline: 25%;
+        box-shadow:
+            0 -3px 0 var(--color-bg),
+            0 3px 0 var(--color-bg);
     }
 
     .frame-axis__marker--point-1 {
@@ -398,8 +417,8 @@ const isExternalHref = (href: string): boolean =>
     .frame-axis__related {
         max-width: 860px;
         margin-top: 26px;
-        padding-top: 18px;
-        border-top: 1px solid var(--color-line);
+        padding-left: 14px;
+        border-left: 1px solid var(--color-line-strong);
     }
 
     .frame-axis__support h4,
@@ -482,8 +501,8 @@ const isExternalHref = (href: string): boolean =>
 
         .frame-axis__poles {
             gap: 14px;
-            font-size: 9px;
-            letter-spacing: 0.05em;
+            font-size: 10px;
+            letter-spacing: 0.04em;
         }
 
         .frame-axis__support,

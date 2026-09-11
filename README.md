@@ -10,6 +10,7 @@ Production origin: [sstm117.com](https://sstm117.com)
 - `/work` — selected projects and production systems
 - `/lab` — experiments and exploratory work
 - `/notes` — technical notes
+- `/frame` — current positions across recurring engineering tensions
 - `/about` — professional path, systems thinking, software, and AI
 
 The site is intentionally static and ships no client-side JavaScript. Its accepted visual system and FIELD semantics are treated as frozen product contracts.
