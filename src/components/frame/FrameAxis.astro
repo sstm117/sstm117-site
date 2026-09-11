@@ -25,9 +25,15 @@ const basisText = axis.basis
     )
     .join(' and ');
 
+const markerPositionLabel =
+    axis.marker.kind === 'POINT'
+        ? `Design-interpreted position: step ${axis.marker.step} of 5, where step 1 is ${leftPole} and step 5 is ${rightPole}.`
+        : `Design-interpreted range: steps ${axis.marker.from} to ${axis.marker.to} of 5, where step 1 is ${leftPole} and step 5 is ${rightPole}.`;
+
 const latticeLabel =
     `Qualitative position between ${leftPole} and ${rightPole}. ` +
-    'Marker placement is a design interpretation, not a score.';
+    `${markerPositionLabel} ` +
+    'This placement is not a score.';
 
 const isExternalHref = (href: string): boolean =>
     href.startsWith('https://');
@@ -36,13 +42,17 @@ const isExternalHref = (href: string): boolean =>
 <article
     class="frame-axis"
     id={`frame-axis-${axis.id}`}
+    aria-labelledby={`frame-axis-${axis.id}-question`}
 >
     <header class="frame-axis__header">
         <p class="frame-axis__meta">
             {axis.id} / {axis.band}
         </p>
 
-        <h3 class="frame-axis__question">
+        <h3
+            class="frame-axis__question"
+            id={`frame-axis-${axis.id}-question`}
+        >
             {axis.declaration.question}
         </h3>
 
@@ -152,7 +162,7 @@ const isExternalHref = (href: string): boolean =>
         axis.relatedAnchors.length > 0 && (
             <section
                 class="frame-axis__related"
-                aria-labelledby={`frame-axis-${axis.id}-related`}
+                aria-labelledby={`frame-axis-${axis.id}-question frame-axis-${axis.id}-related`}
             >
                 <h4 id={`frame-axis-${axis.id}-related`}>
                     RELATED MATERIAL

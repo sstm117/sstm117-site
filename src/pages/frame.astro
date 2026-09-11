@@ -3,9 +3,9 @@ import FrameAxis from '../components/frame/FrameAxis.astro';
 import PageMasthead from '../components/site/PageMasthead.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import {
-    FRAME_AXES,
     FRAME_BANDS,
     FRAME_CONTENT,
+    FRAME_RENDERED_AXES,
 } from '../data/frame';
 
 const description = FRAME_CONTENT.lead;
@@ -48,7 +48,7 @@ const description = FRAME_CONTENT.lead;
         <div class="frame-bands">
             {
                 FRAME_BANDS.map((band) => {
-                    const axes = FRAME_AXES.filter(
+                    const axes = FRAME_RENDERED_AXES.filter(
                         (axis) => axis.band === band.id,
                     );
 

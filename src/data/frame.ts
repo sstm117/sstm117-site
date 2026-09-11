@@ -4,6 +4,7 @@ import {
 } from '../lib/public-links';
 import { lab } from './lab';
 import { notes } from './notes';
+import { systems } from './systems';
 import type { SourceSupport } from './types';
 import { work } from './work';
 
@@ -411,6 +412,10 @@ export const FRAME_AXES = [
     },
 ] as const satisfies readonly FrameAxis[];
 
+export const FRAME_RENDERED_AXES = FRAME_BANDS.flatMap((band) =>
+    FRAME_AXES.filter((axis) => axis.band === band.id),
+) satisfies readonly FrameAxis[];
+
 // -----------------------------------------------------------------------------
 // Runtime integrity
 // -----------------------------------------------------------------------------
@@ -488,6 +493,61 @@ const RELATED_INTERNAL_TARGETS = new Set<string>([
 
 function fail(message: string): never {
     throw new Error(`[frame] ${message}`);
+}
+
+function canonicalRelatedLabel(href: string): string | null {
+    const separatorIndex = href.indexOf('#');
+
+    if (separatorIndex < 0) {
+        return null;
+    }
+
+    const path = href.slice(0, separatorIndex);
+    const fragment = href.slice(separatorIndex + 1);
+
+    if (path === '/work') {
+        const entry = work.find(({ anchor }) => anchor === fragment);
+
+        if (!entry) {
+            return null;
+        }
+
+        if (entry.kind === 'standalone') {
+            return entry.name.toUpperCase();
+        }
+
+        const system = systems.find(({ id }) => id === entry.system);
+
+        return system
+            ? `${system.index} ${system.name}`.toUpperCase()
+            : null;
+    }
+
+    if (path === '/lab') {
+        const fragmentRecord = lab.find(({ anchor }) => anchor === fragment);
+
+        if (!fragmentRecord) {
+            return null;
+        }
+
+        if (fragmentRecord.kind === 'standalone') {
+            return fragmentRecord.name.toUpperCase();
+        }
+
+        const system = systems.find(({ id }) => id === fragmentRecord.system);
+
+        return system
+            ? `${system.index} ${system.name}`.toUpperCase()
+            : null;
+    }
+
+    if (path === '/notes') {
+        const note = notes.find(({ slug }) => slug === fragment);
+
+        return note ? note.title.toUpperCase() : null;
+    }
+
+    return null;
 }
 
 function markerIdentity(marker: FrameMarker): string {
@@ -656,6 +716,14 @@ for (const axis of FRAME_AXES) {
         ) {
             fail(`Axis ${axis.id} has an incomplete or unresolved related anchor.`);
         }
+
+        if (!anchor.href.startsWith('https://')) {
+            const canonicalLabel = canonicalRelatedLabel(anchor.href);
+
+            if (canonicalLabel === null || anchor.label !== canonicalLabel) {
+                fail(`Axis ${axis.id} related anchor label drifted: ${anchor.href}.`);
+            }
+        }
     }
 }
 
@@ -665,11 +733,7 @@ for (const expectedId of Object.keys(EXPECTED_AXES) as FrameAxisId[]) {
     }
 }
 
-const renderedAxisOrder = FRAME_BANDS.flatMap((band) =>
-    FRAME_AXES
-        .filter((axis) => axis.band === band.id)
-        .map((axis) => axis.id),
-);
+const renderedAxisOrder = FRAME_RENDERED_AXES.map(({ id }) => id);
 
 if (
     renderedAxisOrder.length !== EXPECTED_RENDERED_AXIS_ORDER.length ||
@@ -697,7 +761,8 @@ const publiclySupportedAxes = FRAME_AXES.filter(
 
 if (
     publiclySupportedAxes.length !== 1 ||
-    publiclySupportedAxes[0]?.id !== '06'
+    publiclySupportedAxes[0]?.id !== '06' ||
+    publiclySupportedAxes[0]?.publicSupport?.support !== 'DEMONSTRATES'
 ) {
     fail('R1 public-support boundary changed.');
 }
