@@ -30,19 +30,20 @@ const evidenceBasisLabels = {
         <span aria-hidden="true">{' · '}</span>
         <a
             href={trajectoryHref}
+            aria-label={`Related trajectory for ${professionalCase.title}`}
             data-professional-case-trajectory-link
         >
             RELATED TRAJECTORY
         </a>
     </p>
 
-    <h3
+    <h4
         id={headingId}
         class="professional-case__title"
         data-professional-case-title
     >
         {professionalCase.title}
-    </h3>
+    </h4>
 
     <dl class="professional-case__facts">
         <div>

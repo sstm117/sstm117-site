@@ -43,16 +43,20 @@ const lead =
             trajectory={professionalTrajectory}
             cases={professionalCases}
             capabilities={demonstratedCapabilities}
+            workEntries={entries}
         />
 
-        <aside
+        <section
             class="work-corpus-boundary"
-            aria-label="Corpus boundary"
+            aria-labelledby="work-corpus-boundary-heading"
             data-work-corpus-boundary
         >
-            <p class="work-corpus-boundary__caption">
+            <h2
+                id="work-corpus-boundary-heading"
+                class="work-corpus-boundary__caption"
+            >
                 CORPUS BOUNDARY
-            </p>
+            </h2>
 
             <p class="work-corpus-boundary__copy">
                 The professional dossier above is grounded in self-attested
@@ -61,7 +65,7 @@ const lead =
                 maturity and implementation boundaries. These evidence classes
                 are not interchangeable.
             </p>
-        </aside>
+        </section>
 
         <section
             id="current-work-corpus"
@@ -144,7 +148,6 @@ const lead =
 
     .work-corpus-boundary {
         padding: 24px var(--page-gutter-desktop) 26px;
-        border-top: 1px solid var(--color-line);
         border-bottom: 1px solid var(--color-line);
     }
 
@@ -154,6 +157,7 @@ const lead =
         color: var(--color-text-dim);
         font-family: var(--font-mono);
         font-size: 9.5px;
+        font-weight: 400;
         line-height: 1;
         letter-spacing: 0.14em;
     }
