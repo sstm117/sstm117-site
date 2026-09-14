@@ -5,9 +5,9 @@
  * professional trajectory, professional cases, their evidence basis and
  * evidence-derived capability claims. It renders nothing by itself.
  *
- * Cross-corpus `work:<anchor>` references are syntax-checked here. Resolution
- * against the canonical WORK corpus belongs to the later integration layer so
- * that this foundation does not import or mutate the existing WORK model.
+ * Cross-corpus `work:<anchor>` references are namespace-recognised here.
+ * Canonical WORK owns anchor syntax and uniqueness; exact resolution belongs
+ * to the integration layer so this foundation does not import or mutate WORK.
  *
  * Trajectory periods intentionally use year granularity only. WORK is a
  * professional dossier, not a digital CV; month-level chronology is therefore
@@ -65,7 +65,7 @@ export interface ProfessionalCase {
         ...ProfessionalEvidence[],
     ];
     readonly constraints: readonly string[];
-    readonly limits: readonly string[];
+    readonly limits: readonly [string, ...string[]];
 }
 
 export type CapabilityEvidenceRef =
@@ -97,7 +97,7 @@ export const professionalTrajectory = [
         period: '2020—2023',
         organisation: 'AUTO1 Group / AutoHero',
         context: 'B2C automotive reverse logistics',
-        role: 'Reverse Logistics Lead → Manager',
+        role: 'Reverse Logistics Lead → Manager — work-study position',
         scope:
             'End-to-end handling of vehicles failing quality or customer acceptance, across production, carriers, external storage and customer-facing recovery.',
     },
@@ -114,7 +114,7 @@ export const professionalTrajectory = [
         id: 'alten-maintenance-mro',
         period: '2025—PRESENT',
         organisation: 'ALTEN',
-        context: 'Rail maintenance supply chain / industrial MRO store',
+        context: 'Maintenance supply chain / industrial MRO store',
         role: 'Industrial Store / MRO Logistics Manager — client assignment',
         scope:
             'Operational responsibility for a maintenance store of about 10,000 references, a three-person team, inventory reliability, replenishment, reservations, material availability, digitalisation and continuous improvement.',
@@ -136,12 +136,12 @@ export const professionalCases = [
             'Built a European carrier and recovery network, expanded service levels, created activity-control tools, managed customer and provider interfaces, contributed to transport and storage internalisation projects, and automated recurring administrative work.',
         outcomes: [
             'Built a provider network capable of supporting exceptional vehicle movements across Europe within five working days.',
-            'Automated more than half of recurring mailing and transport-order creation work, eliminating the need for one FTE on that activity.',
+            'Automated more than half of recurring mailing and transport-order creation tasks.',
         ],
         evidence: [
             {
-                basis: 'NON_PUBLIC_RECORD',
-                label: 'Professional dossier records covering responsibilities and outcomes for AUTO1 Group special transport.',
+                basis: 'SELF_ATTESTED',
+                label: 'Self-attested professional record covering reported responsibilities and outcomes for AUTO1 Group special transport.',
             },
         ],
         constraints: [
@@ -149,7 +149,6 @@ export const professionalCases = [
             'Service quality depended on external carrier availability, cost and response time.',
         ],
         limits: [
-            'The separately documented multi-million-euro saving claim is intentionally withheld from R1 pending dedicated qualification.',
             'No client, carrier or commercially sensitive operating data is disclosed.',
         ],
     },
@@ -167,12 +166,12 @@ export const professionalCases = [
             'Restructured carrier and recovery arrangements, optimised routes and costs, adapted transport means to reduce damage exposure, handled disputes and invoicing, introduced a dedicated last-mile fleet and automated recurring administrative work.',
         outcomes: [
             'Reduced average resale lead time for cancelled vehicles from 27 days to 15 days.',
-            'Reduced average recovery time for problematic vehicles from J+7 to J+2.',
+            'Reduced average recovery time for problematic vehicles from seven days to two days.',
         ],
         evidence: [
             {
-                basis: 'NON_PUBLIC_RECORD',
-                label: 'Professional dossier records covering AutoHero reverse-logistics responsibilities and measured outcomes.',
+                basis: 'SELF_ATTESTED',
+                label: 'Self-attested professional record covering reported AutoHero reverse-logistics responsibilities and outcomes.',
             },
         ],
         constraints: [
@@ -187,7 +186,7 @@ export const professionalCases = [
     {
         id: 'autohero-production-system-engineering',
         trajectoryId: 'autohero-production-lean',
-        title: 'ENGINEERING A RAPIDLY CHANGING PRODUCTION SYSTEM',
+        title: 'STANDARDISING A RAPIDLY CHANGING PRODUCTION SITE',
         context:
             'A young used-vehicle reconditioning site undergoing repeated resizing and needing stronger production methods, workplace standards and operational visibility.',
         problem:
@@ -195,16 +194,15 @@ export const professionalCases = [
         responsibility:
             'Led production and Lean projects spanning 5S deployment, workstation design, inventory, equipment information, factory flows, WMS adoption and digital experimentation.',
         contribution:
-            'Audited and redesigned work environments, modelled workstations and store layouts in 3D, built a functional Python inventory-management tool, studied BLE/RFID vehicle identification with business-case and ROI work, documented production equipment and operating procedures, and supported WMS adoption.',
+            'Audited and redesigned work environments, modelled workstations and store layouts in 3D, proposed a 5S workstation configuration at 487 euros per station against an 800-euro budget, built a functional Python inventory-management tool, studied BLE/RFID vehicle identification with business-case and ROI work, documented production equipment and operating procedures, and supported WMS adoption.',
         outcomes: [
-            'Proposed a 5S workstation solution at 487 euros per station against an 800-euro budget.',
-            'Removed identified superfluous production-environment items within two weeks and established unit-level ownership to sustain the resulting state.',
+            'Removed identified superfluous production-environment items and established unit-level ownership to sustain the resulting state.',
             'Secured operator participation in technology and process-change projects through involvement in design and implementation work.',
         ],
         evidence: [
             {
-                basis: 'NON_PUBLIC_RECORD',
-                label: 'Professional dossier and CV records covering AutoHero production, Lean and digitalisation projects.',
+                basis: 'SELF_ATTESTED',
+                label: 'Self-attested professional dossier and CV records covering AutoHero production, Lean and digitalisation projects.',
             },
         ],
         constraints: [
@@ -219,24 +217,24 @@ export const professionalCases = [
     {
         id: 'maintenance-material-reliability',
         trajectoryId: 'alten-maintenance-mro',
-        title: 'RESTORING CONTROL OVER MAINTENANCE MATERIAL AVAILABILITY',
+        title: 'IMPROVING MAINTENANCE MATERIAL RELIABILITY',
         context:
-            'An industrial MRO store of about 10,000 references supporting electrical maintenance activity in a high-criticality rail environment, with a three-person operational team.',
+            'An industrial MRO store of about 10,000 references supporting maintenance activity, with a three-person operational team.',
         problem:
-            'How do you make a maintenance store reliable enough to support field operations when inventory, reservations, system data and physical flows do not consistently tell the same story?',
+            'How do you make material availability reliable across inventory, reservations, replenishment, system data and physical flows?',
         responsibility:
-            'Owns day-to-day store operations, team activity, inventory reliability, reservations, shortages, replenishment interfaces and coordination with maintenance, procurement and internal stakeholders.',
+            'Owns day-to-day store operations, team activity, inventory reliability, reservations, replenishment interfaces, material availability and coordination with maintenance, procurement and internal stakeholders.',
         contribution:
-            'Structured operational routines, analysed inventory discrepancies and system extracts, organised cycle-counting activity, qualified sensitive references, improved physical and information traceability, created dashboards and analysis tools, and developed lightweight digital interfaces including a PHP PWA and Power Apps.',
+            'Structured operational routines, analysed inventory and system extracts, organised cycle-counting activity, qualified material criticality, improved physical and information traceability, created dashboards and analysis tools, and developed lightweight digital interfaces including a PHP PWA and Power Apps.',
         outcomes: [
-            'Established stronger operational visibility over shortages, uncovered reservations, sensitive references, dormant stock, inventory discrepancies and processing anomalies.',
-            'Deployed dashboards, stock indicators, analysis files, article-identification aids and reporting supports that turn field observations into prioritised action.',
+            'Improved operational visibility across stock availability, reservations, material criticality, inventory integrity and follow-up priorities.',
+            'Deployed dashboards, stock indicators, analysis files and reporting supports that turn field observations into prioritised action.',
             'Strengthened operating standards and team maturity through clearer procedures, training, workload allocation and field routines.',
         ],
         evidence: [
             {
-                basis: 'NON_PUBLIC_RECORD',
-                label: 'ALTEN professional dossier record covering the maintenance-store assignment, responsibilities, methods and reported outcomes.',
+                basis: 'SELF_ATTESTED',
+                label: 'Self-attested professional dossier record covering the maintenance-store assignment, responsibilities, methods and reported outcomes.',
             },
         ],
         constraints: [
@@ -245,7 +243,7 @@ export const professionalCases = [
         ],
         limits: [
             'No quantified before-and-after business-impact metric is claimed in R1.',
-            'Client-specific anomalies, internal identifiers and non-public operational data are deliberately withheld.',
+            'Client-specific findings, internal identifiers and non-public operational data are deliberately withheld.',
         ],
     },
 ] as const satisfies readonly ProfessionalCase[];
@@ -281,7 +279,6 @@ export const demonstratedCapabilities = [
         evidenceRefs: [
             'professional:autohero-production-system-engineering',
             'professional:maintenance-material-reliability',
-            'work:factory-pulse',
         ],
     },
     {
@@ -319,7 +316,7 @@ export const demonstratedCapabilities = [
 ] as const satisfies readonly DemonstratedCapability[];
 
 const ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const PERIOD_PATTERN = /^\d{4}—(?:\d{4}|PRESENT)$/;
+const PERIOD_PATTERN = /^(\d{4})—(\d{4}|PRESENT)$/;
 
 function fail(message: string): never {
     throw new Error(`[professional-dossier] ${message}`);
@@ -347,10 +344,25 @@ function assertTrajectoryPeriod(
     value: string,
     context: string,
 ): void {
-    if (!PERIOD_PATTERN.test(value)) {
+    const match = PERIOD_PATTERN.exec(value);
+
+    if (match === null) {
         fail(
             `${context} must use year-only YYYY—YYYY or YYYY—PRESENT granularity.`,
         );
+    }
+
+    const startYear = Number.parseInt(match[1], 10);
+    const endToken = match[2];
+
+    if (endToken !== 'PRESENT') {
+        const endYear = Number.parseInt(endToken, 10);
+
+        if (endYear < startYear) {
+            fail(
+                `${context} must not end before it starts.`,
+            );
+        }
     }
 }
 
@@ -414,10 +426,8 @@ function assertEvidence(
             }
             return;
 
-        default: {
-            const exhaustive: never = evidence;
-            return exhaustive;
-        }
+        default:
+            fail(`${context} has unsupported evidence basis.`);
     }
 }
 
@@ -533,8 +543,14 @@ export function assertProfessionalDossierIntegrity(
         assertStringList(
             professionalCase.limits,
             `case ${professionalCase.id} limits`,
-            false,
+            true,
         );
+
+        if (professionalCase.evidence.length === 0) {
+            fail(
+                `case ${professionalCase.id} evidence must contain at least one item.`,
+            );
+        }
 
         professionalCase.evidence.forEach(
             (evidence, index) => {
@@ -557,6 +573,12 @@ export function assertProfessionalDossierIntegrity(
             capability.definition,
             `capability ${capability.id} definition`,
         );
+
+        if (capability.evidenceRefs.length === 0) {
+            fail(
+                `capability ${capability.id} evidenceRefs must contain at least one item.`,
+            );
+        }
 
         const seenRefs =
             new Set<string>();
@@ -607,17 +629,6 @@ export function assertProfessionalDossierIntegrity(
                     'work:',
                 )
             ) {
-                const target =
-                    reference.slice(
-                        'work:'.length,
-                    );
-
-                assertValidId(
-                    target,
-                    `capability ${capability.id} ` +
-                        'WORK reference',
-                );
-
                 continue;
             }
 
