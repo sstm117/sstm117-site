@@ -3,7 +3,15 @@ import PageMasthead from '../components/site/PageMasthead.astro';
 import WorkEntry from '../components/work/WorkEntry.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { INDEX_CONTENT } from '../data/index-content';
+import { demonstratedCapabilities } from '../data/professional-dossier';
+import { work } from '../data/work';
+import { assertProfessionalWorkEvidenceIntegrity } from '../lib/professional-work-integrity';
 import { workViews } from '../lib/work-view';
+
+assertProfessionalWorkEvidenceIntegrity(
+    demonstratedCapabilities,
+    work,
+);
 
 const entries = workViews();
 const plottedCount = entries.filter(({ inField }) => inField).length;
