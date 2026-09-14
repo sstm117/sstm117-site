@@ -354,6 +354,13 @@ function assertTrajectoryPeriod(
 
     const startYear = Number.parseInt(match[1], 10);
     const endToken = match[2];
+    const currentYear = new Date().getUTCFullYear();
+
+    if (startYear > currentYear) {
+        fail(
+            `${context} must not start after the current year (${currentYear}).`,
+        );
+    }
 
     if (endToken !== 'PRESENT') {
         const endYear = Number.parseInt(endToken, 10);
@@ -361,6 +368,12 @@ function assertTrajectoryPeriod(
         if (endYear < startYear) {
             fail(
                 `${context} must not end before it starts.`,
+            );
+        }
+
+        if (endYear > currentYear) {
+            fail(
+                `${context} must not end after the current year (${currentYear}).`,
             );
         }
     }
