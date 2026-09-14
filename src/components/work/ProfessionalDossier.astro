@@ -1,0 +1,544 @@
+---
+import ProfessionalCaseView from './ProfessionalCase.astro';
+import type {
+    CapabilityEvidenceRef,
+    DemonstratedCapability,
+    ProfessionalCase,
+    ProfessionalTrajectoryEntry,
+} from '../../data/professional-dossier';
+
+interface Props {
+    trajectory: readonly ProfessionalTrajectoryEntry[];
+    cases: readonly ProfessionalCase[];
+    capabilities: readonly DemonstratedCapability[];
+}
+
+const {
+    trajectory,
+    cases,
+    capabilities,
+} = Astro.props;
+
+interface CapabilityEvidenceView {
+    readonly namespace: 'PROFESSIONAL CASE' | 'WORK CORPUS';
+    readonly namespaceKey: 'professional' | 'work';
+    readonly href: string;
+    readonly label: string;
+}
+
+function resolveCapabilityEvidence(
+    ref: CapabilityEvidenceRef,
+): CapabilityEvidenceView {
+    const professionalPrefix = 'professional:';
+    const workPrefix = 'work:';
+
+    if (ref.startsWith(professionalPrefix)) {
+        const caseId = ref.slice(professionalPrefix.length);
+        const professionalCase = cases.find(
+            (candidate) => candidate.id === caseId,
+        );
+
+        if (professionalCase === undefined) {
+            throw new Error(
+                `[professional-dossier-view] Unknown professional evidence reference: ${ref}`,
+            );
+        }
+
+        return {
+            namespace: 'PROFESSIONAL CASE',
+            namespaceKey: 'professional',
+            href: `#professional-${caseId}`,
+            label: professionalCase.title,
+        };
+    }
+
+    if (ref.startsWith(workPrefix)) {
+        const workAnchor = ref.slice(workPrefix.length);
+
+        return {
+            namespace: 'WORK CORPUS',
+            namespaceKey: 'work',
+            href: `#${workAnchor}`,
+            label: workAnchor,
+        };
+    }
+
+    throw new Error(
+        `[professional-dossier-view] Unsupported capability evidence reference: ${ref}`,
+    );
+}
+
+const capabilityViews = capabilities.map((capability) => ({
+    ...capability,
+    evidence: capability.evidenceRefs.map(resolveCapabilityEvidence),
+}));
+---
+
+<div
+    class="professional-dossier"
+    data-professional-dossier
+>
+    <section
+        id="professional-trajectory"
+        class="professional-dossier__section"
+        aria-labelledby="professional-trajectory-heading"
+    >
+        <p class="professional-dossier__caption">
+            PROFESSIONAL DOSSIER · 01
+        </p>
+
+        <h2
+            id="professional-trajectory-heading"
+            class="professional-dossier__heading"
+        >
+            TRAJECTORY
+        </h2>
+
+        <ol
+            class="professional-dossier__trajectory"
+            role="list"
+        >
+            {
+                trajectory.map((entry) => (
+                    <li
+                        id={`trajectory-${entry.id}`}
+                        class="professional-dossier__trajectory-item"
+                        data-professional-trajectory-entry
+                    >
+                        <div class="professional-dossier__trajectory-meta">
+                            <p
+                                class="professional-dossier__trajectory-period"
+                                data-professional-trajectory-period
+                            >
+                                {entry.period}
+                            </p>
+
+                            {
+                                entry.organisation && (
+                                    <p
+                                        class="professional-dossier__trajectory-organisation"
+                                        data-professional-trajectory-organisation
+                                    >
+                                        {entry.organisation}
+                                    </p>
+                                )
+                            }
+                        </div>
+
+                        <div class="professional-dossier__trajectory-body">
+                            <h3
+                                class="professional-dossier__trajectory-role"
+                                data-professional-trajectory-role
+                            >
+                                {entry.role}
+                            </h3>
+
+                            <p
+                                class="professional-dossier__trajectory-context"
+                                data-professional-trajectory-context
+                            >
+                                {entry.context}
+                            </p>
+
+                            <p
+                                class="professional-dossier__trajectory-scope"
+                                data-professional-trajectory-scope
+                            >
+                                {entry.scope}
+                            </p>
+                        </div>
+                    </li>
+                ))
+            }
+        </ol>
+    </section>
+
+    <section
+        id="selected-professional-work"
+        class="professional-dossier__section"
+        aria-labelledby="selected-professional-work-heading"
+    >
+        <p class="professional-dossier__caption">
+            PROFESSIONAL DOSSIER · 02
+        </p>
+
+        <h2
+            id="selected-professional-work-heading"
+            class="professional-dossier__heading"
+        >
+            SELECTED PROFESSIONAL WORK
+        </h2>
+
+        <div
+            class="professional-dossier__cases"
+            data-professional-cases
+        >
+            {
+                cases.map((professionalCase) => (
+                    <ProfessionalCaseView
+                        professionalCase={professionalCase}
+                    />
+                ))
+            }
+        </div>
+    </section>
+
+    <section
+        id="demonstrated-capabilities"
+        class="professional-dossier__section"
+        aria-labelledby="demonstrated-capabilities-heading"
+    >
+        <p class="professional-dossier__caption">
+            PROFESSIONAL DOSSIER · 03
+        </p>
+
+        <h2
+            id="demonstrated-capabilities-heading"
+            class="professional-dossier__heading"
+        >
+            DEMONSTRATED CAPABILITIES
+        </h2>
+
+        <ol
+            class="professional-dossier__capabilities"
+            role="list"
+        >
+            {
+                capabilityViews.map((capability) => (
+                    <li
+                        id={`capability-${capability.id}`}
+                        class="professional-dossier__capability"
+                        data-professional-capability
+                    >
+                        <div class="professional-dossier__capability-copy">
+                            <h3
+                                class="professional-dossier__capability-title"
+                                data-capability-label
+                            >
+                                {capability.label}
+                            </h3>
+
+                            <p
+                                class="professional-dossier__capability-definition"
+                                data-capability-definition
+                            >
+                                {capability.definition}
+                            </p>
+                        </div>
+
+                        <div
+                            class="professional-dossier__capability-evidence"
+                        >
+                            <p
+                                class="professional-dossier__capability-evidence-heading"
+                            >
+                                EVIDENCE
+                            </p>
+
+                            <ul
+                                class="professional-dossier__capability-evidence-list"
+                                role="list"
+                            >
+                                {
+                                    capability.evidence.map((evidence) => (
+                                        <li>
+                                            <a
+                                                class="professional-dossier__capability-evidence-link"
+                                                href={evidence.href}
+                                                data-capability-evidence
+                                                data-evidence-namespace={evidence.namespaceKey}
+                                            >
+                                                <span
+                                                    class="professional-dossier__capability-evidence-namespace"
+                                                >
+                                                    {evidence.namespace}
+                                                </span>
+
+                                                <span
+                                                    class="professional-dossier__capability-evidence-label"
+                                                >
+                                                    {evidence.label}
+                                                </span>
+                                            </a>
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        </div>
+                    </li>
+                ))
+            }
+        </ol>
+    </section>
+</div>
+
+<style>
+    .professional-dossier {
+        width: 100%;
+    }
+
+    .professional-dossier__section {
+        padding: 24px var(--page-gutter-desktop) 26px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .professional-dossier__caption {
+        margin: 0 0 10px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .professional-dossier__heading {
+        margin: 0 0 16px;
+        color: var(--color-text);
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.15;
+        letter-spacing: -0.015em;
+    }
+
+    .professional-dossier__trajectory {
+        margin: 0;
+        padding: 0;
+        border-top:
+            1px solid oklch(0.21 0.008 200);
+        list-style: none;
+    }
+
+    .professional-dossier__trajectory-item {
+        display: grid;
+        grid-template-columns:
+            minmax(132px, 168px)
+            minmax(0, 1fr);
+        gap: 24px;
+        padding: 18px 0 20px;
+        border-bottom:
+            1px solid oklch(0.21 0.008 200);
+        scroll-margin-block-start: 18px;
+    }
+
+    .professional-dossier__trajectory-meta,
+    .professional-dossier__trajectory-body {
+        min-width: 0;
+    }
+
+    .professional-dossier__trajectory-period,
+    .professional-dossier__trajectory-organisation {
+        margin: 0;
+        font-family: var(--font-mono);
+        line-height: 1.5;
+    }
+
+    .professional-dossier__trajectory-period {
+        color: var(--color-text-soft);
+        font-size: 10.5px;
+        letter-spacing: 0.08em;
+    }
+
+    .professional-dossier__trajectory-organisation {
+        margin-top: 6px;
+        color: var(--color-text-dim);
+        font-size: 9.5px;
+        letter-spacing: 0.07em;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__trajectory-role {
+        max-width: 42ch;
+        margin: 0;
+        color: var(--color-text);
+        font-size: 17px;
+        font-weight: 500;
+        line-height: 1.25;
+        letter-spacing: -0.012em;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__trajectory-context {
+        max-width: 68ch;
+        margin: 8px 0 0;
+        color: var(--color-text-soft);
+        font-size: 13.5px;
+        line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__trajectory-scope {
+        max-width: 78ch;
+        margin: 10px 0 0;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__cases {
+        width: 100%;
+    }
+
+    .professional-dossier__capabilities {
+        margin: 0;
+        padding: 0;
+        border-top:
+            1px solid oklch(0.21 0.008 200);
+        list-style: none;
+    }
+
+    .professional-dossier__capability {
+        display: grid;
+        grid-template-columns:
+            minmax(220px, 0.8fr)
+            minmax(0, 1.2fr);
+        gap: 32px;
+        padding: 18px 0 20px;
+        border-bottom:
+            1px solid oklch(0.21 0.008 200);
+        scroll-margin-block-start: 18px;
+    }
+
+    .professional-dossier__capability-copy,
+    .professional-dossier__capability-evidence {
+        min-width: 0;
+    }
+
+    .professional-dossier__capability-title {
+        max-width: 34ch;
+        margin: 0;
+        color: var(--color-text);
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 1.28;
+        letter-spacing: -0.012em;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__capability-definition {
+        max-width: 62ch;
+        margin: 8px 0 0;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .professional-dossier__capability-evidence-heading {
+        margin: 0 0 4px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1.5;
+        letter-spacing: 0.12em;
+    }
+
+    .professional-dossier__capability-evidence-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .professional-dossier__capability-evidence-list li {
+        border-bottom:
+            1px solid oklch(0.21 0.008 200);
+    }
+
+    .professional-dossier__capability-evidence-list li:last-child {
+        border-bottom: 0;
+    }
+
+    .professional-dossier__capability-evidence-link {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        gap: 14px;
+        align-items: baseline;
+        padding: 8px 0;
+        color: var(--color-text-muted);
+        text-decoration: none;
+    }
+
+    .professional-dossier__capability-evidence-link:hover,
+    .professional-dossier__capability-evidence-link:focus-visible {
+        color: var(--color-signal-hover);
+    }
+
+    .professional-dossier__capability-evidence-namespace {
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1.5;
+        letter-spacing: 0.08em;
+    }
+
+    .professional-dossier__capability-evidence-label {
+        min-width: 0;
+        font-size: 12.5px;
+        line-height: 1.5;
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
+        overflow-wrap: anywhere;
+        text-wrap: pretty;
+    }
+
+    @media (max-width: 859px) {
+        .professional-dossier__section {
+            padding:
+                18px
+                var(--page-gutter-mobile)
+                20px;
+        }
+
+        .professional-dossier__heading {
+            margin-bottom: 14px;
+            font-size: 18px;
+        }
+
+        .professional-dossier__trajectory-item {
+            display: block;
+            padding: 16px 0 18px;
+        }
+
+        .professional-dossier__trajectory-organisation {
+            margin-top: 4px;
+        }
+
+        .professional-dossier__trajectory-body {
+            margin-top: 12px;
+        }
+
+        .professional-dossier__trajectory-role {
+            max-width: none;
+            font-size: 16px;
+        }
+
+        .professional-dossier__trajectory-context,
+        .professional-dossier__trajectory-scope {
+            max-width: none;
+        }
+
+        .professional-dossier__capability {
+            display: block;
+            padding: 16px 0 18px;
+        }
+
+        .professional-dossier__capability-title {
+            max-width: none;
+            font-size: 15.5px;
+        }
+
+        .professional-dossier__capability-definition {
+            max-width: none;
+        }
+
+        .professional-dossier__capability-evidence {
+            margin-top: 14px;
+        }
+
+        .professional-dossier__capability-evidence-link {
+            grid-template-columns: 94px minmax(0, 1fr);
+            gap: 10px;
+        }
+    }
+</style>

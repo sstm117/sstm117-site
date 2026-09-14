@@ -1,0 +1,317 @@
+---
+import type {
+    ProfessionalCase,
+    ProfessionalEvidenceBasis,
+} from '../../data/professional-dossier';
+
+interface Props {
+    professionalCase: ProfessionalCase;
+}
+
+const { professionalCase } = Astro.props;
+const headingId = `professional-${professionalCase.id}-heading`;
+const trajectoryHref = `#trajectory-${professionalCase.trajectoryId}`;
+
+const evidenceBasisLabels = {
+    PUBLIC_ARTIFACT: 'PUBLIC ARTIFACT',
+    NON_PUBLIC_RECORD: 'NON-PUBLIC RECORD',
+    SELF_ATTESTED: 'SELF-ATTESTED',
+} as const satisfies Record<ProfessionalEvidenceBasis, string>;
+---
+
+<article
+    id={`professional-${professionalCase.id}`}
+    class="professional-case"
+    aria-labelledby={headingId}
+    data-professional-case
+>
+    <p class="professional-case__meta">
+        PROFESSIONAL CASE
+        <span aria-hidden="true">{' · '}</span>
+        <a
+            href={trajectoryHref}
+            data-professional-case-trajectory-link
+        >
+            RELATED TRAJECTORY
+        </a>
+    </p>
+
+    <h3
+        id={headingId}
+        class="professional-case__title"
+        data-professional-case-title
+    >
+        {professionalCase.title}
+    </h3>
+
+    <dl class="professional-case__facts">
+        <div>
+            <dt>CONTEXT</dt>
+            <dd data-professional-case-context>
+                {professionalCase.context}
+            </dd>
+        </div>
+
+        <div>
+            <dt>PROBLEM</dt>
+            <dd data-professional-case-problem>
+                {professionalCase.problem}
+            </dd>
+        </div>
+
+        <div>
+            <dt>RESPONSIBILITY</dt>
+            <dd data-professional-case-responsibility>
+                {professionalCase.responsibility}
+            </dd>
+        </div>
+
+        <div>
+            <dt>CONTRIBUTION</dt>
+            <dd data-professional-case-contribution>
+                {professionalCase.contribution}
+            </dd>
+        </div>
+
+        <div>
+            <dt>OUTCOMES</dt>
+            <dd>
+                <ul class="professional-case__list" role="list">
+                    {
+                        professionalCase.outcomes.map((outcome) => (
+                            <li data-professional-case-outcome>
+                                {outcome}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </dd>
+        </div>
+
+        <div>
+            <dt>EVIDENCE BASIS</dt>
+            <dd>
+                <ul
+                    class="professional-case__evidence-list"
+                    role="list"
+                >
+                    {
+                        professionalCase.evidence.map((evidence) => (
+                            <li
+                                class="professional-case__evidence"
+                                data-professional-case-evidence
+                                data-evidence-basis={evidence.basis}
+                            >
+                                <p class="professional-case__evidence-basis">
+                                    {evidenceBasisLabels[evidence.basis]}
+                                </p>
+
+                                <p>{evidence.label}</p>
+
+                                {
+                                    evidence.basis === 'PUBLIC_ARTIFACT' && (
+                                        <p
+                                            class="professional-case__evidence-locator"
+                                        >
+                                            {evidence.locator}
+                                        </p>
+                                    )
+                                }
+                            </li>
+                        ))
+                    }
+                </ul>
+            </dd>
+        </div>
+
+        <div>
+            <dt>CONSTRAINTS</dt>
+            <dd>
+                <ul class="professional-case__list" role="list">
+                    {
+                        professionalCase.constraints.map((constraint) => (
+                            <li data-professional-case-constraint>
+                                {constraint}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </dd>
+        </div>
+
+        <div>
+            <dt>LIMITS</dt>
+            <dd>
+                <ul class="professional-case__list" role="list">
+                    {
+                        professionalCase.limits.map((limit) => (
+                            <li data-professional-case-limit>
+                                {limit}
+                            </li>
+                        ))
+                    }
+                </ul>
+            </dd>
+        </div>
+    </dl>
+</article>
+
+<style>
+    .professional-case {
+        padding: 28px 0 32px;
+        border-top: 1px solid var(--color-line);
+        scroll-margin-block-start: 18px;
+    }
+
+    .professional-case:first-child {
+        padding-top: 4px;
+        border-top: 0;
+    }
+
+    .professional-case__meta {
+        margin: 0 0 12px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.5;
+        letter-spacing: 0.12em;
+    }
+
+    .professional-case__meta a {
+        color: var(--color-text-soft);
+        text-decoration: underline;
+        text-decoration-color: var(--color-signal);
+        text-underline-offset: 4px;
+    }
+
+    .professional-case__meta a:hover,
+    .professional-case__meta a:focus-visible {
+        color: var(--color-signal-hover);
+    }
+
+    .professional-case__title {
+        max-width: 34ch;
+        margin: 0;
+        color: var(--color-text);
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 1.12;
+        letter-spacing: -0.022em;
+        text-wrap: pretty;
+    }
+
+    .professional-case__facts {
+        display: grid;
+        margin: 22px 0 0;
+        border-top: 1px solid var(--color-line);
+    }
+
+    .professional-case__facts > div {
+        display: grid;
+        grid-template-columns: 132px minmax(0, 1fr);
+        gap: 20px;
+        align-items: baseline;
+        padding: 13px 0 14px;
+        border-bottom:
+            1px solid oklch(0.21 0.008 200);
+    }
+
+    .professional-case__facts dt {
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9px;
+        line-height: 1.5;
+        letter-spacing: 0.12em;
+    }
+
+    .professional-case__facts dd {
+        max-width: 78ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .professional-case__list,
+    .professional-case__evidence-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .professional-case__list li,
+    .professional-case__evidence {
+        position: relative;
+        padding-left: 16px;
+    }
+
+    .professional-case__list li + li,
+    .professional-case__evidence + .professional-case__evidence {
+        margin-top: 7px;
+    }
+
+    .professional-case__list li::before,
+    .professional-case__evidence::before {
+        position: absolute;
+        top: 0.62em;
+        left: 0;
+        width: 6px;
+        height: 1px;
+        content: '';
+        background: var(--color-line-strong);
+    }
+
+    .professional-case__evidence-basis {
+        margin: 0;
+        color: var(--color-text-soft);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.5;
+        letter-spacing: 0.08em;
+    }
+
+    .professional-case__evidence p + p {
+        margin-top: 5px;
+    }
+
+    .professional-case__evidence-locator {
+        overflow-wrap: anywhere;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        line-height: 1.6;
+        letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 859px) {
+        .professional-case {
+            padding: 22px 0 24px;
+        }
+
+        .professional-case:first-child {
+            padding-top: 2px;
+        }
+
+        .professional-case__title {
+            max-width: none;
+            font-size: 21px;
+            letter-spacing: -0.018em;
+        }
+
+        .professional-case__facts {
+            margin-top: 20px;
+        }
+
+        .professional-case__facts > div {
+            display: block;
+            padding: 12px 0 13px;
+        }
+
+        .professional-case__facts dd {
+            max-width: none;
+            margin-top: 7px;
+            font-size: 13.5px;
+        }
+    }
+</style>
