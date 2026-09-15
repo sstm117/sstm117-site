@@ -22,7 +22,7 @@ const entries = workViews();
 const plottedCount = entries.filter(({ inField }) => inField).length;
 
 const lead =
-    'What Simon actually works on. Each entry states what exists today, what does not exist yet, and what it rests on.';
+    'What Simon actually works on. Professional records and project WORK are separate evidence classes; each WORK entry states what exists today, what does not exist yet, and what it rests on.';
 ---
 
 <SiteLayout title="WORK — sstm117" description={lead}>
@@ -33,7 +33,7 @@ const lead =
             lead={lead}
         >
             <p class="work-surface__boundary">
-                The field on the front page plots {plottedCount} of them. It is a
+                The field on the front page plots {plottedCount} entries from the project WORK corpus below. It is a
                 selection made to express one idea, not an inventory — an entry
                 here needs no place in it.
             </p>
@@ -68,7 +68,6 @@ const lead =
         </section>
 
         <section
-            id="current-work-corpus"
             class="current-work-corpus"
             aria-labelledby="current-work-corpus-heading"
             data-current-work-corpus

@@ -125,20 +125,24 @@ const evidenceBasisLabels = {
             </dd>
         </div>
 
-        <div>
-            <dt>CONSTRAINTS</dt>
-            <dd>
-                <ul class="professional-case__list" role="list">
-                    {
-                        professionalCase.constraints.map((constraint) => (
-                            <li data-professional-case-constraint>
-                                {constraint}
-                            </li>
-                        ))
-                    }
-                </ul>
-            </dd>
-        </div>
+        {
+            professionalCase.constraints.length > 0 && (
+                <div>
+                    <dt>CONSTRAINTS</dt>
+                    <dd>
+                        <ul class="professional-case__list" role="list">
+                            {
+                                professionalCase.constraints.map((constraint) => (
+                                    <li data-professional-case-constraint>
+                                        {constraint}
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </dd>
+                </div>
+            )
+        }
 
         <div>
             <dt>LIMITS</dt>
