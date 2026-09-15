@@ -1,9 +1,14 @@
 ---
 import PageMasthead from '../components/site/PageMasthead.astro';
+import ProfessionalDossier from '../components/work/ProfessionalDossier.astro';
 import WorkEntry from '../components/work/WorkEntry.astro';
 import SiteLayout from '../layouts/SiteLayout.astro';
 import { INDEX_CONTENT } from '../data/index-content';
-import { demonstratedCapabilities } from '../data/professional-dossier';
+import {
+    demonstratedCapabilities,
+    professionalCases,
+    professionalTrajectory,
+} from '../data/professional-dossier';
 import { work } from '../data/work';
 import { assertProfessionalWorkEvidenceIntegrity } from '../lib/professional-work-integrity';
 import { workViews } from '../lib/work-view';
@@ -17,7 +22,7 @@ const entries = workViews();
 const plottedCount = entries.filter(({ inField }) => inField).length;
 
 const lead =
-    'What Simon actually works on. Each entry states what exists today, what does not exist yet, and what it rests on.';
+    'What Simon actually works on. Professional records and project WORK are separate evidence classes; each WORK entry states what exists today, what does not exist yet, and what it rests on.';
 ---
 
 <SiteLayout title="WORK — sstm117" description={lead}>
@@ -28,16 +33,72 @@ const lead =
             lead={lead}
         >
             <p class="work-surface__boundary">
-                The field on the front page plots {plottedCount} of them. It is a
+                The field on the front page plots {plottedCount} entries from the project WORK corpus below. It is a
                 selection made to express one idea, not an inventory — an entry
                 here needs no place in it.
             </p>
         </PageMasthead>
 
-        <section class="work-index" aria-labelledby="work-index-heading">
-            <h2 id="work-index-heading" class="work-index__heading">
-                INDEX
+        <ProfessionalDossier
+            trajectory={professionalTrajectory}
+            cases={professionalCases}
+            capabilities={demonstratedCapabilities}
+            workEntries={entries}
+        />
+
+        <section
+            class="work-corpus-boundary"
+            aria-labelledby="work-corpus-boundary-heading"
+            data-work-corpus-boundary
+        >
+            <h2
+                id="work-corpus-boundary-heading"
+                class="work-corpus-boundary__caption"
+            >
+                CORPUS BOUNDARY
             </h2>
+
+            <p class="work-corpus-boundary__copy">
+                The professional dossier above is grounded in self-attested
+                professional records. The current WORK corpus below is a
+                separate project corpus. Its entries retain their own source,
+                maturity and implementation boundaries. These evidence classes
+                are not interchangeable.
+            </p>
+        </section>
+
+        <section
+            class="current-work-corpus"
+            aria-labelledby="current-work-corpus-heading"
+            data-current-work-corpus
+        >
+            <header class="current-work-corpus__header">
+                <p class="current-work-corpus__caption">
+                    CORPUS · PROJECT WORK
+                </p>
+
+                <h2
+                    id="current-work-corpus-heading"
+                    class="current-work-corpus__heading"
+                >
+                    CURRENT WORK CORPUS
+                </h2>
+
+                <p class="current-work-corpus__lead">
+                    Projects and product work governed by the existing WORK
+                    contracts. Each entry keeps its canonical anchor, source
+                    declaration and maturity boundary.
+                </p>
+            </header>
+
+            <section class="work-index" aria-labelledby="work-index-heading">
+            <h3
+                id="work-index-heading"
+                class="work-index__heading"
+                data-current-work-index-heading
+            >
+                INDEX
+            </h3>
 
             <ul class="work-index__list" role="list">
                 {
@@ -63,9 +124,10 @@ const lead =
             </ul>
         </section>
 
-        <div class="work-entries">
-            {entries.map((entry) => <WorkEntry entry={entry} />)}
-        </div>
+            <div class="work-entries">
+                {entries.map((entry) => <WorkEntry entry={entry} />)}
+            </div>
+        </section>
     </div>
 </SiteLayout>
 
@@ -80,6 +142,58 @@ const lead =
         color: var(--color-text-dim);
         font-size: 14px;
         line-height: 1.55;
+        text-wrap: pretty;
+    }
+
+    .work-corpus-boundary {
+        padding: 24px var(--page-gutter-desktop) 26px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .work-corpus-boundary__caption,
+    .current-work-corpus__caption {
+        margin: 0 0 10px;
+        color: var(--color-text-dim);
+        font-family: var(--font-mono);
+        font-size: 9.5px;
+        font-weight: 400;
+        line-height: 1;
+        letter-spacing: 0.14em;
+    }
+
+    .work-corpus-boundary__copy {
+        max-width: 78ch;
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.6;
+        text-wrap: pretty;
+    }
+
+    .current-work-corpus {
+        width: 100%;
+    }
+
+    .current-work-corpus__header {
+        padding: 24px var(--page-gutter-desktop) 26px;
+        border-bottom: 1px solid var(--color-line);
+    }
+
+    .current-work-corpus__heading {
+        margin: 0;
+        color: var(--color-text);
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 1.15;
+        letter-spacing: -0.015em;
+    }
+
+    .current-work-corpus__lead {
+        max-width: 72ch;
+        margin: 10px 0 0;
+        color: var(--color-text-muted);
+        font-size: 13.5px;
+        line-height: 1.6;
         text-wrap: pretty;
     }
 
@@ -140,6 +254,23 @@ const lead =
     }
 
     @media (max-width: 859px) {
+        .work-corpus-boundary,
+        .current-work-corpus__header {
+            padding:
+                18px
+                var(--page-gutter-mobile)
+                20px;
+        }
+
+        .current-work-corpus__heading {
+            font-size: 18px;
+        }
+
+        .work-corpus-boundary__copy,
+        .current-work-corpus__lead {
+            max-width: none;
+        }
+
         .work-index {
             padding: 18px var(--page-gutter-mobile) 20px;
         }
